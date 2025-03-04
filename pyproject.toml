@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "job-notifier"
+version = "0.0.1"
+requires_python = ">=3.13"
+authors = [
+    {"name" = "someone", "email" = "someone@example.com"}
+]
+description = "Job Notifier"
+dependencies = [
+    "httpx",
+    "lxml",
+]
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "ipython",
+    "pytest",
+]
