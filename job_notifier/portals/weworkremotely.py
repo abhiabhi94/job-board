@@ -3,8 +3,8 @@ from lxml import objectify, html
 import re
 from decimal import Decimal
 
-from ..main import logger
-from .base import BasePortal
+from job_notifier.logger import logger
+from job_notifier.portals.base import BasePortal
 
 # TODO: move these to a config file
 KEYWORDS = {
@@ -27,6 +27,8 @@ class WeWorkRemotely(BasePortal):
 
     url = "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss"
 
+    ABOUT_SECTION_CLASS = "lis-container__job__sidebar__job-about__list"
+
     def get_links_to_notify(self):
         response = httpx.get(self.url)
         response.raise_for_status()
@@ -45,15 +47,13 @@ class WeWorkRemotely(BasePortal):
             if keyword_matches and region_matches:
                 links_to_look.append(item.link.text)
 
+        logger.debug(f"Found {len(links_to_look)} links to look for salary information")
         links_to_notify = []
         for link in links_to_look:
             response = httpx.get(link)
             response.raise_for_status()
             root = html.fromstring(response.content)
-            (about_section,) = root.find_class(
-                "lis-container__job__sidebar__job-about__list"
-            )
-
+            (about_section,) = root.find_class(self.ABOUT_SECTION_CLASS)
             salary_element = None
             for element in about_section.iterchildren():
                 if "salary" in element.text_content().lower().strip():
