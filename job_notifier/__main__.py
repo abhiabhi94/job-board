@@ -1,6 +1,7 @@
 from job_notifier.portals import (
     weworkremotely,
 )
+from job_notifier.logger import logger
 
 
 def main():
@@ -8,4 +9,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    exit(logger.info(main()))

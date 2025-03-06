@@ -18,6 +18,7 @@ description = "Job Notifier"
 dependencies = [
     "httpx",
     "lxml",
+    "markdown",
 ]
 [project.optional-dependencies]
 dev = [

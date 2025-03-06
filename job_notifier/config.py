@@ -1,4 +1,6 @@
 # TODO: move these to a config file
+import os
+
 keywords = {
     "python",
     "django",
@@ -10,4 +12,4 @@ keywords = {
 }
 region = "remote"
 salary = 60_000  # in USD
-log_level = "DEBUG"
+log_level = os.environ.get("LOG_LEVEL", "DEBUG")

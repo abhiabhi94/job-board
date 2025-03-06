@@ -1,5 +1,6 @@
 from typing import NamedTuple
 from datetime import datetime, timezone, timedelta
+import markdown
 
 
 class Message(NamedTuple):
@@ -22,9 +23,9 @@ class Message(NamedTuple):
         else:
             posted_on = self.posted_on
 
-        return f"""
-        Title: {self.title}
-        Salary: {self.salary:,}
+        return markdown.markdown(f"""
+        ### Title: {self.title}
+        **Salary: ${self.salary:,}**
         Link: {self.link}
         Posted: {posted_on}
-        """
+        """)

@@ -1,6 +1,8 @@
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
+import markdown
+
 from job_notifier.base import Message
 
 
@@ -12,12 +14,12 @@ def test_message_without_posted_on():
     )
     assert (
         str(message).strip()
-        == """
-        Title: Python Developer
-        Salary: 80,000
+        == markdown.markdown("""
+        ### Title: Python Developer
+        **Salary: $80,000**
         Link: https://example.com
         Posted: None
-    """.strip()
+    """).strip()
     )
 
 
@@ -30,12 +32,12 @@ def test_message_with_posted_on_in_datetime():
     )
     assert (
         str(message).strip()
-        == """
-        Title: Python Developer
-        Salary: 80,000
+        == markdown.markdown("""
+        ### Title: Python Developer
+        **Salary: $80,000**
         Link: https://example.com
         Posted: 5 days ago
-    """.strip()
+    """).strip()
     )
 
     # with difference in hours
@@ -47,12 +49,12 @@ def test_message_with_posted_on_in_datetime():
     )
     assert (
         str(message).strip()
-        == """
-        Title: Python Developer
-        Salary: 80,000
+        == markdown.markdown("""
+        ### Title: Python Developer
+        **Salary: $80,000**
         Link: https://example.com
         Posted: 5 hours ago
-    """.strip()
+    """).strip()
     )
 
 
@@ -65,10 +67,10 @@ def test_message_without_posted_in_str():
     )
     assert (
         str(message).strip()
-        == """
-        Title: Python Developer
-        Salary: 80,000
+        == markdown.markdown("""
+        ### Title: Python Developer
+        **Salary: $80,000**
         Link: https://example.com
         Posted: 5 days ago
-    """.strip()
+    """).strip()
     )
