@@ -38,3 +38,9 @@ skip_covered = true
 
 [tool.pytest.ini_options]
 addopts = "--cov"
+
+[tool.ruff]
+line-length=88
+
+[tool.ruff.lint]
+extend-select = ["E501"]

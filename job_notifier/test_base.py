@@ -16,7 +16,7 @@ def test_message_without_posted_on():
         Title: Python Developer
         Salary: 80,000
         Link: https://example.com
-        Time Passed: None
+        Posted: None
     """.strip()
     )
 
@@ -34,7 +34,7 @@ def test_message_with_posted_on_in_datetime():
         Title: Python Developer
         Salary: 80,000
         Link: https://example.com
-        Time Passed: 5 days ago
+        Posted: 5 days ago
     """.strip()
     )
 
@@ -51,7 +51,7 @@ def test_message_with_posted_on_in_datetime():
         Title: Python Developer
         Salary: 80,000
         Link: https://example.com
-        Time Passed: 5 hours ago
+        Posted: 5 hours ago
     """.strip()
     )
 
@@ -69,6 +69,6 @@ def test_message_without_posted_in_str():
         Title: Python Developer
         Salary: 80,000
         Link: https://example.com
-        Time Passed: 5 days ago
+        Posted: 5 days ago
     """.strip()
     )

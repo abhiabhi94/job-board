@@ -15,16 +15,16 @@ class Message(NamedTuple):
         if isinstance(self.posted_on, datetime):
             difference = datetime.now(timezone.utc) - self.posted_on
             if difference > timedelta(days=1):
-                time_passed = f"{difference.days} days ago"
+                posted_on = f"{difference.days} days ago"
             else:
                 hours = difference.seconds // 3600
-                time_passed = f"{hours} hours ago"
+                posted_on = f"{hours} hours ago"
         else:
-            time_passed = self.posted_on
+            posted_on = self.posted_on
 
         return f"""
         Title: {self.title}
         Salary: {self.salary:,}
         Link: {self.link}
-        Time Passed: {time_passed}
+        Posted: {posted_on}
         """
