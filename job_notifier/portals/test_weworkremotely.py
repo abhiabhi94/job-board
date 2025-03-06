@@ -2,6 +2,7 @@ import pytest
 from decimal import Decimal
 
 from job_notifier.portals.weworkremotely import WeWorkRemotely
+from job_notifier.base import Message
 
 JOB_URL = "https://weworkremotely.com/jobs"
 
@@ -51,7 +52,10 @@ def mock_rss_response():
 def mock_job_page():
     def _mock_job_page(salary=Decimal(str(80_000))):
         job_page_content = f"""
-        <div class="{WeWorkRemotely.ABOUT_SECTION_CLASS}">
+        <title>Python Developer</title>
+        <p> Something happened 6 days ago, this is not the date of posting </p>
+        <span> Posted 5 days ago </span>
+        <div class="salary-class">
             <div>Salary: ${salary:,}</div>
         </div>
         """
@@ -60,7 +64,7 @@ def mock_job_page():
     return _mock_job_page
 
 
-def test_get_links_to_notify(mock_job_page, httpx_mock, mock_rss_response):
+def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
     portal = WeWorkRemotely()
 
     httpx_mock.add_response(
@@ -77,10 +81,15 @@ def test_get_links_to_notify(mock_job_page, httpx_mock, mock_rss_response):
     )
     httpx_mock.add_response(
         url=f"{JOB_URL}/job-without-salary",
-        content=f'<div class="{WeWorkRemotely.ABOUT_SECTION_CLASS}"></div>',
+        content="<div></div>",
     )
 
-    links_to_notify = portal.get_links_to_notify()
-    assert links_to_notify == [
-        "https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
+    messages_to_notify = portal.get_messages_to_notify()
+    assert messages_to_notify == [
+        Message(
+            title="Python Developer",
+            link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
+            salary=Decimal(str(80_000)),
+            posted_on="5 days ago",
+        ),
     ]

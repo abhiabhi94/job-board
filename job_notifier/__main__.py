@@ -4,7 +4,7 @@ from job_notifier.portals import (
 
 
 def main():
-    return weworkremotely.WeWorkRemotely().get_links_to_notify()
+    return weworkremotely.WeWorkRemotely().get_messages_to_notify()
 
 
 if __name__ == "__main__":

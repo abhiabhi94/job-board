@@ -25,4 +25,16 @@ dev = [
     "ipython",
     "pytest",
     "pytest-httpx",
+    "pytest-cov",
 ]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+fail_under = 97
+show_missing = true
+skip_covered = true
+
+[tool.pytest.ini_options]
+addopts = "--cov"
