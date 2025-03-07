@@ -40,7 +40,7 @@ class WeWorkRemotely(BasePortal):
                 links_to_look.append(item.link.text)
 
         logger.debug(f"Found {links_to_look} links to look for salary information")
-        messages_to_notify = []
+        messages_to_notify: list[Message] = []
         for link in links_to_look:
             if message := self.get_message_to_notify(link):
                 messages_to_notify.append(message)

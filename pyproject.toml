@@ -27,6 +27,12 @@ dev = [
     "pytest",
     "pytest-httpx",
     "coverage",
+    "pytest-cov",
+    "google-api-python-client",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "python-dotenv",
+    "schedule",
 ]
 
 [tool.coverage.run]
