@@ -3,7 +3,8 @@ from googleapiclient.discovery import build
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from google.oauth2 import service_account
-from job_notifier import config, logger
+from job_notifier import config
+from job_notifier.logger import logger
 
 # Set the API scope
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
@@ -11,7 +12,7 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
 class EmailProvider:
     def __init__(self, *args, **kwargs) -> None:
-        self.service = self.create_service()
+        self.service = self.create_service(*args, **kwargs)
 
     # Function to create a service instance
     def create_service(self, *args, **kwargs):
@@ -27,15 +28,17 @@ class EmailProvider:
         service = build("gmail", "v1", credentials=creds)
         return service
 
-    # Function to send an email
-    def send_email(self, sender, to, subject, body):
+    def send_email(self, *, sender: str, receivers: list, subject: str, body: str):
+        """
+        https://developers.google.com/gmail/api/guides/sending#python
+        """
         message = MIMEMultipart()
-        message["to"] = to
+        message["to"] = ", ".join(receivers)
         message["subject"] = subject
-        msg = MIMEText(body)
+        msg = MIMEText(body, "html")
         message.attach(msg)
 
-        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         message = (
             self.service.users()
             .messages()

@@ -1,29 +1,35 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, Numeric
 from sqlalchemy import Boolean
-from job_notifier.config import DATABASE_URL
 from datetime import datetime, timezone, timedelta
 import markdown
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import select, update
 
-# Create engine
-engine = create_engine(DATABASE_URL, echo=True)
+from job_notifier.logger import logger
+from job_notifier.connection import Session, engine
+from job_notifier.notifier.mail import EmailProvider
+from job_notifier import config
 
-# Base class for models
-Base = declarative_base()
+
+# Base class for all models
+class Base(DeclarativeBase):
+    pass
 
 
-# Define the Job model
+def create_tables():
+    logger.debug("Creating tables")
+    Base.metadata.create_all(bind=engine)
+
+
 class Job(Base):
     __tablename__ = "job"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     link = Column(String, unique=True, nullable=False)
-    # message = Column(JSON, nullable=False)
     title = Column(String, nullable=False)
     salary = Column(Numeric, nullable=False)
     posted_on = Column(String)  # not all platform provide structured datetime
-
     notified = Column(Boolean, default=False)
 
     def __repr__(self) -> str:
@@ -45,11 +51,64 @@ class Job(Base):
         """)
 
 
-# Create a session
-SessionLocal = sessionmaker(bind=engine)
-session = SessionLocal()
+def store_jobs(messages):
+    insert_statement = (
+        insert(Job)
+        .values(
+            [
+                {
+                    "link": message.link,
+                    "title": message.title,
+                    "salary": message.salary,
+                    "posted_on": message.posted_on,
+                }
+                for message in messages
+            ],
+        )
+        .returning(Job.id)
+    )
+    with Session.begin() as session:
+        statement = insert_statement.on_conflict_do_nothing(index_elements=[Job.link])
+        job_ids = session.execute(statement).scalars().all()
+
+    logger.debug(f"Stored {len(job_ids)} new jobs successfully")
 
 
-if __name__ == "__main__":
-    # Create tables in the database
-    Base.metadata.create_all(engine)
+def notify():
+    statement = select(Job).where(Job.notified.is_(False))
+    with Session.begin() as session:
+        jobs = session.execute(statement).scalars().all()
+        email_body = "\n\n".join([str(job) for job in jobs])
+
+    logger.debug(f"Number of jobs to send:::{len(jobs)}")
+
+    if not len(jobs):
+        logger.info("No new jobs found for notification!")
+        return
+
+    # TODO - send email in batches..
+    # add constraints in number of jobs to send in one mail
+    email_provider = EmailProvider()
+    email_subject = "Jobs To Apply"
+
+    logger.debug(f"Email to send:::{email_body}")
+
+    email_provider.send_email(
+        sender=config.SERVER_EMAIL,
+        receivers=config.RECEIPIENTS,
+        subject=email_subject,
+        body=email_body,
+    )
+
+    logger.debug("jobs sent successfully")
+
+    # update `notified` flag after notified with email.
+    statement = (
+        update(Job)
+        .where(Job.notified.is_(False), Job.id.in_([job.id for job in jobs]))
+        .values(notified=True)
+    )
+    with Session.begin() as session:
+        session.execute(statement)
+
+    logger.debug("notified flag updated successfully")

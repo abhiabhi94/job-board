@@ -19,6 +19,12 @@ dependencies = [
     "httpx",
     "lxml",
     "markdown",
+    "google-api-python-client",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "python-dotenv",
+    "schedule",
+    "click",
 ]
 [project.optional-dependencies]
 dev = [
@@ -27,19 +33,13 @@ dev = [
     "pytest",
     "pytest-httpx",
     "coverage",
-    "pytest-cov",
-    "google-api-python-client",
-    "sqlalchemy",
-    "psycopg2-binary",
-    "python-dotenv",
-    "schedule",
 ]
 
 [tool.coverage.run]
 branch = true
 
 [tool.coverage.report]
-fail_under = 98
+fail_under = 99
 show_missing = true
 skip_covered = true
 

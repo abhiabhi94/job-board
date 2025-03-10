@@ -6,15 +6,11 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Access environment variables
 DATABASE_URL = os.getenv("DATABASE_URL")
-SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"  # Convert to boolean
-
 
 BASE_DIR = Path(__file__).parent.parent
 
-keywords = {
+KEYWORDS = {
     "python",
     "django",
     "flask",
@@ -23,9 +19,15 @@ keywords = {
     "back-end",
     "backend",
 }
-region = "remote"
-salary = 60_000  # in USD
-log_level = os.environ.get("LOG_LEVEL", "DEBUG")
-SERVICE_ACCOUNT_KEY_FILE_PATH = BASE_DIR / os.getenv("SERVICE_ACCOUNT_KEY_FILE")
+
+REGION = "remote"
+SALARY = 60_000  # in USD
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+# default path is just provided so that the code works in local development
+# in production, it should be provided as an environment variable
+SERVICE_ACCOUNT_KEY_FILE_PATH = BASE_DIR / os.getenv(
+    "SERVICE_ACCOUNT_KEY_FILE", "something.json"
+)
 SERVER_EMAIL = os.getenv("SERVER_EMAIL")
-RECEIPIENTS = os.getenv("RECEIPIENTS", []).split(",")
+RECEIPIENTS = os.getenv("RECEIPIENTS", "").split(",")
+SQL_DEBUG = os.getenv("SQL_DEBUG", "False").lower() == "true"
