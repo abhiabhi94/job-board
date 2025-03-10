@@ -1,9 +1,21 @@
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
+from unittest import mock
 
 import markdown
 
 from job_notifier.models import Job
+from job_notifier.base import Message
+
+import pytest
+import sqlalchemy
+from job_notifier.models import (
+    Base as BaseModel,
+    store_jobs,
+    notify,
+    create_tables,
+)
+from job_notifier.connection import engine, Session
 
 
 def test_job_without_posted_on():
@@ -74,3 +86,88 @@ def test_job_without_posted_in_str():
         Posted: 5 days ago
     """).strip()
     )
+
+
+@pytest.fixture(scope="session")
+def db_setup():
+    create_tables()
+    yield
+    BaseModel.metadata.drop_all(engine)
+
+
+@pytest.fixture(scope="function")
+def db_session(db_setup):
+    """
+    Returns a sqlalchemy session, and after the test, it tears down everything properly.
+    """
+    connection = engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
+    session = Session(bind=connection)
+
+    with mock.patch("job_notifier.connection.Session.begin") as mock_begin:
+        # Ensure `Session.begin()` always returns `db_session`
+        mock_begin.return_value.__enter__.return_value = session
+        yield session
+
+    session.close()
+    # roll back the broader transaction
+    transaction.rollback()
+    # put back the connection to the connection pool
+    connection.close()
+
+
+def test_store_jobs(db_session):
+    messages = [
+        Message(
+            link="http://job1.com",
+            title="Job 1",
+            salary=Decimal(str(80_000)),
+            posted_on="2025-03-10",
+        ),
+        Message(
+            link="http://job2.com",
+            title="Job 2",
+            salary=Decimal(str(100_000)),
+            posted_on="2025-03-11",
+        ),
+    ]
+
+    store_jobs(messages)
+
+    jobs = db_session.execute(sqlalchemy.select(Job)).scalars().all()
+
+    assert {j.link for j in jobs} == {
+        "http://job1.com",
+        "http://job2.com",
+    }
+
+
+def test_notify(db_session):
+    # No jobs to notify, nothing happens
+    notify()
+
+    job = Job(
+        link="http://job.com",
+        title="Job Title",
+        salary=Decimal(str(70_000)),
+        posted_on="2025-03-10",
+    )
+    db_session.add(job)
+    db_session.commit()
+
+    with (
+        mock.patch(
+            "job_notifier.notifier.mail.EmailProvider.create_service"
+        ) as mock_service,
+        mock.patch(
+            "job_notifier.notifier.mail.EmailProvider.send_email"
+        ) as mock_send_email,
+    ):
+        notify()
+
+    db_session.refresh(job)
+    assert job.notified is True
+    mock_service.assert_called_once()
+    mock_send_email.assert_called_once()

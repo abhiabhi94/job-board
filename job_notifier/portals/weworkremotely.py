@@ -51,10 +51,10 @@ class WeWorkRemotely(BasePortal):
         description = description.lower()
         region = region.lower()
 
-        keyword_matches = config.keywords.intersection(
+        keyword_matches = config.KEYWORDS.intersection(
             title.split()
-        ) or config.keywords.intersection(description.split())
-        region_matches = self.region_mapping[config.region].intersection(region.split())
+        ) or config.KEYWORDS.intersection(description.split())
+        region_matches = self.region_mapping[config.REGION].intersection(region.split())
 
         return bool(keyword_matches and region_matches)
 
@@ -80,8 +80,8 @@ class WeWorkRemotely(BasePortal):
             logger.debug(f"No salary information found for {link}")
             return
 
-        if salary <= config.salary:
-            logger.debug(f"Salary {salary} for {link} is less than {config.salary}")
+        if salary <= config.SALARY:
+            logger.debug(f"Salary {salary} for {link} is less than {config.SALARY}")
             return
 
         posted_on = None
