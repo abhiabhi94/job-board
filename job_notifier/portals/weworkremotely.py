@@ -12,7 +12,7 @@ from job_notifier.base import Message
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
 # matches "posted 5 days ago" or "posted 5 hours ago"
 POSTED_ON_REGEX = re.compile(
-    r"\bposted\s(\d+\s+days\s+ago)\b|\bposted\s(\d+\s+hours\s+ago)\b"
+    r"\bposted\s(\d+\s+day[s]?\s+ago)\b|\bposted\s(\d+\s+hour[s]?\s+ago)\b"
 )
 
 
@@ -86,7 +86,7 @@ class WeWorkRemotely(BasePortal):
 
         posted_on = None
         posted_on_elements = root.xpath(
-            "//*[contains(text(), 'days ago') or contains(text(), 'hours ago')]"
+            "//*[contains(text(), 'days ago') or contains(text(), 'day ago') or contains(text(), 'hours ago') or contains(text(), 'hour ago')]"  # noqa: E501
         )
         for element in posted_on_elements:
             text_content = element.text_content().lower().strip()

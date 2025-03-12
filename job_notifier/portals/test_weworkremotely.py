@@ -22,6 +22,12 @@ def mock_rss_response():
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
                 <region>Anywhere</region>
+                <link>{JOB_URL}/job-with-salary-greater-than-80K</link>
+            </item>
+            <item>
+                <title>Python Developer</title>
+                <description>Looking for Django and FastAPI developer</description>
+                <region>Anywhere</region>
                 <link>{JOB_URL}/job-with-salary-less-than-60K</link>
             </item>
             <item>
@@ -75,6 +81,13 @@ def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
         url=f"{JOB_URL}/job-with-salary-greater-than-60K",
         content=mock_job_page(salary=Decimal(str(80_000))),
     )
+    content = mock_job_page(salary=Decimal(str(90_000))).replace(
+        "5 days ago", "1 day ago"
+    )
+    httpx_mock.add_response(
+        url=f"{JOB_URL}/job-with-salary-greater-than-80K",
+        content=content,
+    )
     httpx_mock.add_response(
         url=f"{JOB_URL}/job-with-salary-less-than-60K",
         content=mock_job_page(salary=Decimal(str(50_000))),
@@ -91,5 +104,11 @@ def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
             salary=Decimal(str(80_000)),
             posted_on="5 days ago",
+        ),
+        Message(
+            title="Python Developer",
+            link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
+            salary=Decimal(str(90_000)),
+            posted_on="1 day ago",
         ),
     ]
