@@ -7,11 +7,9 @@ BASE_DIR = Path(__file__).parent.parent
 
 
 # Load environment variables
-env_path = None
+env_path = ".env"
 if os.getenv("TEST_ENV") == "true":
     env_path = ".test.env"
-else:
-    env_path = ".env"
 
 load_dotenv(env_path, override=True)
 
