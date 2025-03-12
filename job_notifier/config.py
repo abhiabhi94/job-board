@@ -3,12 +3,19 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+BASE_DIR = Path(__file__).parent.parent
+
+
+# Load environment variables
+env_path = None
+if os.getenv("TEST_ENV") == "true":
+    env_path = ".test.env"
+else:
+    env_path = ".env"
+
+load_dotenv(env_path, override=True)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
-BASE_DIR = Path(__file__).parent.parent
 
 KEYWORDS = {
     "python",
