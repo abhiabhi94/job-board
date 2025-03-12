@@ -37,6 +37,12 @@ def mock_rss_response():
                 <link>{JOB_URL}/job-without-salary</link>
             </item>
             <item>
+                <title>Python Developer</title>
+                <description>Looking for Django and FastAPI developer</description>
+                <region>Anywhere</region>
+                <link>{JOB_URL}/salary-missing</link>
+            </item>
+            <item>
                 <title>React Developer</title>
                 <description>Frontend role</description>
                 <region>Anywhere</region>
@@ -95,6 +101,10 @@ def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
     httpx_mock.add_response(
         url=f"{JOB_URL}/job-without-salary",
         content="<div></div>",
+    )
+    httpx_mock.add_response(
+        url=f"{JOB_URL}/salary-missing",
+        content="<div>salary:</div>",
     )
 
     messages_to_notify = portal.get_messages_to_notify()
