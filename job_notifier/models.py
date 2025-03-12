@@ -75,14 +75,16 @@ def store_jobs(messages):
 
 
 def notify():
+    job_ids = []
     statement = select(Job).where(Job.notified.is_(False))
     with Session.begin() as session:
         jobs = session.execute(statement).scalars().all()
+        job_ids = [job.id for job in jobs]
         email_body = "\n\n".join([str(job) for job in jobs])
 
-    logger.debug(f"Number of jobs to send:::{len(jobs)}")
+    logger.debug(f"Number of jobs to send:::{len(job_ids)}")
 
-    if not len(jobs):
+    if not len(job_ids):
         logger.info("No new jobs found for notification!")
         return
 
@@ -105,7 +107,7 @@ def notify():
     # update `notified` flag after notified with email.
     statement = (
         update(Job)
-        .where(Job.notified.is_(False), Job.id.in_([job.id for job in jobs]))
+        .where(Job.notified.is_(False), Job.id.in_(job_ids))
         .values(notified=True)
     )
     with Session.begin() as session:
