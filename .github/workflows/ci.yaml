@@ -16,10 +16,11 @@ jobs:
         python-version: '3.13'
     - uses: ikalnytskyi/action-setup-postgres@v7
       with:
-        username: ci
+      # picked up from .test.env file
+        username: tester
         password: password
-        database: test
-        port: 34837
+        database: test_job_notifier
+        port: 5432
         postgres-version: "16"
         ssl: true
       id: postgres
@@ -41,5 +42,3 @@ jobs:
         pip install -e ".[dev]"
         coverage run -m pytest
         coverage report
-      env:
-        DATABASE_URL: postgresql://ci:password@localhost:34837/test
