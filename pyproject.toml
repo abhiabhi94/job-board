@@ -2,11 +2,6 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build]
-exclude = [
-    "test_*.py",
-]
-
 [project]
 name = "job-notifier"
 version = "0.0.1"
@@ -25,6 +20,7 @@ dependencies = [
     "python-dotenv",
     "schedule",
     "click",
+    "humanize",
 ]
 [project.optional-dependencies]
 dev = [
@@ -33,10 +29,20 @@ dev = [
     "pytest",
     "pytest-httpx",
     "coverage",
+    "freezegun",
+]
+
+[project.scripts]
+job-notifier = "job_notifier.cli:main"
+
+[tool.coverage.paths]
+source = [
+    "job_notifier/",
 ]
 
 [tool.coverage.run]
 branch = true
+command_line = "-m pytest"
 
 [tool.coverage.report]
 fail_under = 98

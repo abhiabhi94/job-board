@@ -1,12 +1,11 @@
 import httpx
 from lxml import objectify, html
 import re
-from decimal import Decimal
 
 from job_notifier.logger import logger
 from job_notifier.portals.base import BasePortal
-from job_notifier import config
 from job_notifier.base import Message
+from job_notifier.utils import parse_relative_time
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
@@ -17,6 +16,7 @@ POSTED_ON_REGEX = re.compile(
 
 
 class WeWorkRemotely(BasePortal):
+    portal_name = "weworkremotely"
     region_mapping = {
         "remote": {
             "anywhere",
@@ -25,19 +25,21 @@ class WeWorkRemotely(BasePortal):
 
     url = "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss"
 
-    def get_messages_to_notify(self):
+    def get_messages_to_notify(self) -> list[Message]:
         response = httpx.get(self.url)
         response.raise_for_status()
         root = objectify.fromstring(response.content)
 
         links_to_look = []
         for item in root.channel.item:
-            if self.match_keywords_and_region(
+            link = item.link.text
+            if self.validate_keywords_and_region(
+                link=link,
                 title=item.title.text,
                 description=item.description.text,
                 region=item.region.text,
             ):
-                links_to_look.append(item.link.text)
+                links_to_look.append(link)
 
         logger.debug(f"Found {links_to_look} links to look for salary information")
         messages_to_notify: list[Message] = []
@@ -46,21 +48,7 @@ class WeWorkRemotely(BasePortal):
                 messages_to_notify.append(message)
         return messages_to_notify
 
-    def match_keywords_and_region(self, *, title, description, region) -> bool:
-        title = title.lower()
-        description = description.lower()
-        region = region.lower()
-
-        keyword_matches = config.KEYWORDS.intersection(
-            title.split()
-        ) or config.KEYWORDS.intersection(description.split())
-        region_matches = self.region_mapping[config.REGION].intersection(region.split())
-
-        return bool(keyword_matches and region_matches)
-
     def get_message_to_notify(self, link) -> Message | None:
-        logger.debug(f"Looking for salary information in {link}")
-
         response = httpx.get(link)
         response.raise_for_status()
         root = html.fromstring(response.content)
@@ -72,16 +60,11 @@ class WeWorkRemotely(BasePortal):
             text_content = element.text_content().lower().strip()
             salary_matches = SALARY_REGEX.search(text_content)
             if salary_matches:
-                salary = Decimal(str(salary_matches.group().replace(",", "")))
+                salary = salary_matches.group()
                 break
 
-        if salary is None:
-            # no salary information, should we still consider this relevant ???
-            logger.debug(f"No salary information found for {link}")
-            return
-
-        if salary <= config.SALARY:
-            logger.debug(f"Salary {salary} for {link} is less than {config.SALARY}")
+        validated_salary = self.validate_salary(link=link, salary=salary)
+        if not validated_salary:
             return
 
         posted_on = None
@@ -92,12 +75,14 @@ class WeWorkRemotely(BasePortal):
             text_content = element.text_content().lower().strip()
             posted_on_matches = POSTED_ON_REGEX.search(text_content)
             if posted_on_matches:
-                posted_on = posted_on_matches.group(1)
+                posted_on_str = posted_on_matches.group(1)
                 break
+
+        posted_on = parse_relative_time(posted_on_str)
 
         return Message(
             title=root.findtext(".//title").strip(),
-            salary=salary,
+            salary=validated_salary,
             link=link,
             posted_on=posted_on,
         )
