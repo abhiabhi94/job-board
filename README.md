@@ -9,25 +9,25 @@ pre-commit install
 - Most options should be available using the `--help` flag.
 
 ```sh
-python job_notifier --help
+job-notifier --help
 ```
 
 - For running the command immediately
 
 ```sh
-python job_notifier run
+job-notifier run
 ```
 
 - For running it as a schedule, that runs once per day.
 
 ```sh
-python job_notifier schedule
+job-notifier schedule
 ```
 
 - For running the schedule immediately, usually useful in checking stuff
 
 ```sh
-python job_notifier schedule -I
+job-notifier schedule -I
 ```
 
 ### Running Tests

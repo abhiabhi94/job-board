@@ -1,8 +1,12 @@
 import pytest
 from decimal import Decimal
+from datetime import datetime, timezone, timedelta
+
+from freezegun import freeze_time
 
 from job_notifier.portals.weworkremotely import WeWorkRemotely
 from job_notifier.base import Message
+
 
 JOB_URL = "https://weworkremotely.com/jobs"
 
@@ -107,18 +111,21 @@ def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
         content="<div>salary:</div>",
     )
 
-    messages_to_notify = portal.get_messages_to_notify()
+    now = datetime.now(timezone.utc)
+    with freeze_time(now):
+        messages_to_notify = portal.get_messages_to_notify()
+
     assert messages_to_notify == [
         Message(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
             salary=Decimal(str(80_000)),
-            posted_on="5 days ago",
+            posted_on=now - timedelta(days=5),
         ),
         Message(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
             salary=Decimal(str(90_000)),
-            posted_on="1 day ago",
+            posted_on=now - timedelta(days=1),
         ),
     ]

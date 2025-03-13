@@ -1,37 +1,86 @@
 import subprocess
+import pdb
+import sys
+import traceback
+import time
 
 import click
+import schedule
 
 from job_notifier.portals import (
     weworkremotely,
+    remotive,
 )
 from job_notifier.models import store_jobs
-import schedule
-import time
 from job_notifier.models import create_tables, notify
 
 
+def debugger_hook(exception_type, value, tb):
+    """
+    Hook to drop into pdb on an unhandled exception.
+    Used with --pdb flag, helpful for debugging purposes.
+    """
+    traceback.print_exception(exception_type, value, tb)
+
+    click.echo("\n Exception occurred! Launching pdb debugger...\n", file=sys.stderr)
+    pdb.post_mortem(tb)
+
+
 @click.group()
-def cli():
+def main():
     pass
 
 
-@cli.command("run", help="Run the notifier")
+@main.command("run", help="Run the notifier")
+@click.option(
+    "--pdb", "pdb_flag", is_flag=True, default=False, help="Drop into pdb on exception."
+)
 @click.option(
     "--notify",
     "-n",
+    "to_notify",
     is_flag=True,
     default=False,
-    help="Do not send notifications",
+    help="Send notifications, by default it will only print the message",
 )
-def run(notify):
-    _run(to_notify=notify)
+@click.option(
+    "--portal",
+    "-P",
+    "include_portal",
+    default=None,
+    help="Portal to fetch jobs from, by default it will fetch from all portals",
+)
+def run(pdb_flag, include_portal, to_notify):
+    if pdb_flag:
+        sys.excepthook = debugger_hook
+
+    if not include_portal:
+        included_portals = []
+    else:
+        included_portals = [include_portal]
+
+    _run(include_portals=included_portals, to_notify=to_notify)
 
 
-def _run(*, to_notify=False):
+def _run(*, include_portals: list[str] | None = None, to_notify=False):
     create_tables()
     click.echo("********Notifier started**********")
-    messages = weworkremotely.WeWorkRemotely().get_messages_to_notify()
+
+    if not include_portals:
+        click.echo("Fetching jobs from all portals")
+
+    # TODO: validate that the portal exists
+    messages = []
+    for Portal in (
+        weworkremotely.WeWorkRemotely,
+        remotive.Remotive,
+    ):
+        portal = Portal()
+        portal_name = portal.portal_name
+        if not include_portals or portal_name.lower() in set(include_portals):
+            click.echo(f"Fetching jobs from {portal_name.title()}")
+            messages.extend(portal.get_messages_to_notify())
+
     store_jobs(messages)
 
     if to_notify:
@@ -43,12 +92,12 @@ def _run(*, to_notify=False):
     click.echo("********Notifier completed**********")
 
 
-@cli.command("schedule", help="Schedule the notifier")
+@main.command("schedule", help="Schedule the notifier")
 @click.option("--immediate", "-I", is_flag=True, help="Run the scheduler immediately")
 def schedule_notifier(immediate):
     schedule.every().day.at("10:30").do(_run, to_notify=True)
     if immediate:
-        schedule.run_all(5)
+        schedule.run_all(delay_seconds=5)
         click.echo("All schedules executed")
         return
 
@@ -57,7 +106,7 @@ def schedule_notifier(immediate):
         time.sleep(1)
 
 
-@cli.command("setup-db", help="Schedule the notifier")
+@main.command("setup-db", help="Schedule the notifier")
 @click.option("--db-name", "-d", default="job_notifier", help="Name of the database")
 @click.option(
     "--username", "-u", default="job_notifier", help="Username for the database"
@@ -89,7 +138,3 @@ def setup_db(username: str, password: str, db_name: str):
         check=True,
     )
     click.echo("Database setup completed successfully.")
-
-
-if __name__ == "__main__":
-    cli()

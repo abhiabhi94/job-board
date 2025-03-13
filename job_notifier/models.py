@@ -1,7 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, Numeric
+from sqlalchemy import Column, Integer, String, Numeric, DateTime
 from sqlalchemy import Boolean
-from datetime import datetime, timezone, timedelta
+import humanize
 import markdown
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update
@@ -29,29 +29,23 @@ class Job(Base):
     link = Column(String, unique=True, nullable=False)
     title = Column(String, nullable=False)
     salary = Column(Numeric, nullable=False)
-    posted_on = Column(String)  # not all platform provide structured datetime
+    posted_on = Column(DateTime)
     notified = Column(Boolean, default=False)
 
     def __repr__(self) -> str:
-        if isinstance(self.posted_on, datetime):
-            difference = datetime.now(timezone.utc) - self.posted_on
-            if difference > timedelta(days=1):
-                posted_on = f"{difference.days} days ago"
-            else:
-                hours = difference.seconds // 3600
-                posted_on = f"{hours} hours ago"
-        else:
-            posted_on = self.posted_on
-
         return markdown.markdown(f"""
         ### Title: {self.title}
         **Salary: ${self.salary:,}**
         Link: {self.link}
-        Posted: {posted_on}
+        Posted: {humanize.naturaltime(self.posted_on)}
         """)
 
 
 def store_jobs(messages):
+    if not messages:
+        logger.debug("No jobs to store")
+        return
+
     insert_statement = (
         insert(Job)
         .values(

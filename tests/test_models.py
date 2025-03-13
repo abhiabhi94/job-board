@@ -2,7 +2,6 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from unittest import mock
 
-import markdown
 
 from job_notifier.models import Job
 from job_notifier.base import Message
@@ -16,76 +15,6 @@ from job_notifier.models import (
     create_tables,
 )
 from job_notifier.connection import engine, Session
-
-
-def test_job_without_posted_on():
-    job = Job(
-        title="Python Developer",
-        salary=Decimal(str(80_000)),
-        link="https://example.com",
-    )
-    assert (
-        str(job).strip()
-        == markdown.markdown("""
-        ### Title: Python Developer
-        **Salary: $80,000**
-        Link: https://example.com
-        Posted: None
-    """).strip()
-    )
-
-
-def test_job_with_posted_on_in_datetime():
-    job = Job(
-        title="Python Developer",
-        salary=Decimal(str(80_000)),
-        link="https://example.com",
-        posted_on=datetime.now(timezone.utc) - timedelta(days=5),
-    )
-    assert (
-        str(job).strip()
-        == markdown.markdown("""
-        ### Title: Python Developer
-        **Salary: $80,000**
-        Link: https://example.com
-        Posted: 5 days ago
-    """).strip()
-    )
-
-    # with difference in hours
-    job = Job(
-        title="Python Developer",
-        salary=Decimal(str(80_000)),
-        link="https://example.com",
-        posted_on=datetime.now(timezone.utc) - timedelta(hours=5),
-    )
-    assert (
-        str(job).strip()
-        == markdown.markdown("""
-        ### Title: Python Developer
-        **Salary: $80,000**
-        Link: https://example.com
-        Posted: 5 hours ago
-    """).strip()
-    )
-
-
-def test_job_without_posted_in_str():
-    job = Job(
-        title="Python Developer",
-        salary=Decimal(str(80_000)),
-        link="https://example.com",
-        posted_on="5 days ago",
-    )
-    assert (
-        str(job).strip()
-        == markdown.markdown("""
-        ### Title: Python Developer
-        **Salary: $80,000**
-        Link: https://example.com
-        Posted: 5 days ago
-    """).strip()
-    )
 
 
 @pytest.fixture(scope="session")
@@ -118,19 +47,25 @@ def db_session(db_setup):
     connection.close()
 
 
+now = datetime.now(timezone.utc)
+
+
 def test_store_jobs(db_session):
+    # No messages, nothing happens
+    assert store_jobs([]) is None
+
     messages = [
         Message(
             link="http://job1.com",
             title="Job 1",
             salary=Decimal(str(80_000)),
-            posted_on="2025-03-10",
+            posted_on=now - timedelta(days=1),
         ),
         Message(
             link="http://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
-            posted_on="2025-03-11",
+            posted_on=now - timedelta(days=2),
         ),
     ]
 
@@ -152,7 +87,7 @@ def test_notify(db_session):
         link="http://job.com",
         title="Job Title",
         salary=Decimal(str(70_000)),
-        posted_on="2025-03-10",
+        posted_on=now - timedelta(days=1),
     )
     db_session.add(job)
     db_session.commit()

@@ -7,6 +7,9 @@ logging.basicConfig(
     datefmt="%z %m/%d/%Y %I:%M:%S %p",
     level=config.LOG_LEVEL.upper(),
     encoding="utf-8",
-    filename="job-notifier.log",
+    handlers=[
+        logging.FileHandler("job-notifier.log"),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger("job-notifier")
