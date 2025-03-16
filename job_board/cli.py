@@ -13,6 +13,7 @@ from job_board.portals import (
 )
 from job_board.models import store_jobs
 from job_board.models import create_tables, notify
+from job_board.logger import logger
 
 
 def debugger_hook(exception_type, value, tb):
@@ -79,7 +80,9 @@ def _run(*, include_portals: list[str] | None = None, to_notify=False):
         portal_name = portal.portal_name
         if not include_portals or portal_name.lower() in set(include_portals):
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            job_listings.extend(portal.get_jobs_to_notify())
+            fetched_listings = portal.get_jobs_to_notify()
+            logger.debug(f"Jobs from {portal_name}:\n\n{fetched_listings}")
+            job_listings.extend(fetched_listings)
 
     store_jobs(job_listings)
 

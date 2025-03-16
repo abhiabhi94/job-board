@@ -1,62 +1,53 @@
+import itertools
+
 import httpx
-from lxml import html
-from datetime import datetime
 
 from job_board.portals.base import BasePortal
 from job_board.base import JobListing
+
+RELEVANT_KEYS = {
+    "title",
+    "url",
+    "salary",
+    "tags",
+    "candidate_required_location",
+}
 
 
 class Remotive(BasePortal):
     """https://github.com/remotive-com/remote-jobs-api"""
 
     portal_name = "remotive"
+    url = "https://remotive.com/api/remote-jobs?category=software-dev&limit=500"
+    api_data_format = "json"
+
     region_mapping = {
         "remote": {
             "worldwide",
         },
     }
 
-    url = "https://remotive.com/api/remote-jobs?category=software-dev&limit=500"
-
     def get_jobs_to_notify(self) -> list[JobListing]:
-        response = httpx.get(self.url)
+        # TODO: use a router from utils that set the default timeout
+        # and retry for the request.
+        response = httpx.get(self.url, timeout=httpx.Timeout(30))
         response.raise_for_status()
 
-        job_listings_to_notify: list[JobListing] = []
         jobs = response.json()["jobs"]
+
+        # since the description is too long, we will remove it
+        trimmed_response = []
         for job in jobs:
-            if job_listing := self.get_job_to_notify(job):
-                job_listings_to_notify.append(job_listing)
-        return job_listings_to_notify
+            trimmed_dict = {}
+            for key, value in job.items():
+                if key in RELEVANT_KEYS:
+                    trimmed_dict[key] = value
+            trimmed_response.append(trimmed_dict)
 
-    def get_job_to_notify(self, job):
-        link = job["url"]
-        title = job["title"]
-        description = html.fromstring(job["description"]).text_content()
-        region = job["candidate_required_location"]
-        tags = job["tags"]
-
-        if self.validate_keywords_and_region(
-            link=link,
-            title=title,
-            description=description,
-            region=region,
-            tags=tags,
-        ):
-            if salary_range := job.get("salary"):
-                # we just pick the max salary here.
-                max_salary = salary_range.split("-")[-1].strip()
-                # assumption is that salary is in USD
-                # in future, introduce a currency field.
-                if validated_salary := self.validate_salary(
-                    link=link, salary=max_salary
-                ):
-                    posted_on = datetime.strptime(
-                        job["publication_time"], "%Y-%m-%dT%H:%M:%S"
-                    )
-                    return JobListing(
-                        link=link,
-                        title=title,
-                        salary=validated_salary,
-                        posted_on=posted_on,
-                    )
+        # sending too many jobs at once will lead to exceeding the openai api limit
+        # so we will need to finetune the number of jobs to send and the ways we
+        # can send them.
+        job_listings = []
+        for batch in itertools.batched(trimmed_response, 100):
+            job_listings.extend(self.process_jobs_with_llm(batch))
+        return job_listings

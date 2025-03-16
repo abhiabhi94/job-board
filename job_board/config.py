@@ -26,7 +26,8 @@ KEYWORDS = {
 }
 
 REGION = "remote"
-SALARY = 60_000  # in USD
+SALARY = 60_000
+CURRENCY_SALARY = "$"
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 # default path is just provided so that the code works in local development
 # in production, it should be provided as an environment variable
@@ -36,3 +37,5 @@ SERVICE_ACCOUNT_KEY_FILE_PATH = BASE_DIR / os.getenv(
 SERVER_EMAIL = os.getenv("SERVER_EMAIL")
 RECEIPIENTS = os.getenv("RECEIPIENTS", "").split(",")
 SQL_DEBUG = os.getenv("SQL_DEBUG", "False").lower() == "true"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPEN_AI_MODEL = "gpt-4o-mini"

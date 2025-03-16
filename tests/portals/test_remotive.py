@@ -1,19 +1,11 @@
 import pytest
-from datetime import datetime
-from decimal import Decimal
-from unittest.mock import patch
+import json
 
 import httpx
-from pytest_httpx import HTTPXMock
-from freezegun import freeze_time
+import openai_responses
 
 from job_board.portals.remotive import Remotive
-from job_board import config
-
-
-@pytest.fixture
-def portal():
-    return Remotive()
+from job_board.base import JobListing
 
 
 @pytest.fixture
@@ -69,107 +61,36 @@ def sample_jobs_response(sample_job):
     }
 
 
-def test_get_jobs_to_notify(httpx_mock: HTTPXMock, portal, sample_jobs_response):
-    httpx_mock.add_response(
-        url=portal.url, method="GET", json=sample_jobs_response, status_code=200
+@openai_responses.mock()
+def test_get_jobs_to_notify(
+    respx_mock,
+    sample_jobs_response,
+    openai_mock: openai_responses.OpenAIMock,
+    sample_job,
+):
+    respx_mock.get(Remotive.url).mock(
+        return_value=httpx.Response(json=sample_jobs_response, status_code=200)
     )
 
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal(str(60_000))),
-    ):
-        job_listings = portal.get_jobs_to_notify()
+    job_data = {
+        "title": sample_job["title"],
+        "salary": sample_job["salary"].split("-")[-1],
+        "link": sample_job["url"],
+        "location": sample_job["candidate_required_location"],
+        "posted_on": "2025-01-01T00:00:00Z",
+    }
+    openai_mock.chat.completions.create.response = {
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {"content": json.dumps([job_data]), "role": "assistant"},
+            }
+        ]
+    }
 
-    (job_listing,) = job_listings
-    assert job_listing.link == "https://remotive.com/jobs/123"
-    assert job_listing.title == "Python Developer"
-    assert job_listing.salary == Decimal(str(120_000))
-    assert job_listing.posted_on == datetime(2024, 3, 13, 10, 0, 0)
+    portal = Remotive()
 
+    (result,) = portal.get_jobs_to_notify()
 
-def test_get_job_to_notify_valid_job(portal, sample_job):
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal("60000")),
-        freeze_time("2024-03-13"),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-
-    assert job_listing.link == "https://remotive.com/jobs/123"
-    assert job_listing.title == "Python Developer"
-    assert job_listing.salary == Decimal("120000")
-    assert job_listing.posted_on == datetime(2024, 3, 13, 10, 0, 0)
-
-
-def test_get_job_to_notify_invalid_keywords(portal, sample_job):
-    with (
-        patch.object(config, "KEYWORDS", {"java"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal("60000")),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-
-    assert job_listing is None
-
-
-def test_get_job_to_notify_invalid_region(portal, sample_job):
-    sample_job["candidate_required_location"] = "USA Only"
-
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal("60000")),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-    assert job_listing is None
-
-
-def test_get_job_to_notify_when_job_salary_is_lower_than_config_salary(
-    portal, sample_job
-):
-    salary = Decimal(str(150_000))
-    assert salary > Decimal(sample_job["salary"].split("-")[-1].strip())
-
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", salary),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-
-    assert job_listing is None
-
-
-def test_get_job_to_notify_no_salary(portal, sample_job):
-    sample_job.pop("salary")
-
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal("60000")),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-
-    assert job_listing is None
-
-
-def test_get_job_to_notify_invalid_salary_format(portal, sample_job):
-    sample_job["salary"] = "negotiable"
-
-    with (
-        patch.object(config, "KEYWORDS", {"python"}),
-        patch.object(config, "REGION", "remote"),
-        patch.object(config, "SALARY", Decimal("60000")),
-    ):
-        job_listing = portal.get_job_to_notify(sample_job)
-
-    assert job_listing is None
-
-
-def test_api_error_handling(httpx_mock: HTTPXMock, portal):
-    httpx_mock.add_response(url=portal.url, method="GET", status_code=500)
-
-    with pytest.raises(httpx.HTTPStatusError):
-        portal.get_jobs_to_notify()
+    assert result == JobListing(**job_data)
