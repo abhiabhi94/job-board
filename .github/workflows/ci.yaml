@@ -19,7 +19,7 @@ jobs:
       # picked up from .test.env file
         username: tester
         password: password
-        database: test_job_notifier
+        database: test_job_board
         port: 5432
         postgres-version: "16"
         ssl: true

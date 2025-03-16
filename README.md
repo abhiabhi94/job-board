@@ -9,25 +9,25 @@ pre-commit install
 - Most options should be available using the `--help` flag.
 
 ```sh
-job-notifier --help
+job-board --help
 ```
 
 - For running the command immediately
 
 ```sh
-job-notifier run
+job-board run
 ```
 
 - For running it as a schedule, that runs once per day.
 
 ```sh
-job-notifier schedule
+job-board schedule
 ```
 
 - For running the schedule immediately, usually useful in checking stuff
 
 ```sh
-job-notifier schedule -I
+job-board schedule -I
 ```
 
 ### Running Tests

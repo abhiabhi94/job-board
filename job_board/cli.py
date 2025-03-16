@@ -7,12 +7,12 @@ import time
 import click
 import schedule
 
-from job_notifier.portals import (
+from job_board.portals import (
     weworkremotely,
     remotive,
 )
-from job_notifier.models import store_jobs
-from job_notifier.models import create_tables, notify
+from job_board.models import store_jobs
+from job_board.models import create_tables, notify
 
 
 def debugger_hook(exception_type, value, tb):
@@ -41,7 +41,7 @@ def main():
     "to_notify",
     is_flag=True,
     default=False,
-    help="Send notifications, by default it will only print the message",
+    help="Send notifications, by default it will only print the job_listing",
 )
 @click.option(
     "--portal",
@@ -70,7 +70,7 @@ def _run(*, include_portals: list[str] | None = None, to_notify=False):
         click.echo("Fetching jobs from all portals")
 
     # TODO: validate that the portal exists
-    messages = []
+    job_listings = []
     for Portal in (
         weworkremotely.WeWorkRemotely,
         remotive.Remotive,
@@ -79,14 +79,14 @@ def _run(*, include_portals: list[str] | None = None, to_notify=False):
         portal_name = portal.portal_name
         if not include_portals or portal_name.lower() in set(include_portals):
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            messages.extend(portal.get_messages_to_notify())
+            job_listings.extend(portal.get_jobs_to_notify())
 
-    store_jobs(messages)
+    store_jobs(job_listings)
 
     if to_notify:
         notify()
     else:
-        click.echo(f"Messages to notify:\n {'\n'.join(map(str, messages))}\n")
+        click.echo(f"JobListings to notify:\n {'\n'.join(map(str, job_listings))}\n")
         click.echo("Notifications are disabled")
 
     click.echo("********Notifier completed**********")
@@ -107,11 +107,9 @@ def schedule_notifier(immediate):
 
 
 @main.command("setup-db", help="Schedule the notifier")
-@click.option("--db-name", "-d", default="job_notifier", help="Name of the database")
-@click.option(
-    "--username", "-u", default="job_notifier", help="Username for the database"
-)
-@click.option("--password", "-p", default="job_notifier", help="Password for the user")
+@click.option("--db-name", "-d", default="job_board", help="Name of the database")
+@click.option("--username", "-u", default="job_board", help="Username for the database")
+@click.option("--password", "-p", default="job_board", help="Password for the user")
 def setup_db(username: str, password: str, db_name: str):
     """
     Creates a PostgreSQL user with LOGIN and CREATEDB permissions

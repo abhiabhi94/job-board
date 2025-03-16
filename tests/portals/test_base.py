@@ -2,8 +2,8 @@ import pytest
 from decimal import Decimal
 from unittest.mock import patch
 
-from job_notifier.portals.base import BasePortal
-from job_notifier import config
+from job_board.portals.base import BasePortal
+from job_board import config
 
 
 @pytest.fixture
@@ -20,10 +20,10 @@ def test_abstract_methods():
     # Test that the abstract methods raise NotImplementedError
     portal = BasePortal()
     with pytest.raises(NotImplementedError):
-        portal.get_messages_to_notify()
+        portal.get_jobs_to_notify()
 
     with pytest.raises(NotImplementedError):
-        portal.get_message_to_notify(None)
+        portal.get_job_to_notify(None)
 
 
 @pytest.mark.parametrize(

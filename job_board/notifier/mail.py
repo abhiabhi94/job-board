@@ -3,8 +3,8 @@ from googleapiclient.discovery import build
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from google.oauth2 import service_account
-from job_notifier import config
-from job_notifier.logger import logger
+from job_board import config
+from job_board.logger import logger
 
 # Set the API scope
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]

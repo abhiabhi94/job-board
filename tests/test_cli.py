@@ -2,7 +2,7 @@ from unittest import mock
 import pytest
 from click.testing import CliRunner
 
-from job_notifier.cli import main, _run, debugger_hook
+from job_board.cli import main, _run, debugger_hook
 
 
 @pytest.fixture
@@ -11,7 +11,7 @@ def cli_runner():
 
 
 def test_run_command_default_options(cli_runner):
-    with mock.patch("job_notifier.cli._run") as mock_run:
+    with mock.patch("job_board.cli._run") as mock_run:
         result = cli_runner.invoke(main, ["run"])
 
     assert result.exit_code == 0
@@ -20,8 +20,8 @@ def test_run_command_default_options(cli_runner):
 
 def test_run_command_with_pdb_flag(cli_runner):
     with (
-        mock.patch("job_notifier.cli._run") as mock_run,
-        mock.patch("job_notifier.cli.sys") as mock_sys,
+        mock.patch("job_board.cli._run") as mock_run,
+        mock.patch("job_board.cli.sys") as mock_sys,
     ):
         result = cli_runner.invoke(main, ["run", "--pdb"])
 
@@ -31,7 +31,7 @@ def test_run_command_with_pdb_flag(cli_runner):
 
 
 def test_run_command_with_notify_flag(cli_runner):
-    with mock.patch("job_notifier.cli._run") as mock_run:
+    with mock.patch("job_board.cli._run") as mock_run:
         result = cli_runner.invoke(main, ["run", "--notify"])
 
     assert result.exit_code == 0
@@ -39,7 +39,7 @@ def test_run_command_with_notify_flag(cli_runner):
 
 
 def test_run_command_with_portal_option(cli_runner):
-    with mock.patch("job_notifier.cli._run") as mock_run:
+    with mock.patch("job_board.cli._run") as mock_run:
         result = cli_runner.invoke(main, ["run", "--portal", "weworkremotely"])
 
     assert result.exit_code == 0
@@ -51,32 +51,32 @@ def test_run_command_with_portal_option(cli_runner):
 def test_run_function_all_portals():
     mock_wwr_instance = mock.MagicMock(
         portal_name="weworkremotely",
-        get_messages_to_notify=mock.MagicMock(return_value=["job1", "job2"]),
+        get_jobs_to_notify=mock.MagicMock(return_value=["job1", "job2"]),
     )
 
     mock_remotive_instance = mock.MagicMock(
         portal_name="remotive",
-        get_messages_to_notify=mock.MagicMock(return_value=["job3"]),
+        get_jobs_to_notify=mock.MagicMock(return_value=["job3"]),
     )
 
     with (
-        mock.patch("job_notifier.cli.create_tables") as mock_create_tables,
-        mock.patch("job_notifier.cli.click.echo") as mock_echo,
+        mock.patch("job_board.cli.create_tables") as mock_create_tables,
+        mock.patch("job_board.cli.click.echo") as mock_echo,
         mock.patch(
-            "job_notifier.cli.weworkremotely.WeWorkRemotely",
+            "job_board.cli.weworkremotely.WeWorkRemotely",
             return_value=mock_wwr_instance,
         ),
         mock.patch(
-            "job_notifier.cli.remotive.Remotive", return_value=mock_remotive_instance
+            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
         ),
-        mock.patch("job_notifier.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_notifier.cli.notify") as mock_notify,
+        mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
+        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _run()
 
     mock_create_tables.assert_called_once()
-    mock_wwr_instance.get_messages_to_notify.assert_called_once()
-    mock_remotive_instance.get_messages_to_notify.assert_called_once()
+    mock_wwr_instance.get_jobs_to_notify.assert_called_once()
+    mock_remotive_instance.get_jobs_to_notify.assert_called_once()
     mock_store_jobs.assert_called_once_with(["job1", "job2", "job3"])
     mock_notify.assert_not_called()
     assert mock_echo.call_count >= 3
@@ -84,30 +84,30 @@ def test_run_function_all_portals():
 
 def test_run_function_specific_portal():
     mock_wwr_instance = mock.MagicMock(portal_name="weworkremotely")
-    mock_wwr_instance.get_messages_to_notify.return_value = ["job1", "job2"]
+    mock_wwr_instance.get_jobs_to_notify.return_value = ["job1", "job2"]
 
     mock_remotive_instance = mock.MagicMock()
     mock_remotive_instance.name = "remotive"
-    mock_remotive_instance.get_messages_to_notify.return_value = ["job3"]
+    mock_remotive_instance.get_jobs_to_notify.return_value = ["job3"]
 
     with (
-        mock.patch("job_notifier.cli.create_tables") as mock_create_tables,
-        mock.patch("job_notifier.cli.click.echo"),
+        mock.patch("job_board.cli.create_tables") as mock_create_tables,
+        mock.patch("job_board.cli.click.echo"),
         mock.patch(
-            "job_notifier.cli.weworkremotely.WeWorkRemotely",
+            "job_board.cli.weworkremotely.WeWorkRemotely",
             return_value=mock_wwr_instance,
         ),
         mock.patch(
-            "job_notifier.cli.remotive.Remotive", return_value=mock_remotive_instance
+            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
         ),
-        mock.patch("job_notifier.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_notifier.cli.notify") as mock_notify,
+        mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
+        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _run(include_portals=["weworkremotely"])
 
     mock_create_tables.assert_called_once()
-    mock_wwr_instance.get_messages_to_notify.assert_called_once()
-    mock_remotive_instance.get_messages_to_notify.assert_not_called()
+    mock_wwr_instance.get_jobs_to_notify.assert_called_once()
+    mock_remotive_instance.get_jobs_to_notify.assert_not_called()
     mock_store_jobs.assert_called_once_with(["job1", "job2"])
     mock_notify.assert_not_called()
 
@@ -115,25 +115,25 @@ def test_run_function_specific_portal():
 def test_run_function_with_notify():
     mock_wwr_instance = mock.MagicMock(
         portal_name="weworkremotely",
-        get_messages_to_notify=mock.MagicMock(return_value=[]),
+        get_jobs_to_notify=mock.MagicMock(return_value=[]),
     )
 
     mock_remotive_instance = mock.MagicMock(
-        portal_name="remotive", get_messages_to_notify=mock.MagicMock(return_value=[])
+        portal_name="remotive", get_jobs_to_notify=mock.MagicMock(return_value=[])
     )
 
     with (
-        mock.patch("job_notifier.cli.create_tables"),
-        mock.patch("job_notifier.cli.click.echo"),
+        mock.patch("job_board.cli.create_tables"),
+        mock.patch("job_board.cli.click.echo"),
         mock.patch(
-            "job_notifier.cli.weworkremotely.WeWorkRemotely",
+            "job_board.cli.weworkremotely.WeWorkRemotely",
             return_value=mock_wwr_instance,
         ),
         mock.patch(
-            "job_notifier.cli.remotive.Remotive", return_value=mock_remotive_instance
+            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
         ),
-        mock.patch("job_notifier.cli.store_jobs"),
-        mock.patch("job_notifier.cli.notify") as mock_notify,
+        mock.patch("job_board.cli.store_jobs"),
+        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _run(to_notify=True)
 
@@ -146,8 +146,8 @@ def test_schedule_command(cli_runner):
     )
 
     with (
-        mock.patch("job_notifier.cli.schedule") as mock_schedule,
-        mock.patch("job_notifier.cli.time.sleep"),
+        mock.patch("job_board.cli.schedule") as mock_schedule,
+        mock.patch("job_board.cli.time.sleep"),
     ):
         mock_schedule.run_pending = mock_schedule_run_pending
 
@@ -159,7 +159,7 @@ def test_schedule_command(cli_runner):
 
 
 def test_schedule_command_immediate(cli_runner):
-    with mock.patch("job_notifier.cli.schedule") as mock_schedule:
+    with mock.patch("job_board.cli.schedule") as mock_schedule:
         result = cli_runner.invoke(main, ["schedule", "--immediate"])
 
     assert result.exit_code == 0
@@ -167,7 +167,7 @@ def test_schedule_command_immediate(cli_runner):
 
 
 def test_setup_db_command(cli_runner):
-    with mock.patch("job_notifier.cli.subprocess.run") as mock_run:
+    with mock.patch("job_board.cli.subprocess.run") as mock_run:
         result = cli_runner.invoke(main, ["setup-db"])
 
     assert result.exit_code == 0
@@ -175,7 +175,7 @@ def test_setup_db_command(cli_runner):
 
 
 def test_setup_db_command_with_options(cli_runner):
-    with mock.patch("job_notifier.cli.subprocess.run") as mock_run:
+    with mock.patch("job_board.cli.subprocess.run") as mock_run:
         result = cli_runner.invoke(
             main,
             [
@@ -211,11 +211,9 @@ def test_debugger_hook():
     mock_tb = mock.MagicMock()
 
     with (
-        mock.patch(
-            "job_notifier.cli.traceback.print_exception"
-        ) as mock_print_exception,
-        mock.patch("job_notifier.cli.click.echo") as mock_echo,
-        mock.patch("job_notifier.cli.pdb.post_mortem") as mock_post_mortem,
+        mock.patch("job_board.cli.traceback.print_exception") as mock_print_exception,
+        mock.patch("job_board.cli.click.echo") as mock_echo,
+        mock.patch("job_board.cli.pdb.post_mortem") as mock_post_mortem,
     ):
         debugger_hook(ValueError, mock_exception, mock_tb)
 

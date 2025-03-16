@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from job_notifier import config
+from job_board import config
 
 engine = create_engine(
     config.DATABASE_URL,
