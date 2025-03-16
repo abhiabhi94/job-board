@@ -7,8 +7,8 @@ import httpx
 from pytest_httpx import HTTPXMock
 from freezegun import freeze_time
 
-from job_notifier.portals.remotive import Remotive
-from job_notifier import config
+from job_board.portals.remotive import Remotive
+from job_board import config
 
 
 @pytest.fixture
@@ -69,7 +69,7 @@ def sample_jobs_response(sample_job):
     }
 
 
-def test_get_messages_to_notify(httpx_mock: HTTPXMock, portal, sample_jobs_response):
+def test_get_jobs_to_notify(httpx_mock: HTTPXMock, portal, sample_jobs_response):
     httpx_mock.add_response(
         url=portal.url, method="GET", json=sample_jobs_response, status_code=200
     )
@@ -79,42 +79,42 @@ def test_get_messages_to_notify(httpx_mock: HTTPXMock, portal, sample_jobs_respo
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal(str(60_000))),
     ):
-        messages = portal.get_messages_to_notify()
+        job_listings = portal.get_jobs_to_notify()
 
-    (message,) = messages
-    assert message.link == "https://remotive.com/jobs/123"
-    assert message.title == "Python Developer"
-    assert message.salary == Decimal(str(120_000))
-    assert message.posted_on == datetime(2024, 3, 13, 10, 0, 0)
+    (job_listing,) = job_listings
+    assert job_listing.link == "https://remotive.com/jobs/123"
+    assert job_listing.title == "Python Developer"
+    assert job_listing.salary == Decimal(str(120_000))
+    assert job_listing.posted_on == datetime(2024, 3, 13, 10, 0, 0)
 
 
-def test_get_message_to_notify_valid_job(portal, sample_job):
+def test_get_job_to_notify_valid_job(portal, sample_job):
     with (
         patch.object(config, "KEYWORDS", {"python"}),
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal("60000")),
         freeze_time("2024-03-13"),
     ):
-        message = portal.get_message_to_notify(sample_job)
+        job_listing = portal.get_job_to_notify(sample_job)
 
-    assert message.link == "https://remotive.com/jobs/123"
-    assert message.title == "Python Developer"
-    assert message.salary == Decimal("120000")
-    assert message.posted_on == datetime(2024, 3, 13, 10, 0, 0)
+    assert job_listing.link == "https://remotive.com/jobs/123"
+    assert job_listing.title == "Python Developer"
+    assert job_listing.salary == Decimal("120000")
+    assert job_listing.posted_on == datetime(2024, 3, 13, 10, 0, 0)
 
 
-def test_get_message_to_notify_invalid_keywords(portal, sample_job):
+def test_get_job_to_notify_invalid_keywords(portal, sample_job):
     with (
         patch.object(config, "KEYWORDS", {"java"}),
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal("60000")),
     ):
-        message = portal.get_message_to_notify(sample_job)
+        job_listing = portal.get_job_to_notify(sample_job)
 
-    assert message is None
+    assert job_listing is None
 
 
-def test_get_message_to_notify_invalid_region(portal, sample_job):
+def test_get_job_to_notify_invalid_region(portal, sample_job):
     sample_job["candidate_required_location"] = "USA Only"
 
     with (
@@ -122,11 +122,11 @@ def test_get_message_to_notify_invalid_region(portal, sample_job):
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal("60000")),
     ):
-        message = portal.get_message_to_notify(sample_job)
-    assert message is None
+        job_listing = portal.get_job_to_notify(sample_job)
+    assert job_listing is None
 
 
-def test_get_message_to_notify_when_job_salary_is_lower_than_config_salary(
+def test_get_job_to_notify_when_job_salary_is_lower_than_config_salary(
     portal, sample_job
 ):
     salary = Decimal(str(150_000))
@@ -137,12 +137,12 @@ def test_get_message_to_notify_when_job_salary_is_lower_than_config_salary(
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", salary),
     ):
-        message = portal.get_message_to_notify(sample_job)
+        job_listing = portal.get_job_to_notify(sample_job)
 
-    assert message is None
+    assert job_listing is None
 
 
-def test_get_message_to_notify_no_salary(portal, sample_job):
+def test_get_job_to_notify_no_salary(portal, sample_job):
     sample_job.pop("salary")
 
     with (
@@ -150,12 +150,12 @@ def test_get_message_to_notify_no_salary(portal, sample_job):
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal("60000")),
     ):
-        message = portal.get_message_to_notify(sample_job)
+        job_listing = portal.get_job_to_notify(sample_job)
 
-    assert message is None
+    assert job_listing is None
 
 
-def test_get_message_to_notify_invalid_salary_format(portal, sample_job):
+def test_get_job_to_notify_invalid_salary_format(portal, sample_job):
     sample_job["salary"] = "negotiable"
 
     with (
@@ -163,13 +163,13 @@ def test_get_message_to_notify_invalid_salary_format(portal, sample_job):
         patch.object(config, "REGION", "remote"),
         patch.object(config, "SALARY", Decimal("60000")),
     ):
-        message = portal.get_message_to_notify(sample_job)
+        job_listing = portal.get_job_to_notify(sample_job)
 
-    assert message is None
+    assert job_listing is None
 
 
 def test_api_error_handling(httpx_mock: HTTPXMock, portal):
     httpx_mock.add_response(url=portal.url, method="GET", status_code=500)
 
     with pytest.raises(httpx.HTTPStatusError):
-        portal.get_messages_to_notify()
+        portal.get_jobs_to_notify()

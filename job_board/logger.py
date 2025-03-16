@@ -1,6 +1,6 @@
 import logging
 
-from job_notifier import config
+from job_board import config
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -8,8 +8,8 @@ logging.basicConfig(
     level=config.LOG_LEVEL.upper(),
     encoding="utf-8",
     handlers=[
-        logging.FileHandler("job-notifier.log"),
+        logging.FileHandler("job-board.log"),
         logging.StreamHandler(),
     ],
 )
-logger = logging.getLogger("job-notifier")
+logger = logging.getLogger("job-board")

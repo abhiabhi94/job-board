@@ -3,18 +3,18 @@ from decimal import Decimal
 from unittest import mock
 
 
-from job_notifier.models import Job
-from job_notifier.base import Message
+from job_board.models import Job
+from job_board.base import JobListing
 
 import pytest
 import sqlalchemy
-from job_notifier.models import (
+from job_board.models import (
     Base as BaseModel,
     store_jobs,
     notify,
     create_tables,
 )
-from job_notifier.connection import engine, Session
+from job_board.connection import engine, Session
 
 
 @pytest.fixture(scope="session")
@@ -35,7 +35,7 @@ def db_session(db_setup):
     # use the connection with the already started transaction
     session = Session(bind=connection)
 
-    with mock.patch("job_notifier.connection.Session.begin") as mock_begin:
+    with mock.patch("job_board.connection.Session.begin") as mock_begin:
         # Ensure `Session.begin()` always returns `db_session`
         mock_begin.return_value.__enter__.return_value = session
         yield session
@@ -51,17 +51,17 @@ now = datetime.now(timezone.utc)
 
 
 def test_store_jobs(db_session):
-    # No messages, nothing happens
+    # No job_listings, nothing happens
     assert store_jobs([]) is None
 
-    messages = [
-        Message(
+    job_listings = [
+        JobListing(
             link="http://job1.com",
             title="Job 1",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=1),
         ),
-        Message(
+        JobListing(
             link="http://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
@@ -69,7 +69,7 @@ def test_store_jobs(db_session):
         ),
     ]
 
-    store_jobs(messages)
+    store_jobs(job_listings)
 
     jobs = db_session.execute(sqlalchemy.select(Job)).scalars().all()
 
@@ -94,10 +94,10 @@ def test_notify(db_session):
 
     with (
         mock.patch(
-            "job_notifier.notifier.mail.EmailProvider.create_service"
+            "job_board.notifier.mail.EmailProvider.create_service"
         ) as mock_service,
         mock.patch(
-            "job_notifier.notifier.mail.EmailProvider.send_email"
+            "job_board.notifier.mail.EmailProvider.send_email"
         ) as mock_send_email,
     ):
         notify()

@@ -2,10 +2,10 @@ import httpx
 from lxml import objectify, html
 import re
 
-from job_notifier.logger import logger
-from job_notifier.portals.base import BasePortal
-from job_notifier.base import Message
-from job_notifier.utils import parse_relative_time
+from job_board.logger import logger
+from job_board.portals.base import BasePortal
+from job_board.base import JobListing
+from job_board.utils import parse_relative_time
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
@@ -25,7 +25,7 @@ class WeWorkRemotely(BasePortal):
 
     url = "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss"
 
-    def get_messages_to_notify(self) -> list[Message]:
+    def get_jobs_to_notify(self) -> list[JobListing]:
         response = httpx.get(self.url)
         response.raise_for_status()
         root = objectify.fromstring(response.content)
@@ -42,13 +42,13 @@ class WeWorkRemotely(BasePortal):
                 links_to_look.append(link)
 
         logger.debug(f"Found {links_to_look} links to look for salary information")
-        messages_to_notify: list[Message] = []
+        job_listings_to_notify: list[JobListing] = []
         for link in links_to_look:
-            if message := self.get_message_to_notify(link):
-                messages_to_notify.append(message)
-        return messages_to_notify
+            if job_listing := self.get_job_to_notify(link):
+                job_listings_to_notify.append(job_listing)
+        return job_listings_to_notify
 
-    def get_message_to_notify(self, link) -> Message | None:
+    def get_job_to_notify(self, link) -> JobListing | None:
         response = httpx.get(link)
         response.raise_for_status()
         root = html.fromstring(response.content)
@@ -80,7 +80,7 @@ class WeWorkRemotely(BasePortal):
 
         posted_on = parse_relative_time(posted_on_str)
 
-        return Message(
+        return JobListing(
             title=root.findtext(".//title").strip(),
             salary=validated_salary,
             link=link,

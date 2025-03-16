@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timezone, timedelta
 from freezegun import freeze_time
 
-from job_notifier.utils import (
+from job_board.utils import (
     parse_relative_time,
 )
 

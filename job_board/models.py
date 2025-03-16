@@ -6,10 +6,10 @@ import markdown
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update
 
-from job_notifier.logger import logger
-from job_notifier.connection import Session, engine
-from job_notifier.notifier.mail import EmailProvider
-from job_notifier import config
+from job_board.logger import logger
+from job_board.connection import Session, engine
+from job_board.notifier.mail import EmailProvider
+from job_board import config
 
 
 # Base class for all models
@@ -41,8 +41,8 @@ class Job(Base):
         """)
 
 
-def store_jobs(messages):
-    if not messages:
+def store_jobs(job_listings):
+    if not job_listings:
         logger.debug("No jobs to store")
         return
 
@@ -51,12 +51,12 @@ def store_jobs(messages):
         .values(
             [
                 {
-                    "link": message.link,
-                    "title": message.title,
-                    "salary": message.salary,
-                    "posted_on": message.posted_on,
+                    "link": job_listing.link,
+                    "title": job_listing.title,
+                    "salary": job_listing.salary,
+                    "posted_on": job_listing.posted_on,
                 }
-                for message in messages
+                for job_listing in job_listings
             ],
         )
         .returning(Job.id)

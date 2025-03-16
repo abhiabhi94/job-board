@@ -1,8 +1,8 @@
 from decimal import Decimal, InvalidOperation
 
-from job_notifier.base import Message
-from job_notifier import config
-from job_notifier.logger import logger
+from job_board.base import JobListing
+from job_board import config
+from job_board.logger import logger
 
 
 class BasePortal:
@@ -10,10 +10,10 @@ class BasePortal:
     url: str
     region_mapping: dict[str, set[str]]
 
-    def get_messages_to_notify(self) -> list[Message]:
+    def get_jobs_to_notify(self) -> list[JobListing]:
         raise NotImplementedError()
 
-    def get_message_to_notify(self, job) -> Message:
+    def get_job_to_notify(self, job) -> JobListing:
         raise NotImplementedError()
 
     def validate_keywords_and_region(

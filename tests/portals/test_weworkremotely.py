@@ -4,8 +4,8 @@ from datetime import datetime, timezone, timedelta
 
 from freezegun import freeze_time
 
-from job_notifier.portals.weworkremotely import WeWorkRemotely
-from job_notifier.base import Message
+from job_board.portals.weworkremotely import WeWorkRemotely
+from job_board.base import JobListing
 
 
 JOB_URL = "https://weworkremotely.com/jobs"
@@ -80,7 +80,7 @@ def mock_job_page():
     return _mock_job_page
 
 
-def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
+def test_get_jobs_to_notify(mock_job_page, httpx_mock, mock_rss_response):
     portal = WeWorkRemotely()
 
     httpx_mock.add_response(
@@ -113,16 +113,16 @@ def test_get_messages_to_notify(mock_job_page, httpx_mock, mock_rss_response):
 
     now = datetime.now(timezone.utc)
     with freeze_time(now):
-        messages_to_notify = portal.get_messages_to_notify()
+        job_listings_to_notify = portal.get_jobs_to_notify()
 
-    assert messages_to_notify == [
-        Message(
+    assert job_listings_to_notify == [
+        JobListing(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=5),
         ),
-        Message(
+        JobListing(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
             salary=Decimal(str(90_000)),

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "job-notifier"
+name = "job-board"
 version = "0.0.1"
 requires_python = ">=3.13"
 authors = [
@@ -33,11 +33,11 @@ dev = [
 ]
 
 [project.scripts]
-job-notifier = "job_notifier.cli:main"
+job-board = "job_board.cli:main"
 
 [tool.coverage.paths]
 source = [
-    "job_notifier/",
+    "job_board/",
 ]
 
 [tool.coverage.run]

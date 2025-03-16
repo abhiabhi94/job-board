@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
-from job_notifier.notifier.mail import EmailProvider
+from job_board.notifier.mail import EmailProvider
 
 
 @pytest.fixture
 def mock_service():
     with patch(
-        "job_notifier.notifier.mail.build",
+        "job_board.notifier.mail.build",
         return_value=MagicMock(),
     ) as mock_build:
         yield mock_build.return_value
@@ -16,7 +16,7 @@ def mock_service():
 @pytest.fixture
 def email_provider(mock_service):
     with patch(
-        "job_notifier.notifier.mail.service_account.Credentials.from_service_account_file",
+        "job_board.notifier.mail.service_account.Credentials.from_service_account_file",
         return_value=MagicMock(),
     ):
         yield EmailProvider()
