@@ -3,6 +3,7 @@ from decimal import Decimal
 from datetime import datetime, timezone, timedelta
 
 from freezegun import freeze_time
+import httpx
 
 from job_board.portals.weworkremotely import WeWorkRemotely
 from job_board.base import JobListing
@@ -92,50 +93,54 @@ def mock_job_page():
     return _mock_job_page
 
 
-def test_get_jobs_to_notify(mock_job_page, httpx_mock, mock_rss_response):
+def test_get_jobs_to_notify(mock_job_page, respx_mock, mock_rss_response):
     portal = WeWorkRemotely()
 
-    httpx_mock.add_response(
-        url=portal.url,
-        content=mock_rss_response,
+    respx_mock.get(url=portal.url).mock(
+        return_value=httpx.Response(content=mock_rss_response, status_code=200)
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-with-salary-greater-than-60K",
-        content=mock_job_page(salary=Decimal(str(80_000))),
+    respx_mock.get(url=f"{JOB_URL}/job-with-salary-greater-than-60K").mock(
+        return_value=httpx.Response(
+            content=mock_job_page(salary=Decimal(str(80_000))),
+            status_code=200,
+        )
     )
     content = mock_job_page(salary=Decimal(str(90_000))).replace(
         "5 days ago", "1 hour ago"
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-with-salary-greater-than-80K",
-        content=content,
+    respx_mock.get(url=f"{JOB_URL}/job-with-salary-greater-than-80K").mock(
+        return_value=httpx.Response(content=content, status_code=200)
     )
 
     content = mock_job_page(salary=Decimal(str(10_000))).replace(
         "5 days ago", "a few minutes ago"
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-added-just-now",
-        content=content,
+    respx_mock.get(url=f"{JOB_URL}/job-added-just-now").mock(
+        return_value=httpx.Response(content=content, status_code=200),
     )
     content = mock_job_page(salary=Decimal(str(200_000))).replace(
         "5 days ago", "45 minutes ago"
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-added-45-minutes-ago",
-        content=content,
+    respx_mock.get(url=f"{JOB_URL}/job-added-45-minutes-ago").mock(
+        return_value=httpx.Response(content=content, status_code=200)
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-with-salary-less-than-60K",
-        content=mock_job_page(salary=Decimal(str(50_000))),
+    respx_mock.get(url=f"{JOB_URL}/job-with-salary-less-than-60K").mock(
+        return_value=httpx.Response(
+            content=mock_job_page(salary=Decimal(str(50_000))),
+            status_code=200,
+        )
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/job-without-salary",
-        content="<div></div>",
+    respx_mock.get(url=f"{JOB_URL}/job-without-salary").mock(
+        return_value=httpx.Response(
+            content="<div></div>",
+            status_code=200,
+        )
     )
-    httpx_mock.add_response(
-        url=f"{JOB_URL}/salary-missing",
-        content="<div>salary:</div>",
+    respx_mock.get(url=f"{JOB_URL}/salary-missing").mock(
+        return_value=httpx.Response(
+            content="<div>salary:</div>",
+            status_code=200,
+        )
     )
 
     now = datetime.now(timezone.utc)

@@ -1,11 +1,13 @@
-from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 
+from pydantic import BaseModel, ConfigDict
 
-@dataclass(kw_only=True, frozen=True)
-class JobListing:
+
+class JobListing(BaseModel):
     title: str
     salary: Decimal
     link: str
-    posted_on: datetime | None
+    posted_on: datetime
+
+    model_config = ConfigDict(frozen=True)

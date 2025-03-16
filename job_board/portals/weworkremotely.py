@@ -33,13 +33,14 @@ POSTED_ON_XPATH = (
 
 class WeWorkRemotely(BasePortal):
     portal_name = "weworkremotely"
+    url = "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss"
+    api_data_format = "xml"
+
     region_mapping = {
         "remote": {
             "anywhere",
         },
     }
-
-    url = "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss"
 
     def get_jobs_to_notify(self) -> list[JobListing]:
         response = httpx.get(self.url)

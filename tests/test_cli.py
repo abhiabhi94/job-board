@@ -39,13 +39,13 @@ def test_run_command_with_notify_flag(cli_runner):
 
 
 def test_run_command_with_portal_option(cli_runner):
-    with mock.patch("job_board.cli._run") as mock_run:
+    with mock.patch(
+        "job_board.cli.weworkremotely.WeWorkRemotely.get_jobs_to_notify"
+    ) as mock_run:
         result = cli_runner.invoke(main, ["run", "--portal", "weworkremotely"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(
-        include_portals=["weworkremotely"], to_notify=False
-    )
+    mock_run.assert_called_once()
 
 
 def test_run_function_all_portals():

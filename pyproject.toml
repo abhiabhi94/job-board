@@ -21,15 +21,17 @@ dependencies = [
     "schedule",
     "click",
     "humanize",
+    "openai",
 ]
 [project.optional-dependencies]
 dev = [
     "pre-commit",
     "ipython",
     "pytest",
-    "pytest-httpx",
+    "respx",
     "coverage",
     "freezegun",
+    "openai-responses",
 ]
 
 [project.scripts]

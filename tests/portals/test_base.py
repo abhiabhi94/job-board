@@ -17,13 +17,9 @@ def placeholder_portal():
 
 
 def test_abstract_methods():
-    # Test that the abstract methods raise NotImplementedError
     portal = BasePortal()
     with pytest.raises(NotImplementedError):
         portal.get_jobs_to_notify()
-
-    with pytest.raises(NotImplementedError):
-        portal.get_job_to_notify(None)
 
 
 @pytest.mark.parametrize(
