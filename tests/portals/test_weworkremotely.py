@@ -20,6 +20,18 @@ def mock_rss_response():
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
                 <region>Anywhere</region>
+                <link>{JOB_URL}/job-added-just-now</link>
+            </item>
+            <item>
+                <title>Python Developer</title>
+                <description>Looking for Django and FastAPI developer</description>
+                <region>Anywhere</region>
+                <link>{JOB_URL}/job-added-45-minutes-ago</link>
+            </item>
+            <item>
+                <title>Python Developer</title>
+                <description>Looking for Django and FastAPI developer</description>
+                <region>Anywhere</region>
                 <link>{JOB_URL}/job-with-salary-greater-than-60K</link>
             </item>
             <item>
@@ -92,10 +104,25 @@ def test_get_jobs_to_notify(mock_job_page, httpx_mock, mock_rss_response):
         content=mock_job_page(salary=Decimal(str(80_000))),
     )
     content = mock_job_page(salary=Decimal(str(90_000))).replace(
-        "5 days ago", "1 day ago"
+        "5 days ago", "1 hour ago"
     )
     httpx_mock.add_response(
         url=f"{JOB_URL}/job-with-salary-greater-than-80K",
+        content=content,
+    )
+
+    content = mock_job_page(salary=Decimal(str(10_000))).replace(
+        "5 days ago", "a few minutes ago"
+    )
+    httpx_mock.add_response(
+        url=f"{JOB_URL}/job-added-just-now",
+        content=content,
+    )
+    content = mock_job_page(salary=Decimal(str(200_000))).replace(
+        "5 days ago", "45 minutes ago"
+    )
+    httpx_mock.add_response(
+        url=f"{JOB_URL}/job-added-45-minutes-ago",
         content=content,
     )
     httpx_mock.add_response(
@@ -118,6 +145,12 @@ def test_get_jobs_to_notify(mock_job_page, httpx_mock, mock_rss_response):
     assert job_listings_to_notify == [
         JobListing(
             title="Python Developer",
+            link="https://weworkremotely.com/jobs/job-added-45-minutes-ago",
+            salary=Decimal(str(200_000)),
+            posted_on=now - timedelta(minutes=45),
+        ),
+        JobListing(
+            title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=5),
@@ -126,6 +159,6 @@ def test_get_jobs_to_notify(mock_job_page, httpx_mock, mock_rss_response):
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
             salary=Decimal(str(90_000)),
-            posted_on=now - timedelta(days=1),
+            posted_on=now - timedelta(hours=1),
         ),
     ]
