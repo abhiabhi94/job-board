@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
 
-def parse_relative_time(relative_str):
+def parse_relative_time(relative_str: str | None) -> datetime | None:
+    if relative_str is None:
+        return
+
     value, unit = relative_str.replace(" ago", "").split(" ")
     value = int(value)
 

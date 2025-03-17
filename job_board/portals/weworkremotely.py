@@ -11,7 +11,23 @@ from job_board.utils import parse_relative_time
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
 # matches "posted 5 days ago" or "posted 5 hours ago"
 POSTED_ON_REGEX = re.compile(
-    r"\bposted\s(\d+\s+day[s]?\s+ago)\b|\bposted\s(\d+\s+hour[s]?\s+ago)\b"
+    (
+        r"\bposted\s(\d+\s+day[s]?\s+ago)\b"
+        r"|\bposted\s(\d+\s+hour[s]?\s+ago)\b"
+        r"|\bposted\s(\d+\s+minute[s]?\s+ago)\b"
+    ),
+    re.IGNORECASE,
+)
+TIME_FILTERS = (
+    "day ago",
+    "days ago",
+    "hour ago",
+    "hours ago",
+    "minute ago",
+    "minutes ago",
+)
+POSTED_ON_XPATH = (
+    "//*[" + " or ".join(f"contains(text(), '{t}')" for t in TIME_FILTERS) + "]"
 )
 
 
@@ -67,15 +83,20 @@ class WeWorkRemotely(BasePortal):
         if not validated_salary:
             return
 
-        posted_on = None
-        posted_on_elements = root.xpath(
-            "//*[contains(text(), 'days ago') or contains(text(), 'day ago') or contains(text(), 'hours ago') or contains(text(), 'hour ago')]"  # noqa: E501
-        )
+        posted_on_str = None
+        posted_on_elements = root.xpath(POSTED_ON_XPATH)
+
         for element in posted_on_elements:
             text_content = element.text_content().lower().strip()
             posted_on_matches = POSTED_ON_REGEX.search(text_content)
             if posted_on_matches:
-                posted_on_str = posted_on_matches.group(1)
+                posted_on_str = (
+                    posted_on_matches.group(1)
+                    # in case of hours, the second group will be matched
+                    or posted_on_matches.group(2)
+                    # in case of minutes, the third group will be matched
+                    or posted_on_matches.group(3)
+                )
                 break
 
         posted_on = parse_relative_time(posted_on_str)
