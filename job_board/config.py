@@ -38,4 +38,6 @@ SERVER_EMAIL = os.getenv("SERVER_EMAIL")
 RECEIPIENTS = os.getenv("RECEIPIENTS", "").split(",")
 SQL_DEBUG = os.getenv("SQL_DEBUG", "False").lower() == "true"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPEN_AI_MODEL = "gpt-4o-mini"
+OPEN_AI_MODEL = "gpt-4o"
+# days before which we should ignore jobs
+JOB_AGE_LIMIT_DAYS = int(os.getenv("JOB_AGE_LIMIT_DAYS"))

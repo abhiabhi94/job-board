@@ -6,7 +6,7 @@ from freezegun import freeze_time
 import httpx
 
 from job_board.portals.weworkremotely import WeWorkRemotely
-from job_board.base import JobListing
+from job_board.base import Job
 
 
 JOB_URL = "https://weworkremotely.com/jobs"
@@ -148,19 +148,19 @@ def test_get_jobs_to_notify(mock_job_page, respx_mock, mock_rss_response):
         job_listings_to_notify = portal.get_jobs_to_notify()
 
     assert job_listings_to_notify == [
-        JobListing(
+        Job(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-added-45-minutes-ago",
             salary=Decimal(str(200_000)),
             posted_on=now - timedelta(minutes=45),
         ),
-        JobListing(
+        Job(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=5),
         ),
-        JobListing(
+        Job(
             title="Python Developer",
             link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
             salary=Decimal(str(90_000)),

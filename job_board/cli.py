@@ -71,7 +71,7 @@ def _run(*, include_portals: list[str] | None = None, to_notify=False):
         click.echo("Fetching jobs from all portals")
 
     # TODO: validate that the portal exists
-    job_listings = []
+    jobs = []
     for Portal in (
         weworkremotely.WeWorkRemotely,
         remotive.Remotive,
@@ -80,16 +80,16 @@ def _run(*, include_portals: list[str] | None = None, to_notify=False):
         portal_name = portal.portal_name
         if not include_portals or portal_name.lower() in set(include_portals):
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            fetched_listings = portal.get_jobs_to_notify()
-            logger.debug(f"Jobs from {portal_name}:\n\n{fetched_listings}")
-            job_listings.extend(fetched_listings)
+            fetched_jobs = portal.get_jobs_to_notify()
+            logger.debug(f"Jobs from {portal_name}:\n\n{fetched_jobs}")
+            jobs.extend(fetched_jobs)
 
-    store_jobs(job_listings)
+    store_jobs(jobs)
 
     if to_notify:
         notify()
     else:
-        click.echo(f"JobListings to notify:\n {'\n'.join(map(str, job_listings))}\n")
+        click.echo(f"Jobs to notify:\n {'\n'.join(map(str, jobs))}\n")
         click.echo("Notifications are disabled")
 
     click.echo("********Notifier completed**********")

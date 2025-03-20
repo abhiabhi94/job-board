@@ -10,6 +10,7 @@ from job_board.logger import logger
 from job_board.connection import Session, engine
 from job_board.notifier.mail import EmailProvider
 from job_board import config
+from job_board.base import Job as JobListing
 
 
 # Base class for all models
@@ -41,8 +42,8 @@ class Job(Base):
         """)
 
 
-def store_jobs(job_listings):
-    if not job_listings:
+def store_jobs(jobs: JobListing):
+    if not jobs:
         logger.debug("No jobs to store")
         return
 
@@ -51,12 +52,12 @@ def store_jobs(job_listings):
         .values(
             [
                 {
-                    "link": job_listing.link,
-                    "title": job_listing.title,
-                    "salary": job_listing.salary,
-                    "posted_on": job_listing.posted_on,
+                    "link": job.link,
+                    "title": job.title,
+                    "salary": job.salary,
+                    "posted_on": job.posted_on,
                 }
-                for job_listing in job_listings
+                for job in jobs
             ],
         )
         .returning(Job.id)
