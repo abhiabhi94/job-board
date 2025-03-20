@@ -22,6 +22,7 @@ dependencies = [
     "click",
     "humanize",
     "openai",
+    "pydantic",
 ]
 [project.optional-dependencies]
 dev = [

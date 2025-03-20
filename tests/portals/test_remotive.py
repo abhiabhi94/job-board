@@ -1,15 +1,25 @@
+from decimal import Decimal
+from unittest.mock import MagicMock, patch
+from datetime import datetime, timezone
+
 import pytest
-import json
-
 import httpx
-import openai_responses
+from freezegun import freeze_time
 
-from job_board.portals.remotive import Remotive
-from job_board.base import JobListing
+from job_board.portals.remotive import Remotive, DATE_FORMAT
+from job_board.base import Job
+from job_board.portals.base import JobsOpenAI, JobOpenAI
 
 
 @pytest.fixture
-def sample_job():
+def frozen_time():
+    now = datetime.now(timezone.utc)
+    with freeze_time(now):
+        yield now.strftime(DATE_FORMAT)
+
+
+@pytest.fixture
+def sample_job(frozen_time):
     return {
         "url": "https://remotive.com/jobs/123",
         "title": "Python Developer",
@@ -19,12 +29,12 @@ def sample_job():
         "candidate_required_location": "Worldwide",
         "tags": ["python", "django", "api"],
         "salary": "90000-120000",
-        "publication_time": "2024-03-13T10:00:00",
+        "publication_date": frozen_time,
     }
 
 
 @pytest.fixture
-def sample_jobs_response(sample_job):
+def sample_jobs_response(sample_job, frozen_time):
     return {
         "jobs": [
             sample_job,
@@ -36,7 +46,7 @@ def sample_jobs_response(sample_job):
                 "candidate_required_location": "Worldwide",
                 "tags": ["java", "spring"],
                 "salary": "100000-130000",
-                "publication_time": "2024-03-13T11:00:00",
+                "publication_date": frozen_time,
             },
             # matching keywords but low salary
             {
@@ -46,7 +56,7 @@ def sample_jobs_response(sample_job):
                 "candidate_required_location": "Worldwide",
                 "tags": ["python"],
                 "salary": "40000-50000",
-                "publication_time": "2024-03-13T12:00:00",
+                "publication_date": frozen_time,
             },
             # no salary info
             {
@@ -55,42 +65,57 @@ def sample_jobs_response(sample_job):
                 "description": "<p>We need a Python expert.</p>",
                 "candidate_required_location": "Worldwide",
                 "tags": ["python"],
-                "publication_time": "2024-03-13T13:00:00",
+                "publication_date": frozen_time,
             },
         ]
     }
 
 
-@openai_responses.mock()
 def test_get_jobs_to_notify(
     respx_mock,
     sample_jobs_response,
-    openai_mock: openai_responses.OpenAIMock,
-    sample_job,
+    frozen_time,
 ):
+    sample_job = {
+        "title": "Software Engineer",
+        "salary": "100000-150000",
+        "url": "https://example.com/job",
+        "candidate_required_location": "Remote",
+        "publication_date": frozen_time,
+    }
+    job_data = {
+        "title": sample_job["title"],
+        "salary": Decimal(sample_job["salary"].split("-")[-1]),
+        "link": sample_job["url"],
+        "location": sample_job["candidate_required_location"],
+        "posted_on": sample_job["publication_date"],
+    }
+
+    job_openai_instance = JobOpenAI(**job_data)
+    jobs_openai_response = JobsOpenAI(jobs=[job_openai_instance])
+
     respx_mock.get(Remotive.url).mock(
         return_value=httpx.Response(json=sample_jobs_response, status_code=200)
     )
 
-    job_data = {
-        "title": sample_job["title"],
-        "salary": sample_job["salary"].split("-")[-1],
-        "link": sample_job["url"],
-        "location": sample_job["candidate_required_location"],
-        "posted_on": "2025-01-01T00:00:00Z",
-    }
-    openai_mock.chat.completions.create.response = {
-        "choices": [
-            {
-                "index": 0,
-                "finish_reason": "stop",
-                "message": {"content": json.dumps([job_data]), "role": "assistant"},
-            }
-        ]
-    }
+    with patch(
+        "job_board.portals.base.openai.Client", autospec=True
+    ) as mock_openai_class:
+        mock_client = MagicMock()
+        mock_openai_class.return_value = mock_client
 
-    portal = Remotive()
+        mock_response = MagicMock()
+        mock_client.beta.chat.completions.parse.return_value = mock_response
 
-    (result,) = portal.get_jobs_to_notify()
+        mock_choice = MagicMock()
+        mock_message = MagicMock()
+        mock_response.choices = [mock_choice]
+        mock_choice.message = mock_message
+        mock_message.parsed = jobs_openai_response
 
-    assert result == JobListing(**job_data)
+        portal = Remotive()
+
+        (result,) = portal.get_jobs_to_notify()
+
+    assert result == Job(**job_data)
+    assert mock_client.beta.chat.completions.parse.call_count == 1

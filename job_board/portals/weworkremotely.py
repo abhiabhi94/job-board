@@ -4,7 +4,7 @@ import re
 
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
-from job_board.base import JobListing
+from job_board.base import Job
 from job_board.utils import parse_relative_time
 
 # matches "60,000" or "60,000,000"
@@ -42,7 +42,7 @@ class WeWorkRemotely(BasePortal):
         },
     }
 
-    def get_jobs_to_notify(self) -> list[JobListing]:
+    def get_jobs_to_notify(self) -> list[Job]:
         response = httpx.get(self.url)
         response.raise_for_status()
         root = objectify.fromstring(response.content)
@@ -59,13 +59,13 @@ class WeWorkRemotely(BasePortal):
                 links_to_look.append(link)
 
         logger.debug(f"Found {links_to_look} links to look for salary information")
-        job_listings_to_notify: list[JobListing] = []
+        job_listings_to_notify: list[Job] = []
         for link in links_to_look:
             if job_listing := self.get_job_to_notify(link):
                 job_listings_to_notify.append(job_listing)
         return job_listings_to_notify
 
-    def get_job_to_notify(self, link) -> JobListing | None:
+    def get_job_to_notify(self, link) -> Job | None:
         response = httpx.get(link)
         response.raise_for_status()
         root = html.fromstring(response.content)
@@ -102,7 +102,7 @@ class WeWorkRemotely(BasePortal):
 
         posted_on = parse_relative_time(posted_on_str)
 
-        return JobListing(
+        return Job(
             title=root.findtext(".//title").strip(),
             salary=validated_salary,
             link=link,

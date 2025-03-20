@@ -3,8 +3,8 @@ from decimal import Decimal
 from unittest import mock
 
 
-from job_board.models import Job
-from job_board.base import JobListing
+from job_board.models import Job as JobModel
+from job_board.base import Job
 
 import pytest
 import sqlalchemy
@@ -55,13 +55,13 @@ def test_store_jobs(db_session):
     assert store_jobs([]) is None
 
     job_listings = [
-        JobListing(
+        Job(
             link="http://job1.com",
             title="Job 1",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=1),
         ),
-        JobListing(
+        Job(
             link="http://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
@@ -71,7 +71,7 @@ def test_store_jobs(db_session):
 
     store_jobs(job_listings)
 
-    jobs = db_session.execute(sqlalchemy.select(Job)).scalars().all()
+    jobs = db_session.execute(sqlalchemy.select(JobModel)).scalars().all()
 
     assert {j.link for j in jobs} == {
         "http://job1.com",
@@ -83,7 +83,7 @@ def test_notify(db_session):
     # No jobs to notify, nothing happens
     notify()
 
-    job = Job(
+    job = JobModel(
         link="http://job.com",
         title="Job Title",
         salary=Decimal(str(70_000)),
