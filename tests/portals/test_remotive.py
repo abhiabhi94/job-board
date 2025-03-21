@@ -72,7 +72,7 @@ def sample_jobs_response(sample_job, frozen_time):
     }
 
 
-def test_get_jobs_to_notify(
+def test_get_jobs(
     respx_mock,
     sample_jobs_response,
     frozen_time,
@@ -116,7 +116,7 @@ def test_get_jobs_to_notify(
 
         portal = Remotive()
 
-        (result,) = portal.get_jobs_to_notify()
+        (result,) = portal.get_jobs()
 
     assert result == Job(**job_data)
     assert mock_client.beta.chat.completions.parse.call_count == 1
