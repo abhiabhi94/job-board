@@ -8,6 +8,8 @@ from job_board.base import Job
 from job_board import config
 from job_board.logger import logger
 
+PORTALS = {}
+
 
 # since openai doesn't support date time, we will need to
 # convert the date time to a string
@@ -27,6 +29,11 @@ class BasePortal:
     api_data_format: str = "json"
 
     region_mapping: dict[str, set[str]]
+
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+        PORTALS[cls.portal_name] = cls
 
     def __init__(self):
         self.openai_client = openai.Client(
@@ -104,8 +111,8 @@ class BasePortal:
               {config.CURRENCY_SALARY} ** (do not assume conversion is
               done externally). Use the exchange rate as on 1st Jan 2025.
             - If the salary is mentioned as something like "30$ per hour",
-              convert it to an annual salary, assuming a 30-hour workweek and
-              45 weeks per year.
+              convert it to an annual salary, assuming a 40-hour workweek and
+              52 weeks per year.
         - Location
         - Posted Date
             - Convert the posted date to a format in UTC,

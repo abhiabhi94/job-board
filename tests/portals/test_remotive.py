@@ -6,7 +6,8 @@ import pytest
 import httpx
 from freezegun import freeze_time
 
-from job_board.portals.remotive import Remotive, DATE_FORMAT
+from job_board.portals import Remotive
+from job_board.portals.remotive import DATE_FORMAT
 from job_board.base import Job
 from job_board.portals.base import JobsOpenAI, JobOpenAI
 

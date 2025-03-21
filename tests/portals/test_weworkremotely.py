@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from freezegun import freeze_time
 import httpx
 
-from job_board.portals.weworkremotely import WeWorkRemotely
+from job_board.portals import WeWorkRemotely
 from job_board.base import Job
 
 

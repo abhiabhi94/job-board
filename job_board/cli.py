@@ -7,10 +7,7 @@ import time
 import click
 import schedule
 
-from job_board.portals import (
-    weworkremotely,
-    remotive,
-)
+from job_board.portals import PORTALS
 from job_board.models import store_jobs
 from job_board.models import create_tables, notify
 from job_board.logger import logger
@@ -47,40 +44,36 @@ def main():
 @click.option(
     "--portal",
     "-P",
-    "include_portal",
+    "portal",
     default=None,
     help="Portal to fetch jobs from, by default it will fetch from all portals",
 )
-def run(pdb_flag, include_portal, to_notify):
+def run(pdb_flag, portal, to_notify):
     if pdb_flag:
         sys.excepthook = debugger_hook
 
-    if not include_portal:
-        included_portals = []
+    if not portal:
+        portals = []
     else:
-        included_portals = [include_portal]
+        portals = [portal]
 
-    _run(include_portals=included_portals, to_notify=to_notify)
+    _run(portals=portals, to_notify=to_notify)
 
 
-def _run(*, include_portals: list[str] | None = None, to_notify=False):
+def _run(*, portals: list[str] | None = None, to_notify=False):
     create_tables()
     click.echo("********Notifier started**********")
 
-    if not include_portals:
+    if not portals:
         click.echo("Fetching jobs from all portals")
+        portals = list(PORTALS.keys())
 
     # TODO: validate that the portal exists
     jobs = []
-    for Portal in (
-        weworkremotely.WeWorkRemotely,
-        remotive.Remotive,
-    ):
-        portal = Portal()
-        portal_name = portal.portal_name
-        if not include_portals or portal_name.lower() in set(include_portals):
+    for portal_name, portal_class in PORTALS.items():
+        if portal_name.lower() in portals:
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            fetched_jobs = portal.get_jobs_to_notify()
+            fetched_jobs = portal_class().get_jobs_to_notify()
             logger.debug(f"Jobs from {portal_name}:\n\n{fetched_jobs}")
             jobs.extend(fetched_jobs)
 

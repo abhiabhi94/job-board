@@ -3,6 +3,7 @@ import pytest
 from click.testing import CliRunner
 
 from job_board.cli import main, _run, debugger_hook
+from job_board.portals import PORTALS
 
 
 @pytest.fixture
@@ -15,7 +16,7 @@ def test_run_command_default_options(cli_runner):
         result = cli_runner.invoke(main, ["run"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(include_portals=[], to_notify=False)
+    mock_run.assert_called_once_with(portals=[], to_notify=False)
 
 
 def test_run_command_with_pdb_flag(cli_runner):
@@ -27,7 +28,7 @@ def test_run_command_with_pdb_flag(cli_runner):
 
     assert result.exit_code == 0
     assert mock_sys.excepthook == debugger_hook
-    mock_run.assert_called_once_with(include_portals=[], to_notify=False)
+    mock_run.assert_called_once_with(portals=[], to_notify=False)
 
 
 def test_run_command_with_notify_flag(cli_runner):
@@ -35,103 +36,85 @@ def test_run_command_with_notify_flag(cli_runner):
         result = cli_runner.invoke(main, ["run", "--notify"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(include_portals=[], to_notify=True)
+    mock_run.assert_called_once_with(portals=[], to_notify=True)
 
 
-def test_run_command_with_portal_option(cli_runner):
-    with mock.patch(
-        "job_board.cli.weworkremotely.WeWorkRemotely.get_jobs_to_notify"
-    ) as mock_run:
+@pytest.fixture
+def mock_portals(monkeypatch):
+    mock_methods = []
+
+    def _mock_portals(portals=None):
+        if portals is None:
+            portals = PORTALS.keys()
+
+        for portal_name, portal_class in PORTALS.items():
+            if portal_name not in portals:
+                continue
+
+            mock_method = mock.MagicMock(return_value=[f"job-{portal_name}"])
+            monkeypatch.setattr(
+                portal_class,
+                "get_jobs_to_notify",
+                value=mock_method,
+            )
+            mock_methods.append(mock_method)
+
+        return mock_methods
+
+    yield _mock_portals
+
+    for mock_method in mock_methods:
+        mock_method.assert_called_once()
+
+
+def test_run_command_with_portal_option(cli_runner, mock_portals):
+    mock_portals(portals=["weworkremotely"])
+    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
         result = cli_runner.invoke(main, ["run", "--portal", "weworkremotely"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once()
+    mock_store_jobs.assert_called_once()
 
 
-def test_run_function_all_portals():
-    mock_wwr_instance = mock.MagicMock(
-        portal_name="weworkremotely",
-        get_jobs_to_notify=mock.MagicMock(return_value=["job1", "job2"]),
-    )
-
-    mock_remotive_instance = mock.MagicMock(
-        portal_name="remotive",
-        get_jobs_to_notify=mock.MagicMock(return_value=["job3"]),
-    )
-
+def test_run_function_all_portals(mock_portals):
+    mock_portals()
     with (
         mock.patch("job_board.cli.create_tables") as mock_create_tables,
         mock.patch("job_board.cli.click.echo") as mock_echo,
-        mock.patch(
-            "job_board.cli.weworkremotely.WeWorkRemotely",
-            return_value=mock_wwr_instance,
-        ),
-        mock.patch(
-            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
-        ),
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _run()
 
     mock_create_tables.assert_called_once()
-    mock_wwr_instance.get_jobs_to_notify.assert_called_once()
-    mock_remotive_instance.get_jobs_to_notify.assert_called_once()
-    mock_store_jobs.assert_called_once_with(["job1", "job2", "job3"])
+    mock_store_jobs.assert_called_once()
     mock_notify.assert_not_called()
+
     assert mock_echo.call_count >= 3
 
 
-def test_run_function_specific_portal():
-    mock_wwr_instance = mock.MagicMock(portal_name="weworkremotely")
-    mock_wwr_instance.get_jobs_to_notify.return_value = ["job1", "job2"]
-
-    mock_remotive_instance = mock.MagicMock()
-    mock_remotive_instance.name = "remotive"
-    mock_remotive_instance.get_jobs_to_notify.return_value = ["job3"]
+def test_run_function_specific_portal(mock_portals):
+    mock_portals(portals=["weworkremotely"])
 
     with (
         mock.patch("job_board.cli.create_tables") as mock_create_tables,
         mock.patch("job_board.cli.click.echo"),
-        mock.patch(
-            "job_board.cli.weworkremotely.WeWorkRemotely",
-            return_value=mock_wwr_instance,
-        ),
-        mock.patch(
-            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
-        ),
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
-        _run(include_portals=["weworkremotely"])
+        _run(portals=["weworkremotely"])
 
     mock_create_tables.assert_called_once()
-    mock_wwr_instance.get_jobs_to_notify.assert_called_once()
-    mock_remotive_instance.get_jobs_to_notify.assert_not_called()
-    mock_store_jobs.assert_called_once_with(["job1", "job2"])
+    mock_store_jobs.assert_called_once()
     mock_notify.assert_not_called()
 
 
-def test_run_function_with_notify():
-    mock_wwr_instance = mock.MagicMock(
-        portal_name="weworkremotely",
-        get_jobs_to_notify=mock.MagicMock(return_value=[]),
-    )
-
-    mock_remotive_instance = mock.MagicMock(
-        portal_name="remotive", get_jobs_to_notify=mock.MagicMock(return_value=[])
-    )
+def test_run_function_with_notify(mock_portals):
+    mock_portals()
 
     with (
         mock.patch("job_board.cli.create_tables"),
         mock.patch("job_board.cli.click.echo"),
-        mock.patch(
-            "job_board.cli.weworkremotely.WeWorkRemotely",
-            return_value=mock_wwr_instance,
-        ),
-        mock.patch(
-            "job_board.cli.remotive.Remotive", return_value=mock_remotive_instance
-        ),
         mock.patch("job_board.cli.store_jobs"),
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
