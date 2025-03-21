@@ -9,7 +9,7 @@ from job_board import config
 @pytest.fixture
 def placeholder_portal():
     class PlaceholderPortal(BasePortal):
-        name = "placeholder"
+        portal_name = "placeholder"
         url = "https://example.com/api"
         region_mapping = {"remote": {"worldwide", "remote", "anywhere"}}
 
