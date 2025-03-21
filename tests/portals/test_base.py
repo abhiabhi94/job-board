@@ -19,7 +19,7 @@ def placeholder_portal():
 def test_abstract_methods():
     portal = BasePortal()
     with pytest.raises(NotImplementedError):
-        portal.get_jobs_to_notify()
+        portal.get_jobs()
 
 
 @pytest.mark.parametrize(

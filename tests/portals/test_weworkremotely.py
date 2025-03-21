@@ -93,7 +93,7 @@ def mock_job_page():
     return _mock_job_page
 
 
-def test_get_jobs_to_notify(mock_job_page, respx_mock, mock_rss_response):
+def test_get_jobs(mock_job_page, respx_mock, mock_rss_response):
     portal = WeWorkRemotely()
 
     respx_mock.get(url=portal.url).mock(
@@ -145,7 +145,7 @@ def test_get_jobs_to_notify(mock_job_page, respx_mock, mock_rss_response):
 
     now = datetime.now(timezone.utc)
     with freeze_time(now):
-        job_listings_to_notify = portal.get_jobs_to_notify()
+        job_listings_to_notify = portal.get_jobs()
 
     assert job_listings_to_notify == [
         Job(
