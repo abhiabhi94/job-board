@@ -40,7 +40,7 @@ class BasePortal:
             api_key=config.OPENAI_API_KEY, timeout=httpx.Timeout(30)
         )
 
-    def get_jobs_to_notify(self) -> list[Job]:
+    def get_jobs(self) -> list[Job]:
         raise NotImplementedError()
 
     def validate_keywords_and_region(

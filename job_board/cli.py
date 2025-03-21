@@ -73,7 +73,7 @@ def _run(*, portals: list[str] | None = None, to_notify=False):
     for portal_name, portal_class in PORTALS.items():
         if portal_name.lower() in portals:
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            fetched_jobs = portal_class().get_jobs_to_notify()
+            fetched_jobs = portal_class().get_jobs()
             logger.debug(f"Jobs from {portal_name}:\n\n{fetched_jobs}")
             jobs.extend(fetched_jobs)
 
