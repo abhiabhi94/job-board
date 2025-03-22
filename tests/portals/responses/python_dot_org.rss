@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python.org Jobs Feed</title><link>https://www.python.org/jobs/</link><description>Python jobs from Python.org</description><atom:link href="https://www.python.org/jobs/feed/rss/" rel="self"/><language>en-us</language><lastBuildDate>Sat, 22 Mar 2025 02:29:11 +0000</lastBuildDate><item><title>Senior Full-stack Developer (Python, React, Elixir), Lemon.io</title><link>https://www.python.org/jobs/7831/</link><description>CLAYMONT, Utah, United States
+&lt;p&gt;Are you a talented Senior Full-stack Developer &lt;strong&gt;with AI expertise&lt;/strong&gt; looking for a remote job that lets you show your skills and get decent compensation? Look no further than Lemon.io — the marketplace that connects you with hand-picked startups in the US and Europe.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Short review of the position:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Currently, we are looking for a skilled Senior Full-Stack Developer &lt;strong&gt;with AI expertise&lt;/strong&gt; for our client. This is a direct-hire opportunity that requires the candidate to be based in the U.S. or, for candidates based in LATAM and Canada, to have prior experience working with U.S.-based companies. For candidates based in Utah, additional perks and benefits are available at the company's office.&lt;/p&gt;
+&lt;p&gt;The full-stack role is mostly the backend (80%) with some frontend (20%). Half of the backend work is standard software development, and the other half involves AI, and focusing on using existing LLM models rather than building them.&lt;/p&gt;
+&lt;p&gt;Rate: up to $80 + benefits.&lt;/p&gt;
+&lt;p&gt;Full-time only / 40h.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Must-have:&lt;/strong&gt; Python, Elixir, LangChain, &lt;strong&gt;AI expertise.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Nice to have experience in/with:&lt;/strong&gt; insurance, React.js.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;BENEFITS:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Open and transparent culture&lt;/li&gt;
+&lt;li&gt;Life insurance, long and short-term disability coverage&lt;/li&gt;
+&lt;li&gt;Paid maternity and paternity leave&lt;/li&gt;
+&lt;li&gt;Fertility Benefits&lt;/li&gt;
+&lt;li&gt;Generous vacation time, plus three 4-day summer holiday weekends&lt;/li&gt;
+&lt;li&gt;Excellent medical, dental, and vision benefits&lt;/li&gt;
+&lt;li&gt;401k Plan with company matching&lt;/li&gt;
+&lt;li&gt;Bi-annual swag drops with cool company’s gear and apparel&lt;/li&gt;
+&lt;li&gt;A stellar HQ (Utah) gym with local professional coaches and classes offered&lt;/li&gt;
+&lt;li&gt;Onsite HQ (Utah) child care center, subsidized for employees&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Team communication:&lt;/strong&gt;&amp;nbsp;Slack and daily calls&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Estimated duration:&lt;/strong&gt;&amp;nbsp;7+ months (ongoing)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Client’s time zone:&lt;/strong&gt;&amp;nbsp;(GMT -7:00) Mountain Time (US &amp;amp; Canada)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Selection process:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;VideoAsk — watch a short video about our startup, up to 10 minutes&lt;/li&gt;
+&lt;li&gt;Complete your profile on our website&lt;/li&gt;
+&lt;li&gt;30-minute screening call&lt;/li&gt;
+&lt;li&gt;Technical interview&lt;/li&gt;
+&lt;li&gt;Feedback&lt;/li&gt;
+&lt;li&gt;1 screening with the client’s team&lt;/li&gt;
+&lt;li&gt;Code pairing and system design round&lt;/li&gt;
+&lt;li&gt;Interview with the senior leader&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;What You Should Have:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;5+ years of experience in software development, with expertise in modern programming languages.&lt;/li&gt;
+&lt;li&gt;3+ years of experience with Python.&lt;/li&gt;
+&lt;li&gt;2+ years of experience with Elixir.&lt;/li&gt;
+&lt;li&gt;Experience with LLM integration, LangChain, chatbot/AI agent development, and full-stack software engineering.&lt;/li&gt;
+&lt;li&gt;A passion for AI and its potential to transform businesses and industries.&lt;/li&gt;
+&lt;li&gt;Strong problem-solving and analytical skills, with a track record of driving innovation in fast-paced, iterative development environments.&lt;/li&gt;
+&lt;li&gt;Excellent communication skills and a collaborative mindset, with the ability to work across teams and articulate technical concepts effectively.&lt;/li&gt;
+&lt;li&gt;Ability to thrive in a rapidly changing environment and tackle ambiguous problems head-on.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;What We Hope You Have:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;5+ years of experience contributing to the architecture and design of large-scale systems.&lt;/li&gt;
+&lt;li&gt;Proven ability to innovate and deliver high-impact AI-driven solutions that shape the direction of a product.&lt;/li&gt;
+&lt;li&gt;Experience collaborating in cross-functional teams to create and refine AI solutions.&lt;/li&gt;
+&lt;li&gt;A passion for pushing the envelope on AI technology and driving continuous improvement.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7831/</guid></item><item><title>Senior Software Engineer, UpDoc</title><link>https://www.python.org/jobs/7830/</link><description>Remote, Remote, United States
+&lt;p&gt;We are seeking a talented and motivated senior engineer to join our team. You will primarily work on our backend services. This is a fully remote position.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Who You Are&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;You're an experienced senior engineer with strong backend expertise. You're a pragmatic, thoughtful engineer with experience owning projects end-to-end. You're excited to build the technical foundation for AI-powered healthcare and apply solid engineering principles to deliver reliability when it matters most.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What You'll Do&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Develop and maintain high-quality backend systems in Python.&lt;/li&gt;
+&lt;li&gt;Work with frontend, product and other engineering team members to scope and define backend functionality for the product.&lt;/li&gt;
+&lt;li&gt;Design internal and external APIs that power the UpDoc platform.&lt;/li&gt;
+&lt;li&gt;Develop and maintain integrations with third-party healthcare services.&lt;/li&gt;
+&lt;li&gt;Help with aspects of the end-to-end engineering stack such as DevOps, CI/CD and observability.&lt;/li&gt;
+&lt;li&gt;Participate in day-to-day engineering tasks such as code review and troubleshooting production issues.&lt;/li&gt;
+&lt;li&gt;Collaborate with clinical experts to ensure our services are accurate, reliable and trustworthy.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;What You'll Need&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;5+ years of professional backend development experience.&lt;/li&gt;
+&lt;li&gt;Comfortable working with type-hinted, modern Python.&lt;/li&gt;
+&lt;li&gt;Ability to deliver reliable, maintainable systems in a fast-paced environment where safety matters.&lt;/li&gt;
+&lt;li&gt;Knowledge of backend-relevant software engineering fundamentals, e.g. networking basics, HTTP, caching, database design, RPC, etc.&lt;/li&gt;
+&lt;li&gt;Experience with cloud platforms (especially Azure), DevOps/IaC practices and containerization.&lt;/li&gt;
+&lt;li&gt;Experience in designing and implementing RESTful APIs.&lt;/li&gt;
+&lt;li&gt;Extensive experience with software testing methodologies and practices.&lt;/li&gt;
+&lt;li&gt;Experience troubleshooting complex technical issues in production environments.&lt;/li&gt;
+&lt;li&gt;Demonstrated ability to learn continuously, work independently and communicate effectively.&lt;/li&gt;
+&lt;li&gt;Experience owning projects end-to-end.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Highly Desired&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Extensive experience with Python and knowledge of the Python ecosystem.&lt;/li&gt;
+&lt;li&gt;Experience with FastAPI and Pydantic.&lt;/li&gt;
+&lt;li&gt;Experience with healthcare industry standards, such as FHIR, and regulations, including HIPAA and SOC 2.&lt;/li&gt;
+&lt;li&gt;Experience in an early stage (&amp;lt; 20 employees) startup environment.&lt;/li&gt;
+&lt;li&gt;Experience building applications with LLMs.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7830/</guid></item><item><title>Senior Python Full Stack Developer in Canada. (100% Remote), TechedIn</title><link>https://www.python.org/jobs/7829/</link><description>Toronto, Canada
+&lt;p&gt;We are seeking a highly skilled Senior Python Full Stack Developer with 10 years of experience in software development. If you have extensive expertise in Python, React.js, and databases like MySQL or Aurora, along with experience working with AWS technologies, this could be the perfect opportunity for you&lt;/p&gt;
+&lt;p&gt;However, please note that the candidate must be physically present within Canada to proceed with this opportunity.&lt;/p&gt;
+&lt;p&gt;Please find the job details below and share with me your most updated resume.&lt;/p&gt;
+&lt;p&gt;Here’s a quick overview of the position:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Job Title: Senior Python Full Stack Developer&lt;/li&gt;
+&lt;li&gt;Location: Canada (100% Remote)&lt;/li&gt;
+&lt;li&gt;Working Hours: 40 hours per week (Mandatory)&lt;/li&gt;
+&lt;li&gt;Job Type: T4 Contract, initially for one year with the possibility of extension&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Responsibilities:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Design, develop, and maintain scalable full-stack applications using Python (backend) and React.js (frontend).&lt;/li&gt;
+&lt;li&gt;Work with MySQL or Aurora databases, ensuring efficient data management and optimization.&lt;/li&gt;
+&lt;li&gt;Leverage AWS technologies (e.g., S3, EMR) to deploy and manage applications.&lt;/li&gt;
+&lt;li&gt;Collaborate with cross-functional teams to define, design, and implement new features.&lt;/li&gt;
+&lt;li&gt;Ensure high performance, scalability, and security of applications.&lt;/li&gt;
+&lt;li&gt;Troubleshoot, debug, and resolve technical issues efficiently.&lt;/li&gt;
+&lt;li&gt;Document technical requirements, architecture, and solutions for future reference.&lt;/li&gt;
+&lt;li&gt;Stay updated with emerging technologies and best practices in full-stack development.&lt;/li&gt;
+&lt;li&gt;Lead and mentor junior developers when necessary.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Required Qualifications:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Bachelor’s Degree in Software Engineering or Information Technology.&lt;/li&gt;
+&lt;li&gt;10+ years of experience in software development.&lt;/li&gt;
+&lt;li&gt;Expertise in Python, React.js, and database management (MySQL/Aurora).&lt;/li&gt;
+&lt;li&gt;Experience working with AWS services (e.g., S3, EMR).&lt;/li&gt;
+&lt;li&gt;Strong analytical and problem-solving skills.&lt;/li&gt;
+&lt;li&gt;Excellent communication and team collaboration skills.&lt;/li&gt;
+&lt;li&gt;Ability to lead projects when necessary and guide junior developers.&lt;/li&gt;
+&lt;li&gt;Nice-to-Have Skills:&lt;/li&gt;
+&lt;li&gt;Experience with Big Data technologies, such as Kafka.&lt;/li&gt;
+&lt;li&gt;Knowledge of DevOps and CI/CD pipelines.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you’re interested in this opportunity, please share your resume at &lt;a class="reference external" href="mailto:mohd.asif&amp;#64;techedinlabs.com"&gt;mohd.asif&amp;#64;techedinlabs.com&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Must haves on resume: Python, React, MySQL or other Aurora, RDBMS, Postgres.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7829/</guid></item><item><title>Python React Developer, Techedin</title><link>https://www.python.org/jobs/7828/</link><description>Toronto, Ontario, Canada
+&lt;ul class="simple"&gt;
+&lt;li&gt;Bachelor’s Degree in Software Engineering or Information Technology&lt;/li&gt;
+&lt;li&gt;Required 10 years of software development experience.&lt;/li&gt;
+&lt;li&gt;Extensive full stack experience with Python, React.JS and databases like MySQL or Aurora.&lt;/li&gt;
+&lt;li&gt;Experience working with AWS technologies e.g., S3, EMR.&lt;/li&gt;
+&lt;li&gt;Good to have experience with Big Data Technologies like Kafka.&lt;/li&gt;
+&lt;li&gt;Excellent analyzing and problem-solving skills.&lt;/li&gt;
+&lt;li&gt;Team player attitude with a willingness to lead when necessary.&lt;/li&gt;
+&lt;li&gt;Ability to document requirements and specifications.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Must Haves:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Python&lt;/li&gt;
+&lt;li&gt;React&lt;/li&gt;
+&lt;li&gt;MySql&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;-kafka&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7828/</guid></item><item><title>Full Stack Engineer (Django), Multi Media LLC</title><link>https://www.python.org/jobs/7827/</link><description>Remote USA, USA
+&lt;p&gt;&lt;strong&gt;Who We Are&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Multi Media LLC is a technology company that builds digital products for the content creator economy, pioneering digital products like our flagship platform, Chaturbate—a leader in adult entertainment that bridges millions of performers and viewers globally. The financial applications team is responsible for building and maintaining software that collects and distributes payment for Multi Media user applications. Our mission is to provide swift, secure financial transactions to our users and creators around the globe.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;About the role:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;We are seeking a talented Full-Stack Engineer to join our team. The ideal candidate will be proficient in Django/Python and have strong front-end development experience—whether with React or another modern framework. Bonus points if you are comfortable in the world of CSS.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What you'll do&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Design and develop robust and scalable web applications using Python, Django, and other relevant technologies.&lt;/li&gt;
+&lt;li&gt;Build comprehensive, high-quality technical solutions, ensuring top-level performance and responsiveness.&lt;/li&gt;
+&lt;li&gt;Keep fraud, hacking and security top-of-mind, with a sense of caution about moving money.&lt;/li&gt;
+&lt;li&gt;Tackle complex financial challenges and develop innovative solutions&lt;/li&gt;
+&lt;li&gt;Take ownership of your work and see your contributions make a real difference.&lt;/li&gt;
+&lt;li&gt;Fix existing bugs on a case-by-case basis.&lt;/li&gt;
+&lt;li&gt;Participate in daily standups and brainstorming sessions to figure out technical solutions to achieve the goals set by the management.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;What you bring to the team:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Proficiency in Python and Django framework.&lt;/li&gt;
+&lt;li&gt;Knowledge of Django REST Framework for building APIs and RESTful API design principles.&lt;/li&gt;
+&lt;li&gt;Understanding of Django's ORM for database interaction.&lt;/li&gt;
+&lt;li&gt;Proven experience with modern front-end frameworks (e.g., React, Angular, Vue)&lt;/li&gt;
+&lt;li&gt;Practical experience with version control.&lt;/li&gt;
+&lt;li&gt;Ability to write clean, maintainable, and functional code. Those with a passion for test coverage move to the front of the line.&lt;/li&gt;
+&lt;li&gt;Problem-solving skills and attention to detail.&lt;/li&gt;
+&lt;li&gt;Strong communication and collaboration abilities.&lt;/li&gt;
+&lt;li&gt;Enjoy working on a small team with a big impact.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Bonus Points:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Strong understanding of React core concepts (components, state, props, hooks).&lt;/li&gt;
+&lt;li&gt;Experience with popular React libraries (e.g., Redux, React Router).&lt;/li&gt;
+&lt;li&gt;Proficiency with CSS&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Benefits
+Competitive compensation with performance bonuses.
+Fully remote option.
+Health, vision, dental, and life insurance for you and any dependents, with policy premiums covered by the company.
+Long- &amp;amp; short-term disability insurance.
+Unlimited PTO.
+Annual year-end company closure.
+Optional 401k with 5% matching.
+12 paid holidays.
+Paid lunches in-office; if remote, a $125/week stipend via Sharebite.
+EAP and employee recognition programs.&lt;/p&gt;
+&lt;p&gt;The base salary range for this position is &lt;strong&gt;$120,000 - $165,000 annually&lt;/strong&gt;, plus additional compensation and benefits. The range displayed reflects the minimum and maximum range for a new hire across the U.S. for the posted position. A candidate's specific pay will be determined on a case-by-case basis and may vary based on the candidate's job-related skills, relevant education, training, experience, certifications, and abilities, as well as other factors unique to each candidate.&lt;/p&gt;
+&lt;p&gt;Multi Media, LLC, is an equal opportunity employer that values diversity. We do not discriminate on the basis of race, religion, color, national origin, gender, sexual orientation, age, marital status, veteran status, or disability status.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7827/</guid></item><item><title>Python/C++ Developer, Boothbay Quantitative Management</title><link>https://www.python.org/jobs/7826/</link><description>NEW YORK, NY, United States
+&lt;p&gt;Introduction&lt;/p&gt;
+&lt;p&gt;Boothbay Fund Management, LLC is a multi‐manager, multi‐strategy firm with 100+ alternative asset managers trading strategies across a spectrum of asset classes globally. Boothbay launched its  flagship strategy in 2014. Boothbay has its primary office in NYC, and additional offices in  London, and Westchester. The firm is operated with an entrepreneurial spirit and is continually  seeking to improve and expand.&lt;/p&gt;
+&lt;p&gt;Role&lt;/p&gt;
+&lt;p&gt;We are seeking talented and passionate C++/Python Developers to join our Quantitative Management  Division. In this role, you will be responsible for developing and implementing key infrastructure  systems, such as Order Management, Simulation platforms, Back testing frameworks, and database  solutions, to support our quantitative trading strategies and research initiatives. You will work  on optimizing and maintaining high-performance software systems that handle large datasets, perform  real-time data processing and integrate seamlessly with complex trading models.&lt;/p&gt;
+&lt;p&gt;Responsibilities&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Collaborate with development team, engineers, and researchers to develop and implement key firm  infrastructure, including data handlers, simulation platforms, back testing frameworks, and database solutions.&lt;/li&gt;
+&lt;li&gt;Execute all development/testing stages from concept to final hand‐off to engineering.&lt;/li&gt;
+&lt;li&gt;Take ownership of existing applications and processes.&lt;/li&gt;
+&lt;li&gt;Conduct testing to identify and fix issues.&lt;/li&gt;
+&lt;li&gt;Set up, monitor, and troubleshoot jobs related to trading.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Qualifications&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;A master’s degree in; Mathematics, Statistics, Physics, Engineering, or Computer Science.&lt;/li&gt;
+&lt;li&gt;5‐10 years development experience in financial markets.&lt;/li&gt;
+&lt;li&gt;Strong programming skills in C++ and Python on Linux.&lt;/li&gt;
+&lt;li&gt;Experience with streaming data, and messaging middleware.&lt;/li&gt;
+&lt;li&gt;Strong knowledge on Multithreading, Data Structures, and Algorithms.&lt;/li&gt;
+&lt;li&gt;Exposure to source control, build systems, and issue and release management.&lt;/li&gt;
+&lt;li&gt;Experience with time series, and/or columnar database desired&lt;/li&gt;
+&lt;li&gt;Minimum of 2 years’ experience with TAQ data, and exchange connectivity.&lt;/li&gt;
+&lt;li&gt;Ability to clearly and effectively articulate thoughts.&lt;/li&gt;
+&lt;li&gt;Excellent analytical, organizational, and time management skills.&lt;/li&gt;
+&lt;li&gt;Ability to perform well in a fast‐paced environment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Compensation&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Anticipated Salary Range: $150K ‐ $200K base salary, plus eligible for discretionary bonus commensurate with performance&lt;/li&gt;
+&lt;li&gt;Benefits include Health insurance and 401(k)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Primary work location&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;NYC and Westchester, or London&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Send resumes to: &lt;a class="reference external" href="mailto:snewman&amp;#64;bbaymgmt.com"&gt;snewman&amp;#64;bbaymgmt.com&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul class="simple"&gt;
+&lt;li&gt;A master’s degree in; Mathematics, Statistics, Physics, Engineering, or Computer Science.&lt;/li&gt;
+&lt;li&gt;5‐10 years development experience in financial markets.&lt;/li&gt;
+&lt;li&gt;Strong programming skills in C++ and Python on Linux.&lt;/li&gt;
+&lt;li&gt;Experience with streaming data, and messaging middleware.&lt;/li&gt;
+&lt;li&gt;Strong knowledge on Multithreading, Data Structures, and Algorithms.&lt;/li&gt;
+&lt;li&gt;Exposure to source control, build systems, and issue and release management.&lt;/li&gt;
+&lt;li&gt;Experience with time series, and/or columnar database desired&lt;/li&gt;
+&lt;li&gt;Minimum of 2 years’ experience with TAQ data, and exchange connectivity.&lt;/li&gt;
+&lt;li&gt;Ability to clearly and effectively articulate thoughts.&lt;/li&gt;
+&lt;li&gt;Excellent analytical, organizational, and time management skills.&lt;/li&gt;
+&lt;li&gt;Ability to perform well in a fast‐paced environment.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7826/</guid></item><item><title>Senior Python Backend Developer with Blockchain Experience, rotki Solutions GmbH</title><link>https://www.python.org/jobs/7824/</link><description>Berlin, (remote), Germany
+&lt;p&gt;How your work with us will look like?&lt;/p&gt;
+&lt;p&gt;You will be developing new features, supporting more exchanges, more blockchains, and more DeFi protocols. There is also always a lot of troubleshooting of user reported issues, bugs, and feature requests that are coming our way. You can improve our current Python backend implementation and help us get Rotki to the next level!&lt;/p&gt;
+&lt;p&gt;As an open source project, we work collaboratively on our codebase on GitHub in a style that should be familiar to anyone who has participated in an OSS community before. If you haven’t — we’re happy to support you in defining and writing great feature descriptions, and breaking them down into dev tasks, and shipping them to customers around the world.&lt;/p&gt;
+&lt;p&gt;This is an early stage open source company, so there is an opportunity to take on a variety of tasks beyond the app, such as the backend of the website, and our API.&lt;/p&gt;
+&lt;p&gt;What we offer:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;A full-time position, but are open to part-time contributors as well. If located in Germany we can provide full employment with insurance and social benefits.&lt;/li&gt;
+&lt;li&gt;Flexible working hours. We sync once per day, but other than that you decide when you work.&lt;/li&gt;
+&lt;li&gt;Remote / WFH&lt;/li&gt;
+&lt;li&gt;Training in the specifics of the project and guidance through the sector of cryptocurrencies and decentralized finance&lt;/li&gt;
+&lt;li&gt;Participation in conferences and events to represent rotki and get to know other fascinating projects from the field (travel expenses are on us)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Requirements:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Excellent command of python.&lt;/li&gt;
+&lt;li&gt;Experience with distributed systems: we connect to API endpoints and nodes for various blockchains.&lt;/li&gt;
+&lt;li&gt;Understanding of Ethereum blockchain structures, nodes, and API endpoints&lt;/li&gt;
+&lt;li&gt;Experience with any other blockchain stack — e.g. Cosmos, Substrate, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Bonus points:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Write tests for features you code and bugs you fix. Not strict TDD, but we’re always looking to increase test coverage&lt;/li&gt;
+&lt;li&gt;Understanding of the frontend tech used in Rotki: Typescript + vue.js + electron. This role doesn't require you to be a front end expert, but understanding of these technologies will help you.&lt;/li&gt;
+&lt;li&gt;Sharing our values on open source, data ownership and privacy&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Non-technical bonus points:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;4 hours daily overlap with European working hours 0900 CET - 1700 CET for smoother teamwork&lt;/li&gt;
+&lt;li&gt;Can work independently, but co-operates well with other team members.&lt;/li&gt;
+&lt;li&gt;Proactive and customer-oriented&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7824/</guid></item><item><title>Python/MATLAB Programmer, Panacorp Software Solutions</title><link>https://www.python.org/jobs/7823/</link><description>nagercoil, Kanyakumari District, India
+&lt;p&gt;Job Title: Python/MATLAB Programmer (PhD Projects)&lt;/p&gt;
+&lt;p&gt;Location: Nagercoil, Tamil Nadu&lt;/p&gt;
+&lt;p&gt;Job Type: Full-time (Work from Office)&lt;/p&gt;
+&lt;p&gt;Experience: 1 – 5 years&lt;/p&gt;
+&lt;p&gt;Salary: Based on experience&lt;/p&gt;
+&lt;p&gt;Job Description:
+We are looking for an experienced Python/MATLAB Programmer to work on PhD research projects at Panacorp Software Solutions. This role involves algorithm development, data analysis, and implementing research methodologies using Python or MATLAB.&lt;/p&gt;
+&lt;p&gt;Responsibilities:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Develop and implement Python or MATLAB-based solutions for PhD research projects&lt;/li&gt;
+&lt;li&gt;Work on algorithm development, mathematical modeling, and data analysis&lt;/li&gt;
+&lt;li&gt;Assist in research programming, automation, and simulations&lt;/li&gt;
+&lt;li&gt;Collaborate with research teams to analyze data and implement methodologies&lt;/li&gt;
+&lt;li&gt;Debug and optimize code for performance and accuracy&lt;/li&gt;
+&lt;li&gt;Prepare technical documentation and research reports&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Required Skills:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Proficiency in Python or MATLAB (experience in at least one is mandatory)&lt;/li&gt;
+&lt;li&gt;Experience with NumPy, Pandas, Matplotlib for data analysis (if Python is primary)&lt;/li&gt;
+&lt;li&gt;Knowledge of machine learning, AI, or deep learning (preferred)&lt;/li&gt;
+&lt;li&gt;Strong analytical, problem-solving, and debugging skills&lt;/li&gt;
+&lt;li&gt;Ability to work on research-based projects and understand academic requirements&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Eligibility Criteria:&lt;/p&gt;
+&lt;p&gt;Qualification: BE/B.Tech/MCA&lt;/p&gt;
+&lt;p&gt;Experience: 1 – 5 years in Python or MATLAB development and research projects&lt;/p&gt;
+&lt;p&gt;Office Location:
+📍 Panacorp Software Solutions
+32/8, 4th Floor, Crystal Plaza,
+Near WCC Junction, Nagercoil,
+Kanyakumari District, Tamil Nadu&lt;/p&gt;
+&lt;p&gt;How to Apply?&lt;/p&gt;
+&lt;p&gt;📧 Email: &lt;a class="reference external" href="mailto:panacorp.2023hr&amp;#64;gmail.com"&gt;panacorp.2023hr&amp;#64;gmail.com&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;📱 WhatsApp: +91 7092000772&lt;/p&gt;
+&lt;p&gt;Join our research and development team and contribute to innovative PhD projects!&lt;/p&gt;
+
+&lt;p&gt;Job Requirements – Python/MATLAB Programmer (PhD Projects)&lt;/p&gt;
+&lt;p&gt;Educational Qualification:&lt;/p&gt;
+&lt;p&gt;BE/B.Tech/MCA in Computer Science, Electrical &amp;amp; Electronics, or a related field.&lt;/p&gt;
+&lt;p&gt;Experience:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;1 – 5 years of experience in Python or MATLAB programming.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Technical Skills:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Proficiency in Python or MATLAB (experience in at least one is mandatory).&lt;/li&gt;
+&lt;li&gt;Strong understanding of algorithm development, mathematical modeling, and data analysis.&lt;/li&gt;
+&lt;li&gt;Experience with NumPy, Pandas, Matplotlib (for Python developers).&lt;/li&gt;
+&lt;li&gt;Knowledge of machine learning, AI, or deep learning (preferred but not mandatory).&lt;/li&gt;
+&lt;li&gt;Experience in research-based projects, simulations, and automation.&lt;/li&gt;
+&lt;li&gt;Strong problem-solving and debugging skills.&lt;/li&gt;
+&lt;li&gt;Familiarity with academic research standards and PhD project requirements is an advantage.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Soft Skills:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Analytical mindset with strong problem-solving abilities.&lt;/li&gt;
+&lt;li&gt;Good communication skills (English proficiency for documentation and research collaboration).&lt;/li&gt;
+&lt;li&gt;Ability to work independently and meet research deadlines.&lt;/li&gt;
+&lt;li&gt;Strong attention to detail and ability to optimize code for performance and accuracy.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Other Requirements:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Willingness to work on PhD research projects and academic research programming.&lt;/li&gt;
+&lt;li&gt;Ability to collaborate with research teams and contribute to technical documentation.&lt;/li&gt;
+&lt;li&gt;Commitment to learning new technologies and staying updated with research trends.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7823/</guid></item><item><title>Senior Python Backend Engineer, Reef Technologies</title><link>https://www.python.org/jobs/7821/</link><description>Warsaw (fully remote), Poland
+&lt;p&gt;We're all about the backend! As a fully remote Python software house, we comprise a small, agile team of senior engineers, each with at least five years of experience. We're known for delivering stable solutions and always accounting for edge cases, minimizing the need for urgent fixes.&lt;/p&gt;
+&lt;p&gt;Salary:&lt;/p&gt;
+&lt;p&gt;45–70 USD per hour, or
+7560–11760 USD a month (if you do 40 hours per week)
+We offer flexible work schedule (measured by time tracker).
+We usually adjust the hourly rates once a year.&lt;/p&gt;
+&lt;p&gt;Would you like to know more about this opportunity? Just go to &lt;a class="reference external" href="https://careers.reef.pl/"&gt;https://careers.reef.pl/&lt;/a&gt; and see what we’re all about!&lt;/p&gt;
+&lt;p&gt;We could have built a careers' website with a big picture of smiling faces in an office or maybe with a photo of a bunch of dudes in t-shirts with the company logo… but we designed it specifically for Senior Backend Engineers.&lt;/p&gt;
+&lt;p&gt;Let us know if you like the way we went about recruitment, and be sure to share it with other experienced Python engineers who might be interested in this job offer.&lt;/p&gt;
+&lt;p&gt;Please apply via our platform. Do not send us your CV.&lt;/p&gt;
+
+&lt;p&gt;Tech stack:&lt;/p&gt;
+&lt;p&gt;Python - advanced
+Backend - advanced
+Databases - regular&lt;/p&gt;
+&lt;p&gt;As a dynamic company focused on high-value and high-difficulty projects, we’re looking for more than an experienced Pythonista – we also want to find someone with the internal motivation required to keep pushing work forward even when there’s no manager on the team to point fingers on the current priorities.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7821/</guid></item><item><title>Lead Python Backend Engineer, Reef Technologies</title><link>https://www.python.org/jobs/7820/</link><description>Warsaw (fully remote), Poland
+&lt;p&gt;Are you a Python engineer with at least five years of experience in programming and at least a year of experience in Python? Look no further – this is the job opportunity you’ve been looking for.&lt;/p&gt;
+&lt;p&gt;Salary:&lt;/p&gt;
+&lt;p&gt;75-90 USD per hour, or 12600–15120 USD a month (if you do 40 hours per week)
+We offer flexible work schedule (measured by time tracker).
+We usually adjust the hourly rates once a year.&lt;/p&gt;
+&lt;p&gt;Our only expectation timewise is for you to contribute around 30–40 hours per week, which we believe is optimal for sustainable full-time engagement in a remote setting. You’re free to distribute those hours throughout the week in the way that you find the most convenient, within reason.&lt;/p&gt;
+&lt;p&gt;Would you like to know more about this opportunity? Just go to &lt;a class="reference external" href="https://careers.reef.pl/"&gt;https://careers.reef.pl/&lt;/a&gt; and see what we’re all about!&lt;/p&gt;
+&lt;p&gt;We could have built a careers' website with a big picture of smiling faces in an office or maybe with a photo of a bunch of dudes in t-shirts with the company logo… but we designed it specifically for Senior Backend Engineers.&lt;/p&gt;
+&lt;p&gt;Let us know if you like the way we went about recruitment, and be sure to share it with other experienced Python engineers who might be interested in this job offer.&lt;/p&gt;
+&lt;p&gt;Please apply via our platform. Do not send us your CV. -&amp;gt; &lt;a class="reference external" href="https://careers-3.reef.pl/"&gt;https://careers-3.reef.pl/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Tech stack:&lt;/p&gt;
+&lt;p&gt;Python - advanced
+Backend - advanced
+Databases - regular&lt;/p&gt;
+&lt;p&gt;As a dynamic company focused on high-value and high-difficulty projects, we’re looking for more than an experienced Pythonista – we also want to find someone with the internal motivation required to keep pushing work forward even when there’s no manager on the team to point fingers on the current priorities.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7820/</guid></item><item><title>Python Odoo programer needed, gcsupply.com</title><link>https://www.python.org/jobs/7787/</link><description>remote, remote, remote
+&lt;p&gt;gcsupply.com is looking for an independent programer for a full time position to help scale our bussiness. please send me a message on whatsapp. +1561-396-4566
+you will manage odoo erp and website.&lt;/p&gt;
+
+&lt;p&gt;must speak fluent english&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7787/</guid></item><item><title>Sr. Software Engineer - R&amp;D Modeling and Simulation, ASML</title><link>https://www.python.org/jobs/7752/</link><description>San Jose, US
+&lt;p&gt;As part of our team, you will be responsible for:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Reviewing and analyzing software requirements.&lt;/li&gt;
+&lt;li&gt;Assessing the impact of changes to the software.&lt;/li&gt;
+&lt;li&gt;Providing estimates of work effort.&lt;/li&gt;
+&lt;li&gt;Performing studies to devise algorithmic solutions to physical problems.&lt;/li&gt;
+&lt;li&gt;Designing software algorithms to meet specifications.&lt;/li&gt;
+&lt;li&gt;Implementing software changes.&lt;/li&gt;
+&lt;li&gt;Supporting product engineers to solve customer problems.&lt;/li&gt;
+&lt;li&gt;Collaborating with the software quality assurance team.&lt;/li&gt;
+&lt;li&gt;Writing unit tests.&lt;/li&gt;
+&lt;li&gt;Coordinating and communicating with other engineering teams.&lt;/li&gt;
+&lt;li&gt;Completing other duties as assigned.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We are looking for candidates with the following qualifications:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;A Master's degree in Physics (Computational Physics preferred), Computer Science, Electrical Engineering, Applied Mathematics, or a related field, or equivalent experience.&lt;/li&gt;
+&lt;li&gt;At least 3 years of experience in numerical simulation, modeling, optics, or a similar field (academic or industry).&lt;/li&gt;
+&lt;li&gt;A PhD in Physics, Computer Science, Electrical Engineering, or a related area is preferred.&lt;/li&gt;
+&lt;li&gt;Proficiency in developing object-oriented software in Python and C++ in a Linux environment.&lt;/li&gt;
+&lt;li&gt;Strong English communication skills.&lt;/li&gt;
+&lt;li&gt;A proactive sense of ownership, self-motivation, and a strong customer focus.&lt;/li&gt;
+&lt;li&gt;The ability to negotiate and reach consensus agreements, learn and apply new information or skills, and maintain attention to detail.&lt;/li&gt;
+&lt;li&gt;Proven ability to perform effectively in a demanding environment with changing workloads.&lt;/li&gt;
+&lt;li&gt;Experience in Computational Geometry, numerical methods, or scientific computing is preferred.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7752/</guid></item><item><title>Machine Learning Engineer for Agentic AI, Scalable Path</title><link>https://www.python.org/jobs/7751/</link><description>Remote, Remote, Latin America
+&lt;p&gt;A client of Scalable Path is expanding its educational web application into the private sector, and it needs help improving the quality and performance of its existing application. This involves creating automated tests, implementing logging, and improving the dev team's practices.&lt;/p&gt;
+&lt;p&gt;A core challenge they are facing is getting their Unity 3D WebGL application that runs well on desktop to work reliably on Android and iOS. Specific examples include stabilizing a 3rd party whiteboard feature that is not working properly and getting the application to run consistently in browsers on modern versions of the iPhone and iOS.&lt;/p&gt;
+&lt;p&gt;The application uses Spring Boot on the back-end and React on the front-end. Additionally they are using OpenVidu and WebRTC.&lt;/p&gt;
+&lt;p&gt;If you have experience with the back-end technologies mentioned above, that would be nice, but their core need is a strong React developer who is experienced with state management and real-time applications.&lt;/p&gt;
+&lt;p&gt;They use Jira for project management.&lt;/p&gt;
+&lt;p&gt;RELATIONSHIPS - WHO YOU'LL BE WORKING WITH:&lt;/p&gt;
+&lt;p&gt;You'll be working with the CTO, Engineering Manager, 2 Web Developers, 3 Unity3D Developers and a DevOps Engineer. There is an existing daily meeting at 9:00 am America/Toronto (-04:00) EDT.&lt;/p&gt;
+&lt;p&gt;START DATE: As soon as possible.&lt;/p&gt;
+&lt;p&gt;EXPECTED CONTRACT DURATION: 12+ months&lt;/p&gt;
+&lt;p&gt;PREFERRED REGIONS:&lt;/p&gt;
+&lt;p&gt;The client's preference is for candidates to be located in Canada, Latin America, or the United States.&lt;/p&gt;
+
+&lt;ul class="simple"&gt;
+&lt;li&gt;Attend daily scrum&lt;/li&gt;
+&lt;li&gt;Consult with management on operational requirements&lt;/li&gt;
+&lt;li&gt;Build new features in the front-end and back-end&lt;/li&gt;
+&lt;li&gt;Debug and fix issues with existing application&lt;/li&gt;
+&lt;li&gt;Refactor, optimize and simplify code to performance and readability&lt;/li&gt;
+&lt;li&gt;Break down systems into smaller, modular components to improve scalability and&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;flexibility&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Write automated tests&lt;/li&gt;
+&lt;li&gt;Implement bug and performance monitoring&lt;/li&gt;
+&lt;li&gt;Mentor junior developers and perform code reviews&lt;/li&gt;
+&lt;li&gt;Implement best practices with the dev team&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;REQUIRED SKILLS:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;English (Must have)&lt;/li&gt;
+&lt;li&gt;Python (Must have)&lt;/li&gt;
+&lt;li&gt;Machine Learning (Must have)&lt;/li&gt;
+&lt;li&gt;TensorFlow (Strongly preferred)&lt;/li&gt;
+&lt;li&gt;Vector Databases (Must have)&lt;/li&gt;
+&lt;li&gt;Google Cloud (Nice to have)&lt;/li&gt;
+&lt;li&gt;PyTorch (Strongly preferred)&lt;/li&gt;
+&lt;li&gt;JAX (Strongly preferred)&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7751/</guid></item><item><title>Python Annotator, Summa Linguae Technologies</title><link>https://www.python.org/jobs/7750/</link><description>Remote, Remote
+&lt;p&gt;Summa Linguae Technologies is searching for talented and open-minded annotators with a strong command of Python programming, exceptional attention to detail, and the ability to follow instructions precisely.&lt;/p&gt;
+&lt;p&gt;What You'll Do:&lt;/p&gt;
+&lt;p&gt;Use your Python expertise to translate plain English instructions into functional Python scripts.&lt;/p&gt;
+&lt;p&gt;Collaborate with cutting-edge Large Language Models (LLMs) to improve AI capabilities.&lt;/p&gt;
+
+&lt;p&gt;Requirements:&lt;/p&gt;
+&lt;p&gt;Strong knowledge of Python programming.&lt;/p&gt;
+&lt;p&gt;Excellent English communication skills (mandatory).&lt;/p&gt;
+&lt;p&gt;How to Apply&lt;/p&gt;
+&lt;p&gt;Fill out this short form and complete the test:
+&lt;a class="reference external" href="https://recruitment.datamundi.space/54"&gt;https://recruitment.datamundi.space/54&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Important:&lt;/p&gt;
+&lt;p&gt;Only participants who take the test and complete it successfully will be considered for the job.&lt;/p&gt;
+&lt;p&gt;In the test form - the field “Your professional profile (LinkedIn, Proz, etc.)”, please provide a link to your professional account or a link to your CV stored in the cloud.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7750/</guid></item><item><title>Senior Backend Engineer, BactoBio</title><link>https://www.python.org/jobs/7749/</link><description>London, UK
+&lt;p&gt;Software is critical to our scientific endeavours. You’ll join the growing software team that builds and enhances the application and infrastructure used by our scientists to accelerate their search for novel compounds.&lt;/p&gt;
+&lt;p&gt;The application gives the lab scientists a holistic view of the scientific pipeline, ensuring that data is captured, processed and visualized in a way that optimises the flow of scientific samples from team to team.&lt;/p&gt;
+&lt;p&gt;What you will do&lt;/p&gt;
+&lt;p&gt;You will work closely with dozens of world-class lab scientists, bioinformaticians, data scientists, and robot automation engineers, turning their requirements for research functionality into user-friendly features.&lt;/p&gt;
+&lt;p&gt;Lead and collaborate with our team to deliver reliable, tested, typed, clean Python code to improve our application and model our scientific domain in code&lt;/p&gt;
+&lt;p&gt;You will be working alongside subject-matter experts including bioinformaticians and data scientists to ensure that our backend aligns with business priorities&lt;/p&gt;
+&lt;p&gt;Optimising the infrastructure that we run our application &amp;amp; scientific pipelines on&lt;/p&gt;
+&lt;p&gt;You will advise on current trends and best practices in backend architecture (performance, accessibility, security and usability), giving input on the architecture of new and existing projects&lt;/p&gt;
+&lt;p&gt;Our stack is Python 3, SQLAlchemy, FastAPI, RQ, MySQL with a frontend in Remix, React, TypeScript, CSS Modules with OpenAPI-based API client generation for TypeScript.&lt;/p&gt;
+&lt;p&gt;We emphasize code quality, employing reviews on top of static analysis tools (pyright, ruff, ruff format) with plenty of tests in place to maintain a high-quality codebase.&lt;/p&gt;
+&lt;p&gt;Benefits&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Competitive starting salary&lt;/li&gt;
+&lt;li&gt;The chance to be part of a fun, multicultural, kind, and ambitious crowd that are impact-driven&lt;/li&gt;
+&lt;li&gt;Daily access to academic leaders, business leaders, and unicorn founders&lt;/li&gt;
+&lt;li&gt;Brand new, modern labs in Central London with dedicated office space, large balconies and 360’ views of the London skyline&lt;/li&gt;
+&lt;li&gt;25 days holiday + bank holidays&lt;/li&gt;
+&lt;li&gt;Enhanced Sick Pay&lt;/li&gt;
+&lt;li&gt;Flexible start and finish times within the company’s core hours to fit your preferences (within core hours 10am -4pm)&lt;/li&gt;
+&lt;li&gt;Diverse team of colleagues (check out our website to meet us)&lt;/li&gt;
+&lt;li&gt;Weekly team activities including board games, sports activities, and socials on Fridays&lt;/li&gt;
+&lt;li&gt;Complimentary snacks, fruits, tea, coffee, soft drinks,...&lt;/li&gt;
+&lt;li&gt;Access to 1000s of training courses through Udemy, with an allowance for both personal development and work-related training&lt;/li&gt;
+&lt;li&gt;Bike2Work scheme&lt;/li&gt;
+&lt;li&gt;Employee Assistance Programme offering structured counselling, life and career coaching, legal and financial advise&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We would love you to have experience with some of the tools we use, but it's not a requirement. Instead, we're eager for you to desire to learn and develop yourself. So, at a minimum, we would be looking for you to demonstrate proven experience working in a modern tech stack using Python and, ideally, SQLAlchemy or Django.&lt;/p&gt;
+&lt;p&gt;If you are passionate about delivering code, and you love solving complex problems and working in a team with a strong sense of mission is something you crave, then we would love to talk to you.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7749/</guid></item><item><title>[Hiring] Software Engineers to Train Advanced AI Models (Remote, Flexible Hours), G2i</title><link>https://www.python.org/jobs/7748/</link><description>Remote, MG, Remote
+&lt;p&gt;What You’ll Do:
+Solve coding challenges and write efficient, functional code.
+Evaluate and improve AI-generated code.
+Create test cases and instructions to enhance model performance.
+Pay Rates:
+Pay rates start at $15/hr or higher, depending on location and experience.
+Flexible Hours:
+Work 15+ hours per week, with no upper limit.
+Set your own schedule and take breaks as needed.
+Ready to join us? Apply here. &lt;a class="reference external" href="https://jobs.ashbyhq.com/g2i/4af23e04-c31e-4f03-aa9a-8db3c35fbbd7?utm_source=python_slack_thay"&gt;https://jobs.ashbyhq.com/g2i/4af23e04-c31e-4f03-aa9a-8db3c35fbbd7?utm_source=python_slack_thay&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Proficiency in Python.
+Fluent in English with strong communication skills.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7748/</guid></item><item><title>Senior Software Engineer, AI, UpDoc, Inc.</title><link>https://www.python.org/jobs/7747/</link><description>Remote, Remote, United States
+&lt;p&gt;We are seeking a talented and motivated senior engineer to join our team. You will primarily work on UpDoc’s patient-facing conversational agent. This is a fully remote position.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Who You Are&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;You’re an experienced senior engineer with a backend tilt. You’re well-versed in all things web and have experience building LLM applications end-to-end, even if not in a professional context. You follow the AI/LLM space closely, play with new technologies as they come out, and are excited to use these technologies to build safe, reliable medical AI systems.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What You'll Do&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Lead the development of our patient-facing conversational agent&lt;/li&gt;
+&lt;li&gt;Implement a scalable, low-latency system for voice/multimodal conversations&lt;/li&gt;
+&lt;li&gt;Implement rigorous prompt engineering processes and develop useful metrics for system evaluation&lt;/li&gt;
+&lt;li&gt;Identify where fine-tuning and alignment might be valuable, and create data pipelines to enable fast experimentation&lt;/li&gt;
+&lt;li&gt;Work with other backend engineers to deploy AI models and chat/voice APIs&lt;/li&gt;
+&lt;li&gt;Help identify, evaluate, and implement emerging LLM technologies, tools and frameworks&lt;/li&gt;
+&lt;li&gt;Collaborate with clinical experts to validate performance and medical accuracy&lt;/li&gt;
+&lt;li&gt;Work on developing backend services using FastAPI and Pydantic&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;What You’ll Need&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;5+ years of professional software development experience, including 2+ years of experience with backend web development&lt;/li&gt;
+&lt;li&gt;Experienced and comfortable working with type-hinted, modern Python&lt;/li&gt;
+&lt;li&gt;2+ years of experience building end-to-end LLM applications, personally or professionally&lt;ul&gt;
+&lt;li&gt;Experience integrating/optimizing LLMs in production environments&lt;/li&gt;
+&lt;li&gt;Knowledge of evaluation frameworks&lt;/li&gt;
+&lt;li&gt;Knowledge and experience with MLOps/LLMOps best practices&lt;/li&gt;
+&lt;li&gt;Experience building AI infrastructure from 0 -&amp;gt; 1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Experience with cloud platforms (especially Azure) and containerization technologies&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7747/</guid></item><item><title>Senior Data Engineer (SaaS), Poplin</title><link>https://www.python.org/jobs/7746/</link><description>Bogota, Latin America
+&lt;p&gt;What You’ll Do:&lt;/p&gt;
+&lt;p&gt;You won’t just tinker with datasets—you’ll architect the data backbone that powers the entire Poplin experience. You’ll be the wizard behind the curtain, designing efficient data pipelines, modeling like a pro, and turning raw information into actionable insights. Your work will directly influence core decisions across product, engineering, and growth teams.&lt;/p&gt;
+&lt;p&gt;Here’s How You’ll Leave Your Mark:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Conjure Data Magic: Design, build, and maintain data pipelines that transform messy raw data into pristine information streams—ready for high-impact dashboards and analytics.&lt;/li&gt;
+&lt;li&gt;Be the Guardian of Quality: Ensure every row, every column, and every insight is spotless, consistent, and accurate. No anomalies slip past you.&lt;/li&gt;
+&lt;li&gt;Architect Data Models: Build data structures that make querying fast, analytics easy, and real-time decision-making a breeze.&lt;/li&gt;
+&lt;li&gt;Collaborate at Scale: Partner with Product Managers, Software Engineers, and Marketing to identify data requirements. You’ll shape our KPIs and ensure everyone has the insights they need.&lt;/li&gt;
+&lt;li&gt;Centralize &amp;amp; Standardize: Champion a unified data ecosystem. From ingestion to analytics, you’ll guide the team to adopt best practices that scale effortlessly.&lt;/li&gt;
+&lt;li&gt;Innovate &amp;amp; Iterate: Spot opportunities to optimize processes, adopt new tools, and keep us on the cutting edge of data technology.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;What You’ll Bring to the Table:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;DBT &amp;amp; Python Superpowers: You’re fluent in Python and use DBT like a wizard’s wand.&lt;/li&gt;
+&lt;li&gt;Segment: We orchestrate all of our data with Segment, you are a Segment wiz.&lt;/li&gt;
+&lt;li&gt;Warehouse Know-How: BigQuery, Redshift, Snowflake—been there, crushed that. And you’ve orchestrated pipelines with Airflow, Fivetran, or Airbyte.&lt;/li&gt;
+&lt;li&gt;ETL/ELT Expertise: You design, build, and maintain sophisticated pipelines that move data seamlessly.&lt;/li&gt;
+&lt;li&gt;Data Model Vision: You understand how to create efficient, scalable data structures for maximum insight.&lt;/li&gt;
+&lt;li&gt;Cloud Savvy: Experience in GCP or AWS, and launching data-centric services (BigQuery, Redshift, etc.)&lt;/li&gt;
+&lt;li&gt;Fast Learner, Fast Mover: You thrive in a high velocity, async environment and translate complex data into clear business wins.&lt;/li&gt;
+&lt;li&gt;Startup Mindset: You’re self-directed, driven, and all about innovation. You don’t wait for permission—you make things happen. And you have previous experience working with startups.&lt;/li&gt;
+&lt;li&gt;Communication Chameleon: You speak tech with engineers, strategy with leadership, and everything in between with non-technical teams.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Bonus Points if You Also Have:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Performance Mastery: Experience developing and supporting large-scale data pipelines.&lt;/li&gt;
+&lt;li&gt;Data Lake &amp;amp; BI Solutions: You’ve built entire data platforms, data lakes, or next-level BI solutions.&lt;/li&gt;
+&lt;li&gt;Cloud Formation Wizardry: You can spin up infrastructure templates in your sleep.&lt;/li&gt;
+&lt;li&gt;Visualization Guru: Tableau, Power BI, Mixpanel—turning data into insights is second nature.&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/7746/</guid></item><item><title>Data Administrator, Pepper Wireless</title><link>https://www.python.org/jobs/7745/</link><description>Richmond, BC, Canada
+&lt;p&gt;Location: Richmond, BC&lt;/p&gt;
+&lt;p&gt;Position: Data Administrator, F/T, permanent&lt;/p&gt;
+&lt;p&gt;Schedule: Monday to Thursday, 9a-5p&lt;/p&gt;
+&lt;p&gt;Wage: $45 per hour&lt;/p&gt;
+&lt;p&gt;Benefits: 10 days annual vacation or 4% vacation pay, extended health benefits and cell phone bill discount.&lt;/p&gt;
+&lt;p&gt;Key Responsibilities:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Develop and maintain efficient data systems to store, organize, and manage data effectively.&lt;/li&gt;
+&lt;li&gt;Develop and enforce data management policies and standards specific to telecommunications retail.&lt;/li&gt;
+&lt;li&gt;Conduct research to determine data requirements and document collection methods.&lt;/li&gt;
+&lt;li&gt;Manage customer data, including personal information and account details.&lt;/li&gt;
+&lt;li&gt;Oversee sales transaction data and revenue records.&lt;/li&gt;
+&lt;li&gt;Ensure accurate and secure handling of inventory data, including stock levels and product information.&lt;/li&gt;
+&lt;li&gt;Establish and maintain procedures for database access, usage, and data recovery.&lt;/li&gt;
+&lt;li&gt;Ensure data integrity and security for customer, operational, and marketing data.&lt;/li&gt;
+&lt;li&gt;Collaborate with IT professionals on data collection methods, security practices, and system availability.&lt;/li&gt;
+&lt;li&gt;Provide insights and guidance on managing sensitive customer and employee information.&lt;/li&gt;
+&lt;li&gt;Write and maintain scripts for database operations, including stored procedures and triggers.&lt;/li&gt;
+&lt;li&gt;Lead teams of data administrators in implementing data policies and standards.&lt;/li&gt;
+&lt;li&gt;Support business objectives by enhancing data management practices and ensuring compliance.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ul class="simple"&gt;
+&lt;li&gt;A bachelor's degree in computer science, computer engineering, mathematics, or a related field.&lt;/li&gt;
+&lt;li&gt;Proven experience in computer programming and data management.&lt;/li&gt;
+&lt;li&gt;Proficiency in Python, R, and SQL.&lt;/li&gt;
+&lt;li&gt;Strong understanding of data security, backup, and recovery procedures.&lt;/li&gt;
+&lt;li&gt;Ability to work collaboratively and lead projects in a fast-paced retail environment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Why Join Us?&lt;/p&gt;
+&lt;p&gt;Be a part of a leading and innovative company in the telecommunications industry.
+Competitive wage and stable work schedule.&lt;/p&gt;
+&lt;p&gt;Opportunities for growth and development within the company.&lt;/p&gt;
+&lt;p&gt;How to Apply:&lt;/p&gt;
+&lt;p&gt;Interested candidates are encouraged to submit their resume and cover letter to &lt;a class="reference external" href="mailto:hr.pepperwireless&amp;#64;gmail.com"&gt;hr.pepperwireless&amp;#64;gmail.com&lt;/a&gt; . Please include &amp;quot;Data Administrator Application&amp;quot; in the subject line. We thank all applicants for their interest, but only those selected for an interview will be contacted.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7745/</guid></item><item><title>Software Programmer, J.F.T. Maintenance Services Limited</title><link>https://www.python.org/jobs/7734/</link><description>West Winch, Norfolk, United Kingdom
+&lt;p&gt;We are looking for a skilled Software programmer.&lt;/p&gt;
+&lt;p&gt;Employment: self-employed or permanently employed. Hybrid working if permanent.
+Salary negotiable.&lt;/p&gt;
+&lt;p&gt;Duties:
+Programming in Python, front and back-end databases.&lt;/p&gt;
+&lt;p&gt;Our location:
+West Winch, PE33 0NX.
+The location of the candidate should be within 45 miles of the office.&lt;/p&gt;
+&lt;p&gt;Email for CVs: &lt;a class="reference external" href="mailto:a.shcerbyna&amp;#64;jftmaintenance.co.uk"&gt;a.shcerbyna&amp;#64;jftmaintenance.co.uk&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Job Type: Permanent&lt;/p&gt;
+&lt;p&gt;Schedule:
+Flexitime&lt;/p&gt;
+
+&lt;p&gt;Proven experience in software development with experience in programming in Python with front and back-end database experience.&lt;/p&gt;
+&lt;p&gt;Strong problem-solving skills and the ability to work independently or as part of a team.
+Excellent communication skills, both verbal and written, are essential for effective collaboration.&lt;/p&gt;
+&lt;p&gt;The location of the candidate should be within 45 miles of the office.&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/7734/</guid></item></channel></rss>

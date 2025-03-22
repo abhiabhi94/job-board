@@ -23,6 +23,7 @@ dependencies = [
     "humanize",
     "openai",
     "pydantic",
+    "cssselect",
 ]
 [project.optional-dependencies]
 dev = [

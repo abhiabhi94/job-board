@@ -1,4 +1,5 @@
 from decimal import Decimal, InvalidOperation
+import re
 
 from pydantic import BaseModel
 import openai
@@ -9,6 +10,14 @@ from job_board import config
 from job_board.logger import logger
 
 PORTALS = {}
+# matches "60,000" or "60,000,000"
+SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
+# matches "Rate: up to $80" or "Rate: $80"
+RATE_REGEX = re.compile(r"Rate:\s*(?:up to\s*)?\$(\d+)")
+# matches "salary range for this position is $120,000 - $165,000"
+SALARY_RANGE_REGEX = re.compile(r"salary range.*?\$(\d{2,}(?:,\d{3})+)")
+# matches "45–70 USD per hour" or "45-70 USD per hour"
+HOURLY_RATE_REGEX = re.compile(r"(\d+)[–-](\d+)\s*USD\s*per\s*hour")
 
 
 # since openai doesn't support date time, we will need to
