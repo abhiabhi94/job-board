@@ -19,7 +19,7 @@ class PythonDotOrg(BasePortal):
     portal_name = "python_dot_org"
     base_url = "https://www.python.org"
     jobs_url = f"{base_url}/jobs/"
-    url = f"{jobs_url}/feed/rss/"
+    url = f"{base_url}/jobs/feed/rss/"
     api_data_format = "xml"
 
     region_mapping = {
@@ -32,6 +32,8 @@ class PythonDotOrg(BasePortal):
     }
 
     def fetch_additional_info(self) -> dict[str, dict[str, datetime]]:
+        # yeah this is awkward, but python dot org doesn't
+        # provide the posted date in the rss feed
         job_details = defaultdict(dict)
 
         response = httpx.get(self.jobs_url)
