@@ -13,6 +13,8 @@ FIXED_NOW = datetime(2025, 3, 13, 12, 0, 0, tzinfo=timezone.utc)
 @pytest.mark.parametrize(
     "relative_str, expected_delta",
     [
+        # None input
+        (None, None),
         # days with singular and plural forms
         ("1 day ago", timedelta(days=1)),
         ("5 days ago", timedelta(days=5)),
@@ -33,10 +35,13 @@ FIXED_NOW = datetime(2025, 3, 13, 12, 0, 0, tzinfo=timezone.utc)
 @freeze_time(FIXED_NOW)
 def test_parse_relative_time_valid_inputs(relative_str, expected_delta):
     result = parse_relative_time(relative_str)
-    expected = FIXED_NOW - expected_delta
+    if expected_delta is None:
+        assert result is expected_delta
+    else:
+        expected = FIXED_NOW - expected_delta
 
-    assert result == expected
-    assert result.tzinfo == timezone.utc
+        assert result == expected
+        assert result.tzinfo == timezone.utc
 
 
 @pytest.mark.parametrize(
