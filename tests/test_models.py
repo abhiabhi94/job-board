@@ -2,7 +2,6 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from unittest import mock
 
-
 from job_board.models import Job as JobModel
 from job_board.base import Job
 

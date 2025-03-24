@@ -24,6 +24,7 @@ dependencies = [
     "openai",
     "pydantic",
     "cssselect",
+    "Jinja2",
 ]
 [project.optional-dependencies]
 dev = [
@@ -52,6 +53,7 @@ command_line = "-m pytest"
 fail_under = 98
 show_missing = true
 skip_covered = true
+precision = 2
 
 [tool.ruff]
 line-length=88

@@ -130,7 +130,7 @@ class BasePortal:
                   convert it to the actual date.
         - Link (Application URL)
 
-        Keeping in mind the key names might be different but they will
+        Keep in mind the key names might be different but they will
         be similar to the above attributes.
 
         Consider these attributes as equivalent:
