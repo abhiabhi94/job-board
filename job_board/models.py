@@ -102,7 +102,7 @@ def notify():
 
     email_provider.send_email(
         sender=config.SERVER_EMAIL,
-        receivers=config.RECEIPIENTS,
+        receivers=config.RECIPIENTS,
         subject=subject,
         body=email_body,
     )

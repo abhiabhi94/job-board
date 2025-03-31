@@ -1,0 +1,1818 @@
+{
+    "data": {
+        "talent": {
+            "__typename": "Talent",
+            "jobSearchResults": {
+                "__typename": "SearchResult",
+                "hasNextPage": true,
+                "rawQuery": null,
+                "startups": {
+                    "__typename": "StartupSearchResultConnection",
+                    "edges": [
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "PromotedResult",
+                                "id": "847069199",
+                                "promotedStartup": {
+                                    "__typename": "StartupSearchResult",
+                                    "id": "847069199-8037378",
+                                    "highlightedJobListings": [
+                                        {
+                                            "__typename": "JobListingSearchResult",
+                                            "atsSource": null,
+                                            "autoPosted": false,
+                                            "currentUserApplied": false,
+                                            "description": "**Job Profile:**\n\nQuantitative Researchers/Traders  are part of the core team working directly in the Algorithmic development team for research and development of the Quant Strategies. The goal is to develop a diversified set of scalable automated trading strategies that deliver consistent alpha.\n\nResponsibilities:\n\n- Building models - understanding relationships between securities\n\n- Researching automated trading strategies using a range of historical data, price and volume inputs\n\n- Researching portfolio construction and risk allocation techniques\n\n- Back-testing ideas using historical tick-by-tick data\n\n- Evaluating strategy performance, making improvements and scaling up successful strategies\n\n**Skills Needed:**\n\nAn ideal candidate will have the following skillset:\n\n- Top performer with a computer/electrical engineering degree from a top-tier institution\n\n- Strong programming ability in C++/Python\n\n- Prior experience in automated trading strategy development with a top HFT firm / hedge fund preferred\n\n- Hard working with an attention to detail and ability to work independently\n\n- Good understanding of financial markets, statistics and modeling techniques using ML is desirable\n\n- Self motivated and hard working\n\n**What we offer:**\n\n- Robust and efficient trading infrastructure for development of multi frequency trading strategies (low, medium and high frequency trading)\n\n- Access to multiple markets and asset classes across the globe\n\n- Opportunity to grow and have a good career development path\n\n- Competitive compensation and transparent business terms \n\n- Guidance to learn, develop and improve on Market dynamics and strategies\n\n- Opportunity to work and learn from various Senior executives in the firm",
+                                            "id": "2268796",
+                                            "jobType": "full-time",
+                                            "lastRespondedAt": 1743493295,
+                                            "liveStartAt": 1742748369,
+                                            "locationNames": [
+                                                "Delhi",
+                                                "Gurgaon",
+                                                "Noida"
+                                            ],
+                                            "primaryRoleTitle": "Data Scientist",
+                                            "remote": false,
+                                            "remoteConfig": {
+                                                "__typename": "JobListingRemoteConfig",
+                                                "id": "25220",
+                                                "kind": "ONSITE"
+                                            },
+                                            "reposted": true,
+                                            "slug": "quant-trader-researcher",
+                                            "title": "Quant Trader/Researcher",
+                                            "compensation": "\u20b910L \u2013 \u20b940L \u2022 No equity",
+                                            "usesEstimatedSalary": false,
+                                            "equity": "No equity",
+                                            "estimatedSalary": null,
+                                            "isBookmarked": false
+                                        }
+                                    ],
+                                    "startupId": "8037378",
+                                    "badges": [
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "ACTIVELY_HIRING",
+                                            "label": "Actively Hiring",
+                                            "name": "ACTIVELY_HIRING_BADGE",
+                                            "rating": null,
+                                            "tooltip": "Actively processing applications"
+                                        },
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "TOP_RESPONDER-8037378",
+                                            "label": "Top 5% of responders",
+                                            "name": "TOP_RESPONDER_BADGE",
+                                            "rating": null,
+                                            "tooltip": "Tara Capital Partners India is in the top 5% of companies in terms of response time to applications"
+                                        },
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "QUICK_RESPONDER-8037378",
+                                            "label": "Responds within a few days",
+                                            "name": "QUICK_RESPONDER_BADGE",
+                                            "rating": null,
+                                            "tooltip": "Based on past data, Tara Capital Partners India usually responds to incoming applications within a few days"
+                                        }
+                                    ],
+                                    "companySize": "SIZE_51_200",
+                                    "highConcept": "Financial Services company",
+                                    "locationTaggings": [
+                                        {
+                                            "__typename": "NewTag",
+                                            "displayName": "India",
+                                            "id": "1647"
+                                        }
+                                    ],
+                                    "logoUrl": "https://photos.wellfound.com/startups/i/8037378-988c9a88b2c68fbf8e9345c773d03273-medium_jpg.jpg?buster=1603471858",
+                                    "name": "Tara Capital Partners India",
+                                    "slug": "tara-capital-partners-india",
+                                    "newsStoryHeadline": null,
+                                    "newsStoryPublishedDate": null,
+                                    "newsStorySnippet": null,
+                                    "newsStorySource": null,
+                                    "newsStoryThumbnailUrl": null,
+                                    "newsStoryUrl": null
+                                },
+                                "promotionId": "847069199"
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "PromotedResult",
+                                "id": "847069200",
+                                "promotedStartup": {
+                                    "__typename": "StartupSearchResult",
+                                    "id": "847069200-10063485",
+                                    "highlightedJobListings": [
+                                        {
+                                            "__typename": "JobListingSearchResult",
+                                            "atsSource": null,
+                                            "autoPosted": false,
+                                            "currentUserApplied": false,
+                                            "description": "\ud83d\udce2 Important: This role requires prior experience in **ServiceNow development.** Candidates without ServiceNow experience will not be considered!\n\nAre you ready to be part of the next big thing in GenAI technology? We are seeking talented ServiceNow Developers in the USA who are passionate about innovation and eager to contribute to groundbreaking projects. As a prerequisite, candidates must hold ServiceNow certificates and have ServiceNow development experience. Additionally, candidates with the following qualifications are highly preferred:\n\nKey Qualifications:\n\nServiceNow Devloper Experience: Must have a minimum of 2 years hands on experience developing solutions in ServiceNow preferably in the Customer Service Management, CMDB.\n\nPreferred Qualification:\n\nCertified System Administrator Certified Application Developer\n\nAdditional Requirements:\n\nStrong problem-solving skills and a proactive attitude towards learning and adapting to new technologies. Excellent communication skills and the ability to collaborate effectively with cross-functional teams. Demonstrated ability to work independently and deliver high-quality results within tight deadlines. Location: Positions available in the USA.\n\nJoin us in shaping the future of GenAI technology and revolutionizing the way businesses leverage ServiceNow platforms. If you're ready to make an impact and thrive in a dynamic, innovative environment, we want to hear from you!\n\nPlease include your ServiceNow certification details and any relevant experience in your application.",
+                                            "id": "2975261",
+                                            "jobType": "full-time",
+                                            "lastRespondedAt": 1741903241,
+                                            "liveStartAt": 1740439478,
+                                            "locationNames": [
+                                                "India"
+                                            ],
+                                            "primaryRoleTitle": "Software Engineer",
+                                            "remote": true,
+                                            "remoteConfig": {
+                                                "__typename": "JobListingRemoteConfig",
+                                                "id": "158172",
+                                                "kind": "REMOTE"
+                                            },
+                                            "reposted": true,
+                                            "slug": "senior-servicenow-developer-india",
+                                            "title": "Senior ServiceNow Developer India",
+                                            "compensation": "No equity",
+                                            "usesEstimatedSalary": false,
+                                            "equity": "No equity",
+                                            "estimatedSalary": null,
+                                            "isBookmarked": false
+                                        }
+                                    ],
+                                    "startupId": "10063485",
+                                    "badges": [
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "ACTIVELY_HIRING",
+                                            "label": "Actively Hiring",
+                                            "name": "ACTIVELY_HIRING_BADGE",
+                                            "rating": null,
+                                            "tooltip": "Actively processing applications"
+                                        },
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "TOP_RESPONDER-10063485",
+                                            "label": "Top 10% of responders",
+                                            "name": "TOP_RESPONDER_BADGE",
+                                            "rating": null,
+                                            "tooltip": "work4flow.com is in the top 10% of companies in terms of response time to applications"
+                                        },
+                                        {
+                                            "__typename": "Badge",
+                                            "avatarUrl": null,
+                                            "data": null,
+                                            "id": "QUICK_RESPONDER-10063485",
+                                            "label": "Responds within a week",
+                                            "name": "QUICK_RESPONDER_BADGE",
+                                            "rating": null,
+                                            "tooltip": "Based on past data, work4flow.com usually responds to incoming applications within a week"
+                                        }
+                                    ],
+                                    "companySize": "SIZE_11_50",
+                                    "highConcept": "We onboard CSM and Gen Ai applications for ServiceNow Customers",
+                                    "locationTaggings": [
+                                        {
+                                            "__typename": "NewTag",
+                                            "displayName": "Santa Clara",
+                                            "id": "1843"
+                                        },
+                                        {
+                                            "__typename": "NewTag",
+                                            "displayName": "Remote",
+                                            "id": "616175"
+                                        }
+                                    ],
+                                    "logoUrl": "https://photos.wellfound.com/startups/i/10063485-104c61a84afe4a94b18ac814c00bb90a-medium_jpg.jpg?buster=1713116591",
+                                    "name": "work4flow.com",
+                                    "slug": "work4flow-com",
+                                    "newsStoryHeadline": null,
+                                    "newsStoryPublishedDate": null,
+                                    "newsStorySnippet": null,
+                                    "newsStorySource": null,
+                                    "newsStoryThumbnailUrl": null,
+                                    "newsStoryUrl": null
+                                },
+                                "promotionId": "847069200"
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "Selected intern's day-to-day responsibilities include: \n\n1. Assisting senior developer in completing assigned modules / tasks or May be asked to work on developing independent modules using PHP laravel framework .\n2. Bug Fixing\n3. Supporting Mobile &amp; frontend developers with the APIs requested and fulfilling dependencies.\n4. Contributing new ideas to improve the product\n\nStipend: Rs. 5000-15000 /month \n\nJob offer: On successful conversion to a permanent employee, the candidate can expect a salary of Rs. 3 to 7 Lac/annum",
+                                        "id": "3233091",
+                                        "jobType": "internship",
+                                        "lastRespondedAt": 1743489551,
+                                        "liveStartAt": 1742967765,
+                                        "locationNames": [
+                                            "Mumbai",
+                                            "Malad West"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "205260",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "backend-developer-intern",
+                                        "title": "Backend developer Intern",
+                                        "compensation": "\u20b93L \u2013 \u20b97L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "Roles and Responsibilities\n* Participate in the entire product development lifecycle, focusing on coding and debugging.\n* Translate high level business problems into scalable solutions. These include building self learning modules for dynamic pricing, contextual recommendations, in-house analytics, advanced real-time backend systems, etc.\n* Develop Web APIs and end-to-end web services to support various internal &amp; external.\n* Develop unit test plans to deliver quality components.\n* Building reusable code and libraries for future use.\n* Optimization of the software platform for maximum speed and scalability.\n* Collaborating with the front-end developers and other team members to establish objectives and design more functional, cohesive codes to enhance the user experience.\n* Developing ideas for new programs, products, or features by monitoring industry developments and trends.\n* Perform UI tests to optimize performance.\n* Provide training and support to internal teams.\n* Follow emerging technologies.\n\nDesired Candidate Profile\n* Expertise in PHP and Laravel or CodeIgnitor, MySQL or PostgreSQL, Nginx, LEMP setup\n* Developing REST APIs &amp; integrating 3rd party APIs (oAuth 2.0), Git\n* Hands-on experience in application deployment on linux servers\n* The ideal candidate is an entrepreneurial and creative out-of-the-box thinking tech geek with a get-things-done attitude, who wants to thrive in a fast-paced international environment.\n* You can easily navigate a volatile environment where you are constantly getting challenged to push your own boundaries to make sense of ambiguous and complex signals of uncertainty into simple winning outcomes.\n* What separates you from other developers is your relentless drive for running new tests and experiments on a regular basis. You love programming, but even more, you actually love implementing changes based on user data and create highly scalable technology based solutions.",
+                                        "id": "3233092",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743495996,
+                                        "liveStartAt": 1742967761,
+                                        "locationNames": [
+                                            "Mumbai",
+                                            "Malad West"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "205261",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "backend-developer",
+                                        "title": "Backend developer",
+                                        "compensation": "\u20b93L \u2013 \u20b97L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "10440262",
+                                "startupId": "10440262",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_RESPONDER-10440262",
+                                        "label": "Top 5% of responders",
+                                        "name": "TOP_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "InstaWeb Labs Pvt Ltd (Websites.co.in) is in the top 5% of companies in terms of response time to applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "QUICK_RESPONDER-10440262",
+                                        "label": "Responds within a few days",
+                                        "name": "QUICK_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Based on past data, InstaWeb Labs Pvt Ltd (Websites.co.in) usually responds to incoming applications within a few days"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-10440262",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_51_200",
+                                "highConcept": "We are revolutionizing the website-building industry with the world's simplest platform",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "India",
+                                        "id": "1647"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Mumbai",
+                                        "id": "22939"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Malad West",
+                                        "id": "428204"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/10440262-5822c1cdd8f72509631c6675ebae0329-medium_jpg.jpg?buster=1740989624",
+                                "name": "InstaWeb Labs Pvt Ltd (Websites.co.in)",
+                                "slug": "instaweb-labs-1",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Company Overview**\nAt Fulfil, we\u2019re redefining how high-growth merchants operate in a complex omnichannel world. Founded on the belief that business operations should be seamless and scalable, we\u2019ve built a unified platform that transforms back-office challenges into growth opportunities\u2014powering everything from order management to financial systems. Trusted by global brands like The Ridge, Hexclad, and Mejuri (and serving merchants akin to India\u2019s Flipkart and Nykaa), we\u2019re driving the future of e-commerce and wholesale at scale.\n\nHeadquartered in the USA and Canada, with a vibrant engineering hub in Bangalore, Fulfil is where ambitious problem-solvers come to push boundaries, master their craft, and collaborate on mission-critical technology that impacts millions.\n\n**Role: Intermediate Software Engineer (SDE II)**\n\nAs a Senior Software Engineer at Fulfil, you\u2019ll design and build the next-generation systems that power millions of customer orders and financial transactions for some of the world\u2019s fastest-growing merchants. Our Python-based platform handles massive scale\u2014think millions of transactions per hour\u2014and your work will ensure it\u2019s robust, scalable, and maintainable.\n\nYou\u2019ll collaborate with a global team across the USA, Canada, and Bangalore, tackling sophisticated challenges in an environment that values clean code, innovative design, and collective problem-solving.\n\n\n**What You\u2019ll Do**\n* **Own the Full Stack**: Take charge of our entire Python-based platform\u2014from front-end integrations to back-end systems\u2014maintaining and scaling a codebase of millions of lines that powers global commerce.\n* **Ship Features Fast**: Drive the rapid design, development, and deployment of new features, delivering value to high-growth merchants at breakneck speed.\n* **Integrate AI**: Build and embed AI-driven capabilities into our ERP, enhancing automation and intelligence for order management, financials, and beyond.\n* **Master Scale and Stability**: Optimize REST and GraphQL APIs (600+ endpoints), microservices, and Kubernetes/Docker deployments to handle millions of transactions with zero downtime.\n* **Elevate Code Quality**: Refactor legacy systems, write testable code with pytest, and collaborate on peer reviews to keep our stack robust and maintainable.\n* **Bridge Ecosystems**: Integrate seamlessly with e-commerce platforms (Shopify, Amazon) and logistics partners (FedEx, DHL), ensuring our merchants\u2019 operations hum.\n* **Solve at Scale**: Tackle the real-world challenges of a B2B SaaS leader\u2014think complex business logic, reusable components, and global infrastructure management.\n\n\n**What You Bring**\n\n* 3+ years building large-scale server-side applications and microservices with Python.\n* Expertise with ORMs (e.g., SQLAlchemy, Django) and SQL databases (Postgres preferred).\n* Proficiency in our stack: Python, Celery, Postgres, Redis, RabbitMQ.\n* Hands-on experience with testing (pytest) and Git for version control.\n* A track record of delivering scalable, maintainable code with a focus on ownership\u2014leading projects from design to deployment.\n\n**Experience Levels**\n\n* Intermediate: 3 years of experience in python and RDBMS applications\n* ~Senior: 5\u20137 years of experience. Ideally building applications at scale from scratch.~\n* ~Lead/Principal: 8+ years, with a history of mentoring or architecting complex systems.~\n\n**Bonus Points**\n\n* Experience scaling systems at a high-growth tech company.\n* Familiarity with cloud platforms (Google Cloud, Heroku, etc.).\n* Passion for optimizing distributed systems or e-commerce workflows.",
+                                        "id": "3252813",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743441887,
+                                        "liveStartAt": 1742917138,
+                                        "locationNames": [
+                                            "Bengaluru"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208941",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "sde-ii-python-full-stack-ai-fulfil-erp",
+                                        "title": "SDE II - Python Full Stack & AI (Fulfil ERP)",
+                                        "compensation": "\u20b930L \u2013 \u20b940L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Company Overview**\nAt Fulfil, we\u2019re redefining how high-growth merchants operate in a complex omnichannel world. Founded on the belief that business operations should be seamless and scalable, we\u2019ve built a unified platform that transforms back-office challenges into growth opportunities\u2014powering everything from order management to financial systems. Trusted by global brands like The Ridge, Hexclad, and Mejuri (and serving merchants akin to India\u2019s Flipkart and Nykaa), we\u2019re driving the future of e-commerce and wholesale at scale.\n\nHeadquartered in the USA and Canada, with a vibrant engineering hub in Bangalore, Fulfil is where ambitious problem-solvers come to push boundaries, master their craft, and collaborate on mission-critical technology that impacts millions.\n\n**Role: Senior Software Engineer**\n\nAs a Senior Software Engineer at Fulfil, you\u2019ll design and build the next-generation systems that power millions of customer orders and financial transactions for some of the world\u2019s fastest-growing merchants. Our Python-based platform handles massive scale\u2014think millions of transactions per hour\u2014and your work will ensure it\u2019s robust, scalable, and maintainable.\n\nYou\u2019ll collaborate with a global team across the USA, Canada, and Bangalore, tackling sophisticated challenges in an environment that values clean code, innovative design, and collective problem-solving.\n\n\n**What You\u2019ll Do**\n* **Own the Full Stack**: Take charge of our entire Python-based platform\u2014from front-end integrations to back-end systems\u2014maintaining and scaling a codebase of millions of lines that powers global commerce.\n* **Ship Features Fast**: Drive the rapid design, development, and deployment of new features, delivering value to high-growth merchants at breakneck speed.\n* **Integrate AI**: Build and embed AI-driven capabilities into our ERP, enhancing automation and intelligence for order management, financials, and beyond.\n* **Master Scale and Stability**: Optimize REST and GraphQL APIs (600+ endpoints), microservices, and Kubernetes/Docker deployments to handle millions of transactions with zero downtime.\n* **Elevate Code Quality**: Refactor legacy systems, write testable code with pytest, and collaborate on peer reviews to keep our stack robust and maintainable.\n* **Bridge Ecosystems**: Integrate seamlessly with e-commerce platforms (Shopify, Amazon) and logistics partners (FedEx, DHL), ensuring our merchants\u2019 operations hum.\n* **Solve at Scale**: Tackle the real-world challenges of a B2B SaaS leader\u2014think complex business logic, reusable components, and global infrastructure management.\n\n\n**What You Bring**\n\n* 5+ years building large-scale server-side applications and microservices with Python.\n* Expertise with ORMs (e.g., SQLAlchemy, Django) and SQL databases (Postgres preferred).\n* Proficiency in our stack: Python, Celery, Postgres, Redis, RabbitMQ.\n* Hands-on experience with testing (pytest) and Git for version control.\n* A track record of delivering scalable, maintainable code with a focus on ownership\u2014leading projects from design to deployment.\n\n**Experience Levels**\n\n* Senior: 5\u20137 years of relevant experience.\n* Lead/Principal: 8+ years, with a history of mentoring or architecting complex systems.\n\n**Bonus Points**\n\n* Experience scaling systems at a high-growth tech company.\n* Familiarity with cloud platforms (Google Cloud, Heroku, etc.).\n* Passion for optimizing distributed systems or e-commerce workflows.",
+                                        "id": "3239504",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743441515,
+                                        "liveStartAt": 1742806413,
+                                        "locationNames": [
+                                            "Bengaluru"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "206411",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "senior-software-engineer-python-full-stack-ai-fulfil-erp",
+                                        "title": "Senior Software Engineer - Python Full Stack & AI (Fulfil ERP)",
+                                        "compensation": "\u20b945L \u2013 \u20b960L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Company Overview**\nAt Fulfil, we\u2019re redefining how high-growth merchants operate in a complex omnichannel world. Founded on the belief that business operations should be seamless and scalable, we\u2019ve built a unified platform that transforms back-office challenges into growth opportunities\u2014powering everything from order management to financial systems. Trusted by global brands like The Ridge, Hexclad, and Mejuri (and serving merchants akin to India\u2019s Flipkart and Nykaa), we\u2019re driving the future of e-commerce and wholesale at scale.\n\nHeadquartered in the USA and Canada, with a vibrant engineering hub in Bangalore, Fulfil is where ambitious problem-solvers come to push boundaries, master their craft, and collaborate on mission-critical technology that impacts millions.\n\n**Role: Senior Software Engineer**\nAs a Senior Software Engineer at Fulfil, you\u2019ll design and build the next-generation systems that power millions of customer orders and financial transactions for some of the world\u2019s fastest-growing merchants. Our Python-based platform handles massive scale\u2014think millions of transactions per hour\u2014and your work will ensure it\u2019s robust, scalable, and maintainable.\n\nYou\u2019ll collaborate with a global team across the USA, Canada, and Bangalore, tackling sophisticated challenges in an environment that values clean code, innovative design, and collective problem-solving.\n\n\n**What You\u2019ll Do**\n* **Own the Full Stack**: Take charge of our entire Python-based platform\u2014from front-end integrations to back-end systems\u2014maintaining and scaling a codebase of millions of lines that powers global commerce.\n* **Ship Features Fast**: Drive the rapid design, development, and deployment of new features, delivering value to high-growth merchants at breakneck speed.\n* **Integrate AI**: Build and embed AI-driven capabilities into our ERP, enhancing automation and intelligence for order management, financials, and beyond.\n* **Master Scale and Stability**: Optimize REST and GraphQL APIs (600+ endpoints), microservices, and Kubernetes/Docker deployments to handle millions of transactions with zero downtime.\n* **Elevate Code Quality**: Refactor legacy systems, write testable code with pytest, and collaborate on peer reviews to keep our stack robust and maintainable.\n* **Bridge Ecosystems**: Integrate seamlessly with e-commerce platforms (Shopify, Amazon) and logistics partners (FedEx, DHL), ensuring our merchants\u2019 operations hum.\n* **Solve at Scale**: Tackle the real-world challenges of a B2B SaaS leader\u2014think complex business logic, reusable components, and global infrastructure management.\n\n\n**What You Bring**\n* 5+ years building large-scale server-side applications and microservices with Python.\n* Expertise with ORMs (e.g., SQLAlchemy, Django) and SQL databases (Postgres preferred).\n* Proficiency in our stack: Python, Celery, Postgres, Redis, RabbitMQ.\n* Hands-on experience with testing (pytest) and Git for version control.\n* A track record of delivering scalable, maintainable code with a focus on ownership\u2014leading projects from design to deployment.\n\n**Experience Levels**\n* Senior: 5\u20137 years of relevant experience.\n* Lead/Principal: 8+ years, with a history of mentoring or architecting complex systems.\n\n**Bonus Points**\n* Experience scaling systems at a high-growth tech company.\n* Familiarity with cloud platforms (Google Cloud, Heroku, etc.).\n* Passion for optimizing distributed systems or e-commerce workflows.",
+                                        "id": "3239511",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743441633,
+                                        "liveStartAt": 1742806397,
+                                        "locationNames": [
+                                            "Bengaluru",
+                                            "Delhi",
+                                            "Pune",
+                                            "Hyderabad",
+                                            "Mumbai",
+                                            "Thiruvananthapuram",
+                                            "Noida",
+                                            "Kolkata",
+                                            "Gurugram",
+                                            "Chennai"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "206415",
+                                            "kind": "ONSITE_OR_REMOTE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "senior-software-engineer-python-full-stack-ai-fulfil-erp-remote-india",
+                                        "title": "Senior Software Engineer - Python Full Stack & AI - Fulfil ERP (Remote - India)",
+                                        "compensation": "\u20b935L \u2013 \u20b950L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "759620",
+                                "startupId": "759620",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_RESPONDER-759620",
+                                        "label": "Top 10% of responders",
+                                        "name": "TOP_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Fulfil is in the top 10% of companies in terms of response time to applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "QUICK_RESPONDER-759620",
+                                        "label": "Responds within two weeks",
+                                        "name": "QUICK_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Based on past data, Fulfil usually responds to incoming applications within two weeks"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "B2B-759620",
+                                        "label": "B2B",
+                                        "name": "B2B_BADGE",
+                                        "rating": null,
+                                        "tooltip": null
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": "growth_stage",
+                                        "id": "COMPANY_STAGE-759620",
+                                        "label": "Growth Stage",
+                                        "name": "COMPANY_STAGE_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Expanding market presence"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_INVESTORS-759620",
+                                        "label": "Top Investors",
+                                        "name": "TOP_INVESTORS_BADGE",
+                                        "rating": null,
+                                        "tooltip": "This company has received a significant amount of investment from top investors"
+                                    }
+                                ],
+                                "companySize": "SIZE_51_200",
+                                "highConcept": "Only ERP specifically designed for eCommerce and wholesale",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Toronto",
+                                        "id": "1702"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Bengaluru",
+                                        "id": "1904"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/759620-7af6ae0636dbace1646bf9a821ecee4c-medium_jpg.jpg?buster=1642636624",
+                                "name": "Fulfil",
+                                "slug": "fulfil-io",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Location**: Gurgaon, Haryana  \n**Employment Type**: Full-time  \n**Department**: Product Development\n**Reports To**: Product Manager\n\n---\n\n### **Job Overview**:\n\nArtikate Private Limited is seeking a skilled **Backend Developer** with proficiency in **Python-Django**, **GitHub**, and **CI/CD pipelines** to join our dynamic team. The ideal candidate will be responsible for developing, maintaining, and optimizing backend systems, ensuring seamless integration with front-end applications, and automating deployment workflows through CI/CD processes.\n\n---\n\n### **Key Responsibilities**:\n\n- **Backend Development**: Build, maintain, and enhance backend services using Python and Django, ensuring scalability, performance, and security.\n- **API Development**: Design and develop RESTful APIs to integrate with front-end applications and third-party services.\n- **Database Management**: Manage databases, including database design, optimization, and migration.\n- **Version Control**: Use **GitHub** for managing codebases, branching, and collaborating with other developers.\n- **CI/CD Integration**: Implement and manage **Continuous Integration/Continuous Deployment (CI/CD)** pipelines to automate the build, testing, and deployment processes.\n- **Collaboration**: Work closely with front-end developers, designers, and product managers to align backend functionality with business goals.\n- **Debugging and Optimization**: Identify performance bottlenecks and bugs, and provide solutions to improve backend efficiency.\n\n---\n\n### **Requirements**:\n\n- **Experience**: 2-3 years of experience in backend development with a strong focus on Python and Django.\n- **Skills**:\n  - Proficiency in **Python-Django** framework.\n  - Experience with **GitHub** for version control and code collaboration.\n  - Knowledge of **CI/CD pipelines** (Jenkins, GitLab CI, or similar tools) to automate deployments.\n  - Strong understanding of **RESTful API development**.\n  - Experience with relational (SQL) and non-relational (NoSQL) databases.\n- **Tools**: Familiarity with tools like Docker, Kubernetes, and cloud platforms (AWS, Azure) is a plus.\n\n---\n\n### **Restrictions**:\n\n- **Dedicated Working Hours**: The candidate must be available to work during the designated working hours as per the agreed-upon schedule.\n- **Exclusivity**: The candidate will **not be allowed to engage in any other employment, consultancy, or freelance work** during the period of employment with Artikate Private Limited.\n\n---\n\n### **Preferred Qualifications**:\n\n- Experience with **Docker/Kubernetes** for containerization and orchestration.\n- Familiarity with **AWS** or other cloud platforms for scalable deployments.\n- Excellent problem-solving skills and the ability to work independently as well as in a team.\n- Strong understanding of security practices in backend development.",
+                                        "id": "3134638",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743118684,
+                                        "liveStartAt": 1742911702,
+                                        "locationNames": [
+                                            "Gurgaon"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "187012",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "backend-developer-python-django",
+                                        "title": "Backend Developer (Python-Django)",
+                                        "compensation": "\u20b93L \u2013 \u20b910L \u2022 0.0% \u2013 0.5%",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "0.0% \u2013 0.5%",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "### **Job Overview**:\n\nArtikate Studio is looking for a **Project Manager / Product Manager** with expertise in **full-stack development** to oversee the complete product development lifecycle, from inception to delivery and post-launch maintenance. The ideal candidate will have a blend of **project management skills** and **technical expertise** to manage and actively participate in the development of high-quality products.\n\nThis role requires a hands-on leader who can efficiently manage multiple projects, work collaboratively with cross-functional teams, and ensure that development processes align with the business objectives and technical requirements.\n\n---\n\n### **Key Responsibilities**:\n\n- **End-to-End Product Management**: Lead and manage the entire product development lifecycle from concept, planning, and design, through development, testing, launch, and post-launch support and maintenance.\n- **Requirement Gathering &amp; Analysis**: Collaborate with stakeholders to gather and define product requirements and translate them into detailed specifications and development roadmaps.\n- **Project Planning &amp; Execution**: Develop project plans, timelines, and budgets. Monitor project progress, ensuring that deadlines and deliverables are met.\n- **Development Participation**: Actively participate in coding, debugging, and developing new features using full-stack development skills (e.g., HTML, CSS, JavaScript, Node.js, Python, React, SQL, and other relevant technologies).\n- **Team Collaboration &amp; Leadership**: Coordinate and collaborate with cross-functional teams, including developers, designers, marketing, and QA, to ensure the product meets quality standards and client expectations.\n- **Quality Assurance &amp; Testing**: Oversee testing phases, ensuring that any issues are identified and resolved promptly to deliver a high-quality product.\n- **Post-Launch Maintenance**: Manage product updates, bug fixes, and ongoing maintenance, ensuring that the product remains stable and aligned with business and user needs.\n- **Risk Management**: Identify project risks and proactively develop mitigation plans to minimize disruptions and ensure timely delivery.\n- **Reporting &amp; Documentation**: Maintain clear documentation of development processes, project updates, and product changes. Provide regular progress reports to stakeholders and management.\n\n---\n\n### **Requirements**:\n\n- **Education**: NA\n- **Experience**:\n  - 3+ years of experience in product management/project management roles, preferably in software or technology-driven environments.\n  - Proven full-stack development experience with hands-on skills in HTML, CSS, JavaScript (React, Node.js), Python, and SQL.\n- **Skills**:\n  - Strong knowledge of software development methodologies (Agile, Scrum) and project management tools (e.g., Jira, Trello, Asana).\n  - Excellent coding and debugging skills, with the ability to actively contribute to development projects.\n  - Strong analytical and problem-solving abilities, with a keen eye for detail and quality.\n  - Effective communication skills, with the ability to manage and coordinate cross-functional teams and stakeholders.\n  - Ability to multitask and manage multiple projects simultaneously in a fast-paced environment.\n- **Tools/Software**:\n  - Proficiency with version control systems (e.g., Git) and cloud platforms (AWS, Azure).\n  - Familiarity with database management and backend technologies.\n\n---\n\n### **Preferred Qualifications**:\n\n- Certification in Project Management (e.g., PMP, PRINCE2, Scrum Master) is a plus.\n- Experience with CI/CD pipelines and DevOps practices.",
+                                        "id": "3128244",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743119184,
+                                        "liveStartAt": 1742388701,
+                                        "locationNames": [
+                                            "Gurgaon"
+                                        ],
+                                        "primaryRoleTitle": "Product Manager",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "185857",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "project-manager-product-manager",
+                                        "title": "Project Manager / Product Manager",
+                                        "compensation": "\u20b94L \u2013 \u20b98.5L \u2022 0.1% \u2013 0.5%",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "0.1% \u2013 0.5%",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "9383510",
+                                "startupId": "9383510",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-9383510",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "Design, Development, and AI-powered solutions, driving growth and digital innovation",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Gurgaon",
+                                        "id": "2280"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/9383510-05f7b37eec5e37bf63dc618fec8d95c6-medium_jpg.jpg?buster=1732173498",
+                                "name": "Artikate Studio",
+                                "slug": "artikate-studio",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Hiring for Sifthub**\n[Sitfhub](https://https://www.sifthub.io/) is is an AI platform that acts as a central hub to collate and sift through all your content scattered across multiple repositories and tools such as Drive, Sharepoint, your CRM, and your knowledge base. *(Babblebots is their recruitment Partner)*\n\nResponsibilities: \n- Design and implement scalable and secure backend systems and microservices\n- Collaborate with cross-functional teams, including NLP engineers, UI/UX designers, product managers, and QA engineers\n- Mentor junior developers by providing guidance, feedback, and supportActively participate in code reviews, architecture discussions, and technical debatesAssist with debugging production issuesStay up-to-date with industry trends and emerging technologies\n- Lead by example with excellent communication skills, problem-solving abilities, and adaptability\n\nRequirements: \n- Bachelor's or Master's degree in Computer Science, Information Technology or related field\n- 6+ years of experience in large-scale backend applications in \n- Java (must have) &amp; Python (good to have)\n- Expertise in managing and scaling SQL and NoSQL databases like MySQL, MongoDB &amp; ElasticSearch\n- Proficiency with modern web frameworks like Springboot (must-have) &amp; FastAPI (good-to-have)\n- Ability to write clean, modular, and well-documented code\n- Experience with containerization tools including Docker &amp; KubernetesComfortable with Agile methodology and version control systems such as GitExperience with caching technologies like Redis\n\nTech stack - \n- Java \n- Springboot \n- AWS (preffered) \n- SQL/NoSQL",
+                                        "id": "3252754",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": null,
+                                        "liveStartAt": 1742902589,
+                                        "locationNames": [
+                                            "Mumbai"
+                                        ],
+                                        "primaryRoleTitle": "Software Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208882",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "senior-backend-engineer",
+                                        "title": "Senior Backend Engineer",
+                                        "compensation": "\u20b930L \u2013 \u20b945L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "This job is at Kodo. [kodo.in](https://kodo.in)\nWe are their recruitment partners.\n\nAt Kodo, we believe, managing a fast-growing company\u2019s finances &amp; operations\nshouldn\u2019t feel like a juggling act. That\u2019s why we offer a single platform to streamline\nall purchase decisions, automate repetitive tasks and simplify payments. From\ncorporate cards with smart controls to accounts payable and procure-to-pay\nsolutions, Kodo equips fast-growing businesses with everything they need to save\ntime, cut costs, and scale easily.\nTrusted by companies such as Cars24, Mensa Brands, Zetwerk and many more,\nKodo transforms financial chaos into clarity. These teams are empowered with\nflexible corporate cards, automated vendor payments and reimbursements, and\nstreamlined procurement processes\u2014while integrating effortlessly with their ERPs\nfor real-time insights.\nWe have raised $14M from investors such as Y Combinator, Brex, and other global\ninvestors. We\u2019re on a mission to simplify the CFO stack for fast-growing businesses.\nWe believe in creating exceptional products for our customers, an enriching\nenvironment for our team, and a solid business that grows profitably.\nTitle: Software Engineer\nDepartment: Engineering\nLocation: Pune/Mumbai (Work from office)\nReports To: DOE\nSummary:\nWe are looking for Backend Engineers to join our team and help us build a new stack\nfocusing on b2b spend management in India. You will be responsible for designing,\ndeveloping, and maintaining our backend systems using Kotlin, Micronaut, Spring Cloud,\nand other cutting-edge technologies. You will also work closely with other engineers to\nensure that our systems are scalable, reliable, and secure.\nResponsibilities:\n\u25cf Design, develop, and maintain backend systems using Kotlin, Micronaut &amp; Spring\nCloud/ Spring Boot, Azure, PostgresQL\n\u25cf Work closely with other engineers to ensure that our systems are scalable, reliable,\nand secure\n\n\u25cf Implement unit tests and TDD (test-driven development) to ensure the quality of our\ncode\n\u25cf Participate in the design and implementation of new features\n\u25cf Work with other teams to integrate our backend systems with other systems in our\necosystem\n\nQualifications:\n\u25cf 3+ years of experience in developing backend systems using Kotlin, Micronaut,\nSpring Cloud, or other similar technologies\n\u25cf Strong understanding of unit testing\n\u25cf Experience with DDD (domain-driven design), CQRS, Clean Architecture, Hexagonal\nArchitecture, Microservices, Multi tenancy and Event Sourcing is a plus\n\u25cf Excellent problem-solving and analytical skills\n\u25cf Ability to work independently and as part of a team\n\u25cf Strong communication and interpersonal skills\nPreferred Qualifications:\n\u25cf Experience in developing backend systems for fintech companies\n\u25cf Experience in developing backend systems for b2b spend management\ncompanies\n\u25cf Experience with cloud computing platforms such as Azure\n\u25cf Experience with Docker and Kubernetes",
+                                        "id": "3247903",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": null,
+                                        "liveStartAt": 1742386422,
+                                        "locationNames": [
+                                            "Pune",
+                                            "Mumbai"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "207912",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "software-engineer-backend",
+                                        "title": "Software Engineer - Backend",
+                                        "compensation": "\u20b912L \u2013 \u20b930L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "8596094",
+                                "startupId": "8596094",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-8596094",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "Voice-AI platform to help screen candidates",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Mumbai",
+                                        "id": "22939"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/8596094-4110557062df60a8609dede693ea622e-medium_jpg.jpg?buster=1698834424",
+                                "name": "Babblebots",
+                                "slug": "babblebots",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "InfraSingularity aims to revolutionize the Web3 ecosystem as a pioneering investor and builder.\nOur long-term vision is to establish ourselves as the first-of-its-kind in this domain, spearheading\nthe investment and infrastructure development for top web3 protocols.\nAt IS, we recognize the immense potential of web3 technologies to reshape industries and\nempower individuals. By investing in top web3 protocols, we aim to fuel their growth and support\ntheir journey towards decentralization. Additionally, our plan to actively build infrastructure with\nthese protocols sets us apart, ensuring that they have the necessary foundations to operate in a\ndecentralized manner effectively.\nWe embrace collaboration and partnership as key drivers of success. By working alongside\nesteemed web3 VCs like WAGMI and more, we can leverage their expertise and collective\ninsights to maximize our impact. Together, we are shaping the future of the Web3 ecosystem,\nco-investing, and co-building infrastructure that accelerates the adoption and growth of\ndecentralized technologies.\nTogether with our portfolio of top web3 protocols (Lava, Sei, and Anoma) and our collaborative\npartnerships with top protocols (EigenLayer, Avail, PolyMesh, and Connext), we are creating a\ntransformative impact on industries, society, and the global economy. Join us on this\ngroundbreaking journey as we reshape the future of finance, governance, and technology.\n\nWhat you'll be doing:\n\nBuild strong, resilient, and robust FinTech and NFT decentralized applications\nWork closely with management and product team to rapidly iterate, experiment and launch products\nIntegrate with various blockchains such as Ethereum, and L2s, Solana, and Algorand\nArchitect and build smart contracts\nRESTful API Express setup\nBuild secure smart contract protocols and backend services\nMentor and train other team members on smart contract best practices\n\n**What we look for in you:**\n\n2 to 3 years experience as a software engineer working in a Web3 startup (NFT Marketplace/DeFi/others), working with JavaScript, Typescript, MongoDB, AWS and backend frameworks like ExpressJS, NestJS. \nKnowledge in Solidity &amp; Rust, Ethers.js, Web3.js, among other tools.\nWorking knowledge along with some experience with React, NextJS, AntD, Zustand and any relevant web3 libraries for frontend development.\nSolid understanding of blockchain technology, the Ethereum blockchain, and smart contracts development on major public blockchains.\nFamiliarity and interest with NFTs and digital collectibles as a product.\nProven experience in developing and maintaining robust back-end systems\nStrong understanding of software development life cycle (SDLC) and agile methodologies.\nExperience using Git in a professional/workplace environment.\nExcellent problem-solving skills and attention to detail\nMust be fluent in English and possess strong communication skills\nAbility to thrive in a fast-paced startup environment.\nYou can write secure code that works quickly and efficiently.\nA customer-focused and product-focused mindset. You\u2019re interested in using the right tool for the job and you understand, and can speak to, the \u201cWhy\u201d behind your choices.\nYou can operate independently, be detail oriented, and deliver results in an organized manner.\nAbility to drive end-to-end features and lead projects autonomously.\nDemonstrated capacity to clearly and concisely communicate about complex technical, architectural, and/or organizational problems and propose thorough iterative solutions.\nPositive and solution-oriented mindset.\nAn inclination towards communication, inclusion, and visibility.\nExperience with performance and optimization problems and a demonstrated ability to both diagnose and prevent these problems.\n\n**Additional Requirements:**\n\nExperience with any NodeOps ie. deployment and maintenance of PoS validators, Full nodes, etc. Knowledge in NestJS.\nAwareness of new developments and tech trends in the web3 space: Modular, ZK networks, Restaking, etc.\nWorking knowledge of popular frontend frameworks.",
+                                        "id": "3252734",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743494898,
+                                        "liveStartAt": 1742899097,
+                                        "locationNames": [
+                                            "India"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208873",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "junior-fullstack-blockchain-developer-web3",
+                                        "title": "Junior FullStack Blockchain Developer ( Web3 )",
+                                        "compensation": "\u20b98L \u2013 \u20b912L",
+                                        "usesEstimatedSalary": false,
+                                        "equity": null,
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Immediate joining ( WFH )\n\nInfraSingularity aims to revolutionize the Web3 ecosystem as a pioneering investor and builder. Our long-term vision is to establish ourselves as the first-of-its-kind in this domain, spearheading the investment and infrastructure development for top web3 protocols. At IS, we recognize the immense potential of web3 technologies to reshape industries and empower individuals. By investing in top web3 protocols, we aim to fuel their growth and support their journey towards decentralization. Additionally, our plan to actively build infrastructure with these protocols sets us apart, ensuring that they have the necessary foundations to operate in a decentralized manner effectively. We embrace collaboration and partnership as key drivers of success. By working alongside esteemed web3 VCs like WAGMI and more, we can leverage their expertise and collective insights to maximize our impact. Together, we are shaping the future of the Web3 ecosystem, co-investing, and co-building infrastructure that accelerates the adoption and growth of decentralized technologies. Together with our portfolio of top web3 protocols (Lava, Sei, and Anoma) and our collaborative partnerships with top protocols (EigenLayer, Avail, PolyMesh, and Connext), we are creating a transformative impact on industries, society, and the global economy. Join us on this groundbreaking journey as we reshape the future of finance, governance, and technology.\n\n**Position Overview:**\n Seeking a talented Full Stack Developer to join the innovative team, focusing on solutions within the Restaking Domain. In this role, the candidate will work closely with management and the product team to rapidly iterate, experiment, and launch products that align with the latest advancements in the Proof of Stake (PoS) ecosystem. The candidate will play a crucial role in integrating with various blockchains, including Ethereum, Layer 2 solutions, Solana, and Bitcoin. Your responsibilities will encompass both frontend and backend development, with a strong emphasis on optimizing performance and enhancing user experience using React and Next.js.\n**Key Responsibilities:**\nDesign and implement innovative solutions in the Restaking Domain, focusing on both frontend and backend development.\nCollaborate with cross-functional teams to iterate and launch products that align with PoS innovations.\nDevelop user-friendly, responsive web applications using React and Next.js, ensuring a seamless and engaging user experience.\nOptimize frontend performance by fine-tuning React and Next.js applications, implementing best practices for efficient rendering, state management, and load times.\nBuild and maintain RESTful and gRPC APIs to support product functionality and ensure smooth communication between frontend and backend systems.\nIntegrate with multiple blockchain platforms, including Ethereum, Solana, and Bitcoin, to enhance product capabilities.\nDevelop UI/UX designs and then translate design wireframes into high-quality, functional code.\nConduct code reviews and provide mentorship to junior developers on frontend technologies and performance optimization techniques.\n**Qualifications**:\n3-4 years of experience as a Full Stack Developer in a Web3 startup environment (e.g., NFT Marketplace, DeFi).\nProficiency in JavaScript and TypeScript, with extensive experience in frameworks such as Next.js and React.\nStrong knowledge of frontend development principles, including component-based architecture, state management, and responsive design.\nProven experience in optimizing frontend performance, including techniques for reducing load times and improving rendering efficiency.\nFamiliarity with backend technologies, including databases such as MongoDB and PostgreSQL, and server-side programming languages like Go, Rust, or Python.\nExperience with cloud services, particularly AWS.\nFamiliarity with Solidity and Rust, as well as libraries like Ethers.js and Web3.js.\nWorking knowledge of frontend development tools, including Ant Design, Zustand, and relevant Web3 libraries.\nInterest and familiarity with DeFi products.\nStrong understanding of the software development life cycle (SDLC) and agile methodologies.\nExperience with Git in a professional setting.\nExcellent problem-solving skills and meticulous attention to detail.\nFluent in English with strong communication skills.\nAbility to thrive in a fast-paced startup environment.\nAbility to work independently, maintain organization, and deliver results.\nPositive, solution-oriented attitude with a focus on communication, inclusion, and visibility.\nExperience with performance optimization and the ability to diagnose and prevent related issues.\n**Additional Requirements:**\nSolid understanding of blockchain technology, particularly the Ethereum blockchain, EVM architecture, and smart contract development on major public blockchains.\nAwareness of emerging trends in the Web3 space, such as modular blockchains (e.g., Polygon CDK, Optimism OpStack), ZK circuits development (zk-SNARKs, zk-STARKs, Bulletproofs), and Restaking and innovations happening in the Restaking domain.",
+                                        "id": "3252624",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743494695,
+                                        "liveStartAt": 1742883855,
+                                        "locationNames": [
+                                            "India"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208820",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "fullstack-blockchain-developer-golang",
+                                        "title": "FullStack Blockchain Developer ( Golang )",
+                                        "compensation": "\u20b98L \u2013 \u20b912L",
+                                        "usesEstimatedSalary": false,
+                                        "equity": null,
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "InfraSingularity aims to revolutionize the Web3 ecosystem as a pioneering investor and builder.\nOur long-term vision is to establish ourselves as the first-of-its-kind in this domain, spearheading\nthe investment and infrastructure development for top web3 protocols.\nAt IS, we recognize the immense potential of web3 technologies to reshape industries and\nempower individuals. By investing in top web3 protocols, we aim to fuel their growth and support\ntheir journey towards decentralization. Additionally, our plan to actively build infrastructure with\nthese protocols sets us apart, ensuring that they have the necessary foundations to operate in a\ndecentralized manner effectively.\nWe embrace collaboration and partnership as key drivers of success. By working alongside\nesteemed web3 VCs like WAGMI and more, we can leverage their expertise and collective\ninsights to maximize our impact. Together, we are shaping the future of the Web3 ecosystem,\nco-investing, and co-building infrastructure that accelerates the adoption and growth of\ndecentralized technologies.\nTogether with our portfolio of top web3 protocols (Lava, Sei, and Anoma) and our collaborative\npartnerships with top protocols (EigenLayer, Avail, PolyMesh, and Connext), we are creating a\ntransformative impact on industries, society, and the global economy. Join us on this\ngroundbreaking journey as we reshape the future of finance, governance, and technology.\n\nWhat you'll be doing:\n\nBuild strong, resilient, and robust FinTech and NFT decentralized applications\nWork closely with management and product team to rapidly iterate, experiment and launch products\nIntegrate with various blockchains such as Ethereum, and L2s, Solana, and Algorand\nArchitect and build smart contracts\nRESTful API Express setup\nBuild secure smart contract protocols and backend services\nMentor and train other team members on smart contract best practices\n\n**What we look for in you:**\n\n2 to 3 years experience as a software engineer working in a Web3 startup (NFT Marketplace/DeFi/others), working with JavaScript, Typescript, MongoDB, AWS and backend frameworks like ExpressJS, NestJS. \nKnowledge in Solidity &amp; Rust, Ethers.js, Web3.js, among other tools.\nWorking knowledge along with some experience with React, NextJS, AntD, Zustand and any relevant web3 libraries for frontend development.\nSolid understanding of blockchain technology, the Ethereum blockchain, and smart contracts development on major public blockchains.\nFamiliarity and interest with NFTs and digital collectibles as a product.\nProven experience in developing and maintaining robust back-end systems\nStrong understanding of software development life cycle (SDLC) and agile methodologies.\nExperience using Git in a professional/workplace environment.\nExcellent problem-solving skills and attention to detail\nMust be fluent in English and possess strong communication skills\nAbility to thrive in a fast-paced startup environment.\nYou can write secure code that works quickly and efficiently.\nA customer-focused and product-focused mindset. You\u2019re interested in using the right tool for the job and you understand, and can speak to, the \u201cWhy\u201d behind your choices.\nYou can operate independently, be detail oriented, and deliver results in an organized manner.\nAbility to drive end-to-end features and lead projects autonomously.\nDemonstrated capacity to clearly and concisely communicate about complex technical, architectural, and/or organizational problems and propose thorough iterative solutions.\nPositive and solution-oriented mindset.\nAn inclination towards communication, inclusion, and visibility.\nExperience with performance and optimization problems and a demonstrated ability to both diagnose and prevent these problems.\n\n**Additional Requirements:**\n\nExperience with any NodeOps ie. deployment and maintenance of PoS validators, Full nodes, etc. Knowledge in NestJS.\nAwareness of new developments and tech trends in the web3 space: Modular, ZK networks, Restaking, etc.\nWorking knowledge of popular frontend frameworks.",
+                                        "id": "3251937",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743149028,
+                                        "liveStartAt": 1742814319,
+                                        "locationNames": [
+                                            "India"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208619",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "fullstack-blockchain-developer-web3",
+                                        "title": "FullStack Blockchain Developer ( Web3 )",
+                                        "compensation": "\u20b98L \u2013 \u20b912L",
+                                        "usesEstimatedSalary": false,
+                                        "equity": null,
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "9661966",
+                                "startupId": "9661966",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "B2B-9661966",
+                                        "label": "B2B",
+                                        "name": "B2B_BADGE",
+                                        "rating": null,
+                                        "tooltip": null
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": "early_stage",
+                                        "id": "COMPANY_STAGE-9661966",
+                                        "label": "Early Stage",
+                                        "name": "COMPANY_STAGE_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Startup in initial stages"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-9661966",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "Spearheading Investment & Infrastructure for Top Web3 Protocols",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "United States",
+                                        "id": "1688"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/9661966-2c82e71c49b161ecfa7a741185a664f0-medium_jpg.jpg?buster=1699534463",
+                                "name": "InfraSingularity",
+                                "slug": "infrasingularity",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "FeaturedStartups",
+                                "featuredStartups": [
+                                    {
+                                        "__typename": "PromotedResult",
+                                        "id": "847069195",
+                                        "promotedStartup": {
+                                            "__typename": "StartupSearchResult",
+                                            "id": "847069195-10357726",
+                                            "highlightedJobListings": [
+                                                {
+                                                    "__typename": "JobListingSearchResult",
+                                                    "atsSource": null,
+                                                    "autoPosted": false,
+                                                    "currentUserApplied": false,
+                                                    "description": "**Job Summary:**\n\nWe are seeking a highly skilled Senior Go Developer with extensive experience in IoT development to join our team. The ideal candidate will have deep expertise in AWS Lambda, DynamoDB, AWS IoT Core, and a strong understanding of BLE (Bluetooth Low Energy) and MESH networking protocols. This role involves designing, developing, and deploying scalable IoT solutions while ensuring high performance and security.\n\n**Key Responsibilities:**\n\nDesign and develop IoT applications using Go and integrate them with AWS services.\nImplement BLE and MESH networking protocols to enable communication between IoT devices.\nDevelop and optimize AWS Lambda functions for real-time IoT data processing.\nDesign and maintain DynamoDB tables for efficient storage and retrieval of IoT data.\nWork with AWS IoT Core for device management, MQTT messaging, and data streaming.\nCollaborate with cross-functional teams to develop scalable and secure IoT solutions.\nWrite clean, efficient, and well-documented code following best practices.\nMonitor and optimize the performance of IoT systems and troubleshoot issues.\nEnsure security best practices are followed in IoT communication and data handling.\n\n**Required Skills &amp; Qualifications:**\n\n5+ years of experience in backend development with Go (Golang).\nStrong understanding of IoT architecture and protocols (MQTT, CoAP, BLE, MESH, etc.).\nHands-on experience with AWS services, including AWS Lambda, DynamoDB, AWS IoT Core, API Gateway, S3, and CloudWatch.\nProficiency in BLE communication and experience working with MESH networks.\nExperience in real-time data processing and event-driven architecture.\nStrong knowledge of RESTful APIs and microservices architecture.\nExperience with containerization (Docker, Kubernetes) is a plus.\nFamiliarity with security best practices for IoT and cloud-based applications.\nExcellent problem-solving skills and ability to work in an agile environment.\nStrong communication skills and ability to work in a team.",
+                                                    "id": "3246761",
+                                                    "jobType": "full-time",
+                                                    "lastRespondedAt": null,
+                                                    "liveStartAt": 1742295249,
+                                                    "locationNames": [
+                                                        "Surat"
+                                                    ],
+                                                    "primaryRoleTitle": "Software Engineer",
+                                                    "remote": true,
+                                                    "remoteConfig": {
+                                                        "__typename": "JobListingRemoteConfig",
+                                                        "id": "207696",
+                                                        "kind": "ONSITE_OR_REMOTE"
+                                                    },
+                                                    "reposted": false,
+                                                    "slug": "senior-go-developer-iot-specialist",
+                                                    "title": "Senior Go Developer (IoT Specialist)",
+                                                    "compensation": "\u20b912L \u2013 \u20b920L \u2022 No equity",
+                                                    "usesEstimatedSalary": false,
+                                                    "equity": "No equity",
+                                                    "estimatedSalary": null,
+                                                    "isBookmarked": false
+                                                }
+                                            ],
+                                            "startupId": "10357726",
+                                            "badges": [
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "ACTIVELY_HIRING",
+                                                    "label": "Actively Hiring",
+                                                    "name": "ACTIVELY_HIRING_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Actively processing applications"
+                                                }
+                                            ],
+                                            "companySize": "SIZE_11_50",
+                                            "highConcept": "Enterprise Software Development",
+                                            "locationTaggings": [
+                                                {
+                                                    "__typename": "NewTag",
+                                                    "displayName": "Surat",
+                                                    "id": "15393"
+                                                }
+                                            ],
+                                            "logoUrl": "https://photos.wellfound.com/startups/i/10357726-a0575e7fe1e22f7f5123ae5d7327657e-medium_jpg.jpg?buster=1735537855",
+                                            "name": "Credence Technologies",
+                                            "slug": "credence-technologies-3",
+                                            "newsStoryHeadline": null,
+                                            "newsStoryPublishedDate": null,
+                                            "newsStorySnippet": null,
+                                            "newsStorySource": null,
+                                            "newsStoryThumbnailUrl": null,
+                                            "newsStoryUrl": null
+                                        },
+                                        "promotionId": "847069195"
+                                    },
+                                    {
+                                        "__typename": "PromotedResult",
+                                        "id": "847069196",
+                                        "promotedStartup": {
+                                            "__typename": "StartupSearchResult",
+                                            "id": "847069196-10448126",
+                                            "highlightedJobListings": [
+                                                {
+                                                    "__typename": "JobListingSearchResult",
+                                                    "atsSource": null,
+                                                    "autoPosted": false,
+                                                    "currentUserApplied": false,
+                                                    "description": "**\ud83d\ude80 Join Our Digital Transformation Team!**\n\nKTC is a leading consulting firm specializing in digital transformation through Microsoft Dynamics 365 Business Central. Our expertise in finance and controlling, combined with cutting-edge applications, helps our clients streamline operations. We are looking for a skilled Business Central AL Developer with strong knowledge of Power Platform and JavaScript to join our team on a contract basis. If you have a passion for innovation and experience in Microsoft technologies, this opportunity is for you!\n\n**\ud83d\udccc Your Responsibilities:**\n* Develop, customize, and enhance Microsoft Dynamics 365 Business Central using AL.\n* Design and implement Power Applications and PowerFX solutions to improve business processes.\n* Utilize JavaScript for custom extensions and integrations within the Microsoft ecosystem.\n* Work with Microsoft DevOps to manage version control, CI/CD pipelines, and project deployments.\n* Develop automation scripts and manage system configurations using PowerShell.\n* Ensure best practices in coding, documentation, and deployment of Business Central solutions.\n* Collaborate with internal teams and clients to understand business needs and translate them into technical solutions.\n* Stay up to date with Microsoft updates and implement new features effectively.\n\n**\u2705 Your Qualifications:**\n* 5+ years of experience in Business Central AL Development.\n* 5+ years of experience in Power Applications &amp; PowerFX Development.\n* 5+ years of experience in JavaScript Development.\n* Proficiency in Microsoft DevOps for source control and project management.\n* Strong knowledge of Microsoft PowerShell for automation and system administration.\n* Minimum 2+ Microsoft Certifications related to Business Central, Power Platform, or Azure.\n* Experience in finance, accounting, or ERP-related projects is a plus.\n* Strong problem-solving skills and ability to work independently in a remote or hybrid setup.\n\n**\ud83d\udca1 Why Join Us?**\n* Be part of an innovative consulting firm driving digital transformation in finance &amp; ERP solutions.\n* Work on diverse projects for international clients using the latest Microsoft technologies.\n* Engage in a flexible contract-based role with potential long-term collaboration.\n* Opportunity to work with cutting-edge Power Platform solutions and AI-driven automation.\n* Continuous learning and career development in the Microsoft ecosystem.\n\n\ud83d\udc49 **Apply Now!**\n\nIf you meet the requirements and are ready to take your expertise to the next level, we would love to hear from you! Send us your resume and let\u2019s discuss how you can contribute to our mission. \nPlease tell us your expected annual contractor salary for a full-time position.",
+                                                    "id": "3239422",
+                                                    "jobType": "contract",
+                                                    "lastRespondedAt": null,
+                                                    "liveStartAt": 1741526358,
+                                                    "locationNames": [
+                                                        "Karlsruhe"
+                                                    ],
+                                                    "primaryRoleTitle": "Software Architect",
+                                                    "remote": true,
+                                                    "remoteConfig": {
+                                                        "__typename": "JobListingRemoteConfig",
+                                                        "id": "206361",
+                                                        "kind": "REMOTE"
+                                                    },
+                                                    "reposted": false,
+                                                    "slug": "business-central-al-developer-contract-power-platform-javascript-expertise-wanted",
+                                                    "title": "\ud83d\udce2 Business Central AL Developer (Contract) \u2013 Power Platform & JavaScript Expertise Wanted!",
+                                                    "compensation": "$20k \u2013 $25k \u2022 No equity",
+                                                    "usesEstimatedSalary": false,
+                                                    "equity": "No equity",
+                                                    "estimatedSalary": null,
+                                                    "isBookmarked": false
+                                                }
+                                            ],
+                                            "startupId": "10448126",
+                                            "badges": [
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "ACTIVELY_HIRING",
+                                                    "label": "Actively Hiring",
+                                                    "name": "ACTIVELY_HIRING_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Actively processing applications"
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "TOP_RESPONDER-10448126",
+                                                    "label": "Top 5% of responders",
+                                                    "name": "TOP_RESPONDER_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "KTC-Karlsruhe Technology Consulting is in the top 5% of companies in terms of response time to applications"
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "QUICK_RESPONDER-10448126",
+                                                    "label": "Responds within a few days",
+                                                    "name": "QUICK_RESPONDER_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Based on past data, KTC-Karlsruhe Technology Consulting usually responds to incoming applications within a few days"
+                                                }
+                                            ],
+                                            "companySize": "SIZE_11_50",
+                                            "highConcept": "? KTC is hiring IT professionals for Business Central and Power Plattform! Join our team! ?",
+                                            "locationTaggings": [
+                                                {
+                                                    "__typename": "NewTag",
+                                                    "displayName": "Karlsruhe",
+                                                    "id": "2087"
+                                                }
+                                            ],
+                                            "logoUrl": "https://photos.wellfound.com/startups/i/10448126-5d9473ccdfbb0382671b6e8e62b75414-medium_jpg.jpg?buster=1741511189",
+                                            "name": "KTC-Karlsruhe Technology Consulting",
+                                            "slug": "ktc-gmbh",
+                                            "newsStoryHeadline": null,
+                                            "newsStoryPublishedDate": null,
+                                            "newsStorySnippet": null,
+                                            "newsStorySource": null,
+                                            "newsStoryThumbnailUrl": null,
+                                            "newsStoryUrl": null
+                                        },
+                                        "promotionId": "847069196"
+                                    },
+                                    {
+                                        "__typename": "PromotedResult",
+                                        "id": "847069197",
+                                        "promotedStartup": {
+                                            "__typename": "StartupSearchResult",
+                                            "id": "847069197-1676501",
+                                            "highlightedJobListings": [
+                                                {
+                                                    "__typename": "JobListingSearchResult",
+                                                    "atsSource": null,
+                                                    "autoPosted": false,
+                                                    "currentUserApplied": false,
+                                                    "description": "As a Software Engineer II, you'll play a pivotal role in driving the development and expansion of the portfolio by leveraging your expertise in .NET, React/Angular, Azure, and solution engineering. Collaborating closely with a multidisciplinary team of engineers, creatives, and project managers, you\u2019ll focus on designing and developing scalable, efficient, and modern solutions. Your ability to implement innovative features, architect solutions, and work effectively across teams will be critical to the portfolio's success. This role also emphasizes technical excellence, leadership, and a commitment to delivering high-quality solutions that align with the organization\u2019s goals and client needs.\n\nKey Responsibilities and Duties:\n\nThis role encompasses a significant expansion of responsibilities and influence. The individual will be a key contributor to architectural decisions, system design, and solution architecture, collaborating extensively with cross-functional teams, stakeholders, and clients to translate business needs into scalable, maintainable technical solutions. They will lead development efforts on complex projects, mentor junior engineers, and actively drive innovation and process improvement. Furthermore, they will play a crucial role in business development through client engagement and contribute to the organization's thought leadership by sharing their expertise and insights. This individual will champion continuous learning and development, both for themselves and others, while consistently demonstrating leadership, strong communication skills, and a commitment to fostering a positive and productive team environment aligned with organizational values. They will also focus on building a strong portfolio of successful projects to demonstrate their growing expertise and position themselves for future career advancement.\n\nSkills and Qualifications:\n\nProficiency in .NET and React for designing and implementing modern, responsive, and scalable applications.\nExpertise in Azure Cloud Services, including Azure Functions, Azure App Services, and Azure DevOps, with hands-on experience in deploying and managing scalable solutions in the cloud.\nHands-on experience in Salesforce or other CRM/CMS platforms with the ability to develop, customize, and manage the applications.\nExperience in building and working on AI-powered solutions, including AI-driven analytics and automation.\nStrong understanding of Content Management Systems (CMS) and Customer relationship management (CRM) like HubSpot, Sitefinity, Sitecore, Sharepoint, etc. and their utilization for customer segmentation, engagement, and retention strategies.\nStrong understanding of solution engineering and development principles, with experience in designing robust and efficient system architectures tailored to meet client requirements.\nComprehensive knowledge of front-end and back-end development workflows, with the ability to integrate seamlessly with cloud-based infrastructure and third-party services.\nAdvanced understanding of modern software design patterns and best practices for building maintainable, secure, and high-performing applications.\nExperience in designing and implementing CI/CD pipelines using tools like GitHub Actions, Jenkins, or Azure DevOps.\nStrong problem-solving and analytical skills, with the ability to tackle complex technical challenges and deliver innovative solutions.\nEffective communication and collaboration skills, with the ability to work across cross-functional teams and interact with clients to gather requirements and present technical solutions.\nCommitment to continuous learning and professional development, with an interest in staying updated on emerging technologies and industry trends\n\n\nWhy work at Softway?\n\nSoftway\u2019s cross-functional team structure and varied functions gives much exposure and learning from a bird's eye-view. You\u2019d love the interaction with our talented folks. Softway gives you ample learning opportunities, pushing you while having your back. We work hard and party harder !! We encourage you to voice your opinions and yes, we actually listen. We take pride in having an ego-less workforce, it allows us to focus on what we\u2019re good at - bringing solutions to life. In addition to a competitive  salary and great work culture, we offer GREAT FLEXIBILITY which includes having 2 Fridays off in a month as part of moving to an action-packed, efficient 4 day week.",
+                                                    "id": "3240292",
+                                                    "jobType": "full-time",
+                                                    "lastRespondedAt": 1743316558,
+                                                    "liveStartAt": 1741688157,
+                                                    "locationNames": [
+                                                        "Houston",
+                                                        "Bengaluru"
+                                                    ],
+                                                    "primaryRoleTitle": "Full-Stack Engineer",
+                                                    "remote": false,
+                                                    "remoteConfig": {
+                                                        "__typename": "JobListingRemoteConfig",
+                                                        "id": "206617",
+                                                        "kind": "ONSITE"
+                                                    },
+                                                    "reposted": false,
+                                                    "slug": "dot-net-engineer-full-stack-with-angular-react-immediate-joinees-preferred",
+                                                    "title": "Dot Net Engineer (Full Stack with Angular/React). - Immediate Joinees Preferred",
+                                                    "compensation": "",
+                                                    "usesEstimatedSalary": false,
+                                                    "equity": null,
+                                                    "estimatedSalary": null,
+                                                    "isBookmarked": false
+                                                }
+                                            ],
+                                            "startupId": "1676501",
+                                            "badges": [
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "ACTIVELY_HIRING",
+                                                    "label": "Actively Hiring",
+                                                    "name": "ACTIVELY_HIRING_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Actively processing applications"
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "TOP_RESPONDER-1676501",
+                                                    "label": "Top 5% of responders",
+                                                    "name": "TOP_RESPONDER_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Softway is in the top 5% of companies in terms of response time to applications"
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "QUICK_RESPONDER-1676501",
+                                                    "label": "Responds within a few days",
+                                                    "name": "QUICK_RESPONDER_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Based on past data, Softway usually responds to incoming applications within a few days"
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "B2B-1676501",
+                                                    "label": "B2B",
+                                                    "name": "B2B_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": null
+                                                },
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": "growth_stage",
+                                                    "id": "COMPANY_STAGE-1676501",
+                                                    "label": "Growth Stage",
+                                                    "name": "COMPANY_STAGE_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Expanding market presence"
+                                                }
+                                            ],
+                                            "companySize": "SIZE_51_200",
+                                            "highConcept": "Unlock greater technology innovation,  efficiency and creativity through Softway",
+                                            "locationTaggings": [
+                                                {
+                                                    "__typename": "NewTag",
+                                                    "displayName": "Houston",
+                                                    "id": "1645"
+                                                },
+                                                {
+                                                    "__typename": "NewTag",
+                                                    "displayName": "Bengaluru",
+                                                    "id": "1904"
+                                                }
+                                            ],
+                                            "logoUrl": "https://photos.wellfound.com/startups/i/1676501-91daa8df15cf545f8e81e0042957ca48-medium_jpg.jpg?buster=1656385211",
+                                            "name": "Softway",
+                                            "slug": "softway-solutions-3",
+                                            "newsStoryHeadline": null,
+                                            "newsStoryPublishedDate": null,
+                                            "newsStorySnippet": null,
+                                            "newsStorySource": null,
+                                            "newsStoryThumbnailUrl": null,
+                                            "newsStoryUrl": null
+                                        },
+                                        "promotionId": "847069197"
+                                    },
+                                    {
+                                        "__typename": "PromotedResult",
+                                        "id": "847069198",
+                                        "promotedStartup": {
+                                            "__typename": "StartupSearchResult",
+                                            "id": "847069198-8537411",
+                                            "highlightedJobListings": [
+                                                {
+                                                    "__typename": "JobListingSearchResult",
+                                                    "atsSource": null,
+                                                    "autoPosted": false,
+                                                    "currentUserApplied": false,
+                                                    "description": "Job description\n\nWe are assembling a team of Sr. Blockchain &amp; Backend engineers to work on revolutionary DEFI tech. We value our professionals, providing exciting challenges, and the opportunity for growth and product ownership. We expect them to ensure that delegated components and overall modules developed are robust and easy to manage.\n\nWith a commitment to collaborative problem solving, sophisticated design, and quality products are important.\n\n\n\nResponsibilities\n\n- Design and implement smart contracts (including testing, deploying and scripting) \n\t[Solidity, Foundry, Hardhat,]\n\n- Design and implement smart contract peripherals (subgraphs, indexers, oracles, etc.) \n\t[Graph Protocol, Block Explorers, Chainlink ]\n\n- Write low latency and high-performance REST, GraphQL, gRPC, WebSocket APIs\n\t[Go, Rust, Typescript, Postgres, MongoDB, Redis]\n\t\n- Maintain standards of code quality across all codebases\n\n\nBONUS POINTS \n\n- Maintain production linux servers using containers along with continuous integration and deployment \n\t[Docker, K8s, Shell Scripting]\n\n- Maintain observability and alerting systems for deployment environments\n\t[Grafana, Prometheus, Kibana]\n\n\nRequirements\n\n\n- Bachelor\u2019s degree in CS, electrical engineering, or equivalent. \n(NOT MUST)\n\n- 2-5 years experience in professional engineering and development \n(NOT MUST)\n\n- Must provide, exceptional judgment, strategic thinking, and creative problem-solving skills with a strong analytical mindset\n\n- Must write secure, efficient, high-quality code and have a good understanding of CS fundamentals\n\n- Fast learner who can quickly master new technologies\n\n- Understanding of DEFI ecosystem &amp; concepts like ERC standards, liquidity pools, lending borrowing, derivatives platforms, etc.",
+                                                    "id": "2645419",
+                                                    "jobType": "full-time",
+                                                    "lastRespondedAt": 1741215569,
+                                                    "liveStartAt": 1740931220,
+                                                    "locationNames": [
+                                                        "Hyderabad"
+                                                    ],
+                                                    "primaryRoleTitle": "Backend Engineer",
+                                                    "remote": true,
+                                                    "remoteConfig": {
+                                                        "__typename": "JobListingRemoteConfig",
+                                                        "id": "101205",
+                                                        "kind": "ONSITE_OR_REMOTE"
+                                                    },
+                                                    "reposted": true,
+                                                    "slug": "blockchain-backend-engineer",
+                                                    "title": "Blockchain & Backend Engineer",
+                                                    "compensation": "\u20b915L \u2013 \u20b950L",
+                                                    "usesEstimatedSalary": false,
+                                                    "equity": null,
+                                                    "estimatedSalary": null,
+                                                    "isBookmarked": false
+                                                }
+                                            ],
+                                            "startupId": "8537411",
+                                            "badges": [
+                                                {
+                                                    "__typename": "Badge",
+                                                    "avatarUrl": null,
+                                                    "data": null,
+                                                    "id": "ACTIVELY_HIRING",
+                                                    "label": "Actively Hiring",
+                                                    "name": "ACTIVELY_HIRING_BADGE",
+                                                    "rating": null,
+                                                    "tooltip": "Actively processing applications"
+                                                }
+                                            ],
+                                            "companySize": "SIZE_1_10",
+                                            "highConcept": "Welcome to NeoBase Studios: Shaping Web3 For Tomorrow, Today",
+                                            "locationTaggings": [
+                                                {
+                                                    "__typename": "NewTag",
+                                                    "displayName": "Dubai",
+                                                    "id": "1637"
+                                                }
+                                            ],
+                                            "logoUrl": "https://photos.wellfound.com/startups/i/8537411-5ff24664a3840c63e7032824319f9783-medium_jpg.jpg?buster=1664223866",
+                                            "name": "NeoBase",
+                                            "slug": "neobase-studios",
+                                            "newsStoryHeadline": null,
+                                            "newsStoryPublishedDate": null,
+                                            "newsStorySnippet": null,
+                                            "newsStorySource": null,
+                                            "newsStoryThumbnailUrl": null,
+                                            "newsStoryUrl": null
+                                        },
+                                        "promotionId": "847069198"
+                                    }
+                                ],
+                                "id": "847069195-847069196-847069197-847069198"
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "Aviate is solving pressing problems to unlock a multi-billion dollar opportunity and a chance to transform the recruitment and job-preparation markets in India.\n\nWe are creating a suite of recruitment products for job seekers and employers. We currently operate Aviate, our B2C employability enhancement and placement product for job-seekers and Q-Rate, our B2B SaaS play targeted at large employers and recruitment agencies.\n\n**Learn More about Aviate: www.aviate.jobs\n\n**Learn More about Q-Rate: www.qrate.ai**\n\nWe are a profitably growing venture with over 35 clients and have been backed by some prominent entrepreneurs of the Indian startup ecosystem including founders of companies like Khatabook, Lets Transport and Housing.com.\n\nIf you feel you fit the bill, please read along for the additional attributes that we are seeking:\n\n\u2022 A Full-Stack developer with an exceptional command on Python and the DRF framework\n\u2022 Minimun experience of 3+ years in a growth-stage or early-stage venture will be preferred \n\u2022 Working knowledge of building a highly scalable application \n\u2022 Responsible for building the engineering stack that is the foundation for our products and services",
+                                        "id": "1813077",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1742889813,
+                                        "liveStartAt": 1742894536,
+                                        "locationNames": [
+                                            "Bengaluru",
+                                            "Goa"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "75661",
+                                            "kind": "ONSITE_OR_REMOTE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "backend-development-lead-django",
+                                        "title": "Backend Development Lead (Django)",
+                                        "compensation": "\u20b915L \u2013 \u20b925L",
+                                        "usesEstimatedSalary": false,
+                                        "equity": null,
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "6765601",
+                                "startupId": "6765601",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_RESPONDER-6765601",
+                                        "label": "Top 5% of responders",
+                                        "name": "TOP_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Aviate is in the top 5% of companies in terms of response time to applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "QUICK_RESPONDER-6765601",
+                                        "label": "Responds within a few days",
+                                        "name": "QUICK_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Based on past data, Aviate usually responds to incoming applications within a few days"
+                                    }
+                                ],
+                                "companySize": "SIZE_1_10",
+                                "highConcept": "Aviate is job-discovery and preparation platform for Job-seekers",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Bengaluru",
+                                        "id": "534981"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/6765601-65a00a5d557603204f5362a4df0bc778-medium_jpg.jpg?buster=1548945527",
+                                "name": "Aviate",
+                                "slug": "aviate-1",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Job Title :** Backend Developer\n**Location :** Navi Mumbai (Work from Office)\n**Industry :** AR/VR\n**About Jio Tesseract :** Jio Tesseract is a leader in Augmented Reality (AR) and Virtual Reality (VR) solutions, pioneering next-gen immersive experiences. We are looking for a skilled React Native Developer to join our team and contribute to the development of cutting-edge AR/VR applications.\n\n**Key Responsibilities :**\n- Develop, test, and maintain robust backend applications using Python and frameworks like Django/FastAPI/Flask.\n\n- Design and develop RESTful APIs and integrate them with frontend applications.\n\n- Optimize application performance and ensure scalability.\n\n- Work with databases (SQL &amp; NoSQL) such as PostgreSQL, MySQL, MongoDB, or Redis.\n\n- Implement authentication and authorization mechanisms (OAuth, JWT, etc.).\n\n- Collaborate with frontend developers, DevOps, and other teams to ensure smooth deployment and operation.\n\n- Write clean, scalable, and maintainable code following best practices.\n\n- Troubleshoot, debug, and resolve technical issues in production environments.\n\n- Work with containerization tools (Docker, Kubernetes) and CI/CD pipelines.\n\n- Ensure security and data protection best practices.\n\n**Required Skills &amp; Qualifications :**\n\n- 5+ years of experience as a Python Backend Developer.\n\n- Proficiency in Python and frameworks like Django, Flask, or FastAPI.\n\n- Strong experience in RESTful API development and integration.\n\n- Knowledge of databases (SQL &amp; NoSQL) and ORM frameworks.\n\n- Familiarity with microservices architecture and distributed systems.\n\n- Experience with Docker, Kubernetes, and cloud platforms like AWS, Azure, or GCP.\n\n- Hands-on experience with message brokers like RabbitMQ or Kafka.\n\n- Good understanding of security best practices, authentication, and authorization.\n\n- Experience with unit testing and automated testing frameworks.\n\n- Knowledge of Git, CI/CD pipelines, and Agile methodologies.\n\n**Good to Have :**\n\n- Experience with GraphQL.\n\n- Familiarity with Celery for asynchronous task processing.\n\n- Exposure to AI/ML frameworks (if applicable).\n\n**Benefits :**\n\n- Competitive salary\n- Health and wellness benefits\n- Hands-on Experience of Unique and new technology of AR/VR\n\nMail your CV's at - krishna.jain@tesseract.in",
+                                        "id": "3252644",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743396627,
+                                        "liveStartAt": 1742888039,
+                                        "locationNames": [
+                                            "Navi Mumbai"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208840",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "backend-developer-python",
+                                        "title": "Backend Developer - Python",
+                                        "compensation": "\u20b910L \u2013 \u20b940L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "**Key Responsibilities :**\n\n-Architect, design, and develop scalable backend services using Node.js / Express.js\n- Lead complex feature development from conception to deployment\n-Optimize application performance and implement caching strategies\n-Design and maintain RESTful APIs and microservices architecture\n-Implement security best practices and protect against common vulnerabilities\n-Mentor junior developers and contribute to technical decision-making\n-Collaborate with product managers to define technical specifications\n\n**Technical Requirements :**\n- 5+ years of professional experience with Node.js and Express.js\n- Strong expertise in JavaScript/TypeScript and ES6+ features\n- Deep understanding of asynchronous programming and event-driven architecture\n- Extensive experience with MongoDB/PostgreSQL and database optimization\n- Proficiency in API design, RESTful services, and microservices\n- Experience with message queues (RabbitMQ/Redis) and caching mechanisms\n- Solid understanding of CI/CD pipelines and containerization (Docker)\n- Experience with AWS/Cloud services and serverless architecture\n- Knowledge of testing frameworks (Jest, Mocha)\n\n**Essential Skills :**\n- System design and architectural patterns\n- Performance optimization and debugging\n- Code review and technical documentation\n- Problem-solving and analytical thinking\n- Team leadership and mentoring abilities\n**Nice to Have :**\n- Experience with GraphQL\n- Knowledge of React/Vue.js\n- Contribution to open-source projects\n- Experience with real-time applications using Socket.io\n- Familiarity with Kubernetes and cloud-native technologies\n**What We Offer :**\n- Competitive salary and equity options\n- Health insurance for you and family\n- Professional development budget\n- Flexible work hours and remote work options\n- Regular team events and learning sessions\n- Modern tech stack and challenging projects\n- Opportunity to shape product architecture\n\n**Join us in building world-class products that make a difference! If you're passionate about technology and want to work with a team that values innovation, we'd love to hear from you.**",
+                                        "id": "3252024",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1743396718,
+                                        "liveStartAt": 1742837260,
+                                        "locationNames": [
+                                            "Navi Mumbai"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208712",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "senior-node-js-developer-system-design",
+                                        "title": "Senior Node.js Developer - System Design",
+                                        "compensation": "\u20b915L \u2013 \u20b940L",
+                                        "usesEstimatedSalary": false,
+                                        "equity": null,
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "7070101",
+                                "startupId": "7070101",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_RESPONDER-7070101",
+                                        "label": "Top 10% of responders",
+                                        "name": "TOP_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Tesseract is in the top 10% of companies in terms of response time to applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "QUICK_RESPONDER-7070101",
+                                        "label": "Responds within a week",
+                                        "name": "QUICK_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Based on past data, Tesseract usually responds to incoming applications within a week"
+                                    }
+                                ],
+                                "companySize": "SIZE_201_500",
+                                "highConcept": "MIT spin-off based out of India creating AR/VR products",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Mumbai",
+                                        "id": "22939"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/7070101-91e72020cdb74db605b1dfb22633f44a-medium_jpg.jpg?buster=1563442221",
+                                "name": "Tesseract",
+                                "slug": "tesseract-9",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "Position: Full-time,\nLocation: Remote,\nExperience: 1+ years\n\nAbout Us:\nKuvaka Tech is a pioneering tech company at the forefront of Blockchain, Artificial Intelligence, and Web2 innovation. Our mission is to empower businesses and individuals through transformative digital solutions. We\u2019re seeking a highly skilled Backend Developer to join our team and help drive our vision forward.\n\nResponsibilities:\n* Architect, build, and maintain high-performance, scalable backend systems.\n* Develop and integrate RESTful APIs to support seamless interaction with frontend and mobile applications.\n* Manage and optimize database systems (e.g., MongoDB, PostgreSQL) for speed and reliability.\n* Collaborate with frontend developers, product managers, and QA teams to deliver cohesive, end-to-end solutions.\n* Diagnose and resolve complex technical issues to ensure system uptime and efficiency.\n* Write clean, modular, and well-documented code adhering to best practices.\n* Participate in code reviews to uphold quality standards and encourage knowledge sharing.\n* Leverage cloud platforms (e.g., AWS, Azure) for deployment and scalability.\n* Implement secure coding practices to protect systems and data.\n* Explore and adopt emerging backend technologies to keep our stack cutting-edge.\n* Requirements:\n* Bachelor\u2019s degree in Computer Science, Engineering, or a related field.\n* 2+ years of professional backend development experience.\n* Expert-level proficiency in Python (Django, Flask) or Node.js (Express.js), including JavaScript (ES6+).\n* Strong experience with relational and non-relational databases like PostgreSQL, MySQL, or MongoDB.\n* Proven skills in designing and deploying RESTful APIs.\n* Hands-on experience with cloud platforms such as AWS, Azure, or Google Cloud.\n* Mastery of version control tools, particularly Git.\n* Familiarity with Docker and Kubernetes is a strong advantage.\n* Top-tier problem-solving and analytical skills with a focus on delivering elegant solutions.\n* Excellent communication skills and a collaborative spirit, suited for a remote team.\n* Ability to thrive in a fast-paced, dynamic environment while managing multiple priorities.\n\nSkills:\n* Core Technologies: Python (Django, Flask) or Node.js (Express.js)\n* Databases: MongoDB, PostgreSQL, MySQL\n* API Expertise: RESTful API design and deployment\n* Cloud Platforms: AWS, Azure, Google Cloud\n* Version Control: Git\n* Containerization: Docker, Kubernetes\n* System Design: Microservices architecture\n* Security: Secure coding and system protection\n* Soft Skills: Analytical thinking, teamwork, adaptability\n\nHow to Apply:\nReady to make an impact? Submit your application via Wellfound today!\n\nWhy Join Us?\nAt Kuvaka Tech, we\u2019re passionate about innovation, diversity, and collaboration. If you\u2019re a top-tier Backend Developer eager to work on groundbreaking projects in Blockchain, AI, and Web2, this is your chance to excel. Join us and help shape the future of technology!",
+                                        "id": "3252639",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": null,
+                                        "liveStartAt": 1742886577,
+                                        "locationNames": [
+                                            "Bangalore Urban"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "208835",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": false,
+                                        "slug": "backend-developer",
+                                        "title": "Backend Developer",
+                                        "compensation": "\u20b95L \u2013 \u20b96L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "8733987",
+                                "startupId": "8733987",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "B2B-8733987",
+                                        "label": "B2B",
+                                        "name": "B2B_BADGE",
+                                        "rating": null,
+                                        "tooltip": null
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": "early_stage",
+                                        "id": "COMPANY_STAGE-8733987",
+                                        "label": "Early Stage",
+                                        "name": "COMPANY_STAGE_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Startup in initial stages"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-8733987",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "Kuvaka leads the way in the digital revolution driven by transformative technologies such ",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "India",
+                                        "id": "1647"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Middletown",
+                                        "id": "114125"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/8733987-9744d5282e8150e4a62810d9c35a6141-medium_jpg.jpg?buster=1698653039",
+                                "name": "Kuvaka Tech",
+                                "slug": "kuvaka_tech",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "Skills And Qualifications:\nStrong knowledge of PHP web frameworks like Laravel\nUnderstanding of MVC design patterns.\nUnderstanding of front-end technologies, such as JavaScript, JQuery, HTML5, CSS3, React JS etc.\n\nProficient in REST API development using laravel.\n\nGood understanding of MYSQL and Mongodb databases.\n\nKnowledge of object oriented PHP programming.\nUnderstanding accessibility and security compliance.\nStrong knowledge of the common PHP or web server exploits and their solutions.\nUnderstanding fundamental design principles behind a scalable application.\nUser authentication and authorization between multiple systems, servers, and environments.\nIntegration of multiple data sources and databases into one system.\nFamiliarity with limitations of PHP as a platform and its workarounds.\nCreating database schemas that represent and support business processes.\nFamiliarity with SQL/NoSQL databases and their declarative query languages.\nProficient understanding of code versioning tools, such as Git.",
+                                        "id": "2636276",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1722231321,
+                                        "liveStartAt": 1742872009,
+                                        "locationNames": [
+                                            "Mumbai",
+                                            "Mumbai Suburban",
+                                            "Andheri East",
+                                            "Kurla East",
+                                            "Andheri West",
+                                            "Kurla West",
+                                            "Kurla",
+                                            "Sakinaka",
+                                            "Andheri"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": false,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "99723",
+                                            "kind": "ONSITE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "php-laravel-developer",
+                                        "title": "PHP Laravel developer",
+                                        "compensation": "\u20b95L \u2013 \u20b98L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "852261",
+                                "startupId": "852261",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "TOP_RESPONDER-852261",
+                                        "label": "Top 10% of responders",
+                                        "name": "TOP_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Genie Bazaar is in the top 10% of companies in terms of response time to applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "QUICK_RESPONDER-852261",
+                                        "label": "Responds within two weeks",
+                                        "name": "QUICK_RESPONDER_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Based on past data, Genie Bazaar usually responds to incoming applications within two weeks"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "India focused facility automation platform",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Bengaluru",
+                                        "id": "1904"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Gurgaon",
+                                        "id": "2280"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Hyderabad",
+                                        "id": "3003"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Mumbai",
+                                        "id": "22939"
+                                    },
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "Kolkata",
+                                        "id": "417090"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/852261-d923c1a615d40c20a94d93ff615550f5-medium_jpg.jpg?buster=1645079396",
+                                "name": "Genie Bazaar",
+                                "slug": "genie-bazaar",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        },
+                        {
+                            "__typename": "StartupSearchResultEdge",
+                            "node": {
+                                "__typename": "StartupSearchResult",
+                                "highlightedJobListings": [
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "We are seeking an experienced **Python Backend Engineer** to join our dynamic team. You will play a pivotal role in designing, developing, and maintaining scalable, secure, and high-performance backend systems. Leveraging modern frameworks like **FastAPI**, you will help build efficient server-side applications and APIs that power our innovative solutions.\n\n**Responsibilities**\n1. Architect and implement robust, scalable backend systems and APIs using Python and FastAPI.\n2. Design and maintain RESTful APIs and integrate with various data stores, including SQL/NoSQL databases and Redis.\n3. Collaborate with frontend developers to ensure seamless client-server integration and efficient data flow.\n4. Optimize application performance, reliability, and security through caching, load balancing, and other techniques.\n5. Implement DevOps practices, including containerization with Docker and continuous integration/deployment pipelines.\n6. Participate in code reviews, providing constructive feedback to ensure high code quality and adherence to best practices.\n7. Stay updated on the latest backend technologies, frameworks, and industry trends to drive innovation.\n8. Work closely with cross-functional teams, including product managers, designers, and other developers, to translate business requirements into technical solutions.\n9. Requirements and Qualifications\n10. Bachelor's degree in Computer Science, Information Technology, or a related field, or equivalent experience.\n11. At least 1-2 years of experience in backend development with a strong focus on Python and FastAPI.\n12. Expertise in designing and developing RESTful APIs and working with various data stores, including SQL (e.g., PostgreSQL, MySQL), NoSQL (e.g., MongoDB), and Redis.\n13. Solid understanding of system architecture, design patterns, and best practices.\n14. Proficiency with containerization technologies like Docker.\n15. Familiarity with version control systems, especially Git and platforms like GitHub.\n16. Experience with caching strategies, load balancing, and performance optimization techniques.\n17. Strong debugging and problem-solving skills with the ability to resolve complex issues.\n18. Excellent communication and teamwork skills in collaborative environments.\n19. Passion for learning and staying updated with the latest trends in backend development and technologies.\n\n**Preferred Qualifications**\n1. Experience with microservices architecture and event-driven systems.\n2. Familiarity with cloud platforms like AWS, Azure, or Google Cloud Platform.\n3. Hands-on experience with CI/CD pipelines and DevOps practices.\n4. Knowledge of message queuing systems (e.g., RabbitMQ, Apache Kafka).\n5. Understanding of web security principles, including authentication, authorization, and encryption.\n6. Experience with monitoring and logging tools (e.g., Prometheus, Grafana, ELK Stack).\n\nIf you are a passionate and skilled Python Backend Engineer with expertise in FastAPI, system architecture, and modern development tools like Docker and Redis, we encourage you to apply and join our team to create impactful solutions!",
+                                        "id": "3173143",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1742619287,
+                                        "liveStartAt": 1742834171,
+                                        "locationNames": [
+                                            "Delhi",
+                                            "Karnataka",
+                                            "Telangana",
+                                            "Gujarat"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "194092",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "python-backend-engineer-fastapi",
+                                        "title": "Python Backend Engineer (FastAPI)",
+                                        "compensation": "\u20b94L \u2013 \u20b96L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    },
+                                    {
+                                        "__typename": "JobListingSearchResult",
+                                        "atsSource": null,
+                                        "autoPosted": false,
+                                        "currentUserApplied": false,
+                                        "description": "We are seeking an experienced Backend Engineer to join our team and play a crucial role in designing, developing, and maintaining robust and scalable server-side applications. You will be responsible for architecting and implementing high-performance, secure, and reliable backend systems using cutting-edge technologies.\n\n**Responsibilities:**\n1. Design and implement efficient and scalable backend architectures and APIs using Node.js/ Python/ FastAPI and TypeScript.\n2. Develop and maintain RESTful APIs and integrate with various data stores, including SQL/NoSQL databases and Redis.\n3. Collaborate with the frontend team to ensure seamless integration and data flow between client and server applications.\n4. Optimize application performance, reliability, and security using caching strategies, load balancing, and other techniques.\n5. Implement DevOps practices, including containerization with Docker, continuous integration, and deployment pipelines.\n6. Participate in code reviews and provide constructive feedback to maintain high code quality and best practices.\n7. Stay up-to-date with the latest backend technologies, frameworks, and industry trends.\n8. Collaborate with cross-functional teams, including product managers, designers, and other developers, to understand and implement business requirements.\n\n**Requirements and Qualifications:**\n1. Bachelor's degree in Computer Science, Information Technology, or a related field, or equivalent experience.\n2. Minimum of 1-2 years of experience in backend development, with a strong emphasis on Node.js and TypeScript.\n3. Proficiency in designing and developing RESTful APIs and integrating with various data stores (SQL/NoSQL databases and Redis).\n4. Solid understanding of system architecture principles, design patterns, and best practices.\n5. Experience with containerization technologies like Docker and container orchestration platforms (e.g., Kubernetes).\n6. Familiarity with version control systems, preferably Git and GitHub.\n7. Knowledge of caching strategies, load balancing, and performance optimization techniques.\n8. Strong problem-solving and debugging skills, with the ability to troubleshoot complex issues.\n9. Excellent communication and collaboration skills, with the ability to work in a team environment.\n10. Passion for learning and staying up-to-date with the latest backend technologies and trends.\n\n**Preferred Qualifications:**\n1. Experience with microservices architecture and event-driven systems.\n2. Familiarity with cloud platforms like AWS, Azure, or Google Cloud Platform.\n3. Knowledge of DevOps practices, such as continuous integration and deployment (CI/CD) pipelines.\n4. Experience with message queuing systems (e.g., RabbitMQ, Apache Kafka).\n5. Understanding of web security principles, including authentication, authorization, and encryption.\n6. Hands-on experience with monitoring and logging tools (e.g., Prometheus, Grafana, ELK Stack).\n\nIf you are a passionate and experienced Backend Engineer with a strong foundation in system architecture, Node.js, TypeScript, and a deep understanding of Redis, Docker, and GitHub workflows, we encourage you to apply for this exciting opportunity.",
+                                        "id": "3025864",
+                                        "jobType": "full-time",
+                                        "lastRespondedAt": 1742619500,
+                                        "liveStartAt": 1742402128,
+                                        "locationNames": [
+                                            "India"
+                                        ],
+                                        "primaryRoleTitle": "Backend Engineer",
+                                        "remote": true,
+                                        "remoteConfig": {
+                                            "__typename": "JobListingRemoteConfig",
+                                            "id": "166820",
+                                            "kind": "REMOTE"
+                                        },
+                                        "reposted": true,
+                                        "slug": "backend-engineer",
+                                        "title": "Backend Engineer",
+                                        "compensation": "\u20b94L \u2013 \u20b95L \u2022 No equity",
+                                        "usesEstimatedSalary": false,
+                                        "equity": "No equity",
+                                        "estimatedSalary": null,
+                                        "isBookmarked": false
+                                    }
+                                ],
+                                "id": "9559169",
+                                "startupId": "9559169",
+                                "badges": [
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "ACTIVELY_HIRING",
+                                        "label": "Actively Hiring",
+                                        "name": "ACTIVELY_HIRING_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Actively processing applications"
+                                    },
+                                    {
+                                        "__typename": "Badge",
+                                        "avatarUrl": null,
+                                        "data": null,
+                                        "id": "GROWING_FAST-9559169",
+                                        "label": "Growing fast",
+                                        "name": "GROWING_FAST_BADGE",
+                                        "rating": null,
+                                        "tooltip": "Showed strong hiring growth in the past month"
+                                    }
+                                ],
+                                "companySize": "SIZE_11_50",
+                                "highConcept": "A Full-Service, Design-Driven Studio, For Early And Growing Startups",
+                                "locationTaggings": [
+                                    {
+                                        "__typename": "NewTag",
+                                        "displayName": "India",
+                                        "id": "1647"
+                                    }
+                                ],
+                                "logoUrl": "https://photos.wellfound.com/startups/i/9559169-f75581d6ed694b8fc6e95484bd29ad7d-medium_jpg.jpg?buster=1685089018",
+                                "name": "Kraftbase",
+                                "slug": "kraftbase",
+                                "newsStoryHeadline": null,
+                                "newsStoryPublishedDate": null,
+                                "newsStorySnippet": null,
+                                "newsStorySource": null,
+                                "newsStoryThumbnailUrl": null,
+                                "newsStoryUrl": null
+                            }
+                        }
+                    ]
+                },
+                "totalStartupCount": 235
+            }
+        }
+    },
+    "schemaVersion": 2
+}
