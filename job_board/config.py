@@ -21,10 +21,10 @@ KEYWORDS = [
 REGION = os.getenv("REGION")
 SALARY = Decimal(os.environ.get("SALARY", str(60_000)))
 CURRENCY_SALARY = os.environ.get("CURRENCY_SALARY")
-RECEIPIENTS = [
-    receipient.strip()
-    for receipient in os.getenv("RECEIPIENTS", "").split(",")
-    if receipient
+RECIPIENTS = [
+    recipient.strip()
+    for recipient in os.getenv("RECIPIENTS", "").split(",")
+    if recipient
 ]
 
 DATABASE_URL = os.getenv("DATABASE_URL")

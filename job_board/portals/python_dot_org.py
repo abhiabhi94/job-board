@@ -59,15 +59,18 @@ class PythonDotOrg(BasePortal):
 
         response = httpx.get(self.url)
         response.raise_for_status()
-        root = objectify.fromstring(response.content)
+        return self.filter_jobs(data=response.content, job_details=job_details)
+
+    def filter_jobs(self, data, job_details):
+        root = objectify.fromstring(data)
 
         jobs: list[Job] = []
         for item in root.channel.item:
-            if job := self.get_job(item, job_details):
+            if job := self.filter_job(item, job_details):
                 jobs.append(job)
         return jobs
 
-    def get_job(self, item, job_details) -> Job | None:
+    def filter_job(self, item, job_details) -> Job | None:
         link = item.link.text
         title = item.title.text
         description = item.description.text.lower()

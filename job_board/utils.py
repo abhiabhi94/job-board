@@ -1,4 +1,31 @@
 from datetime import datetime, timedelta, timezone
+from enum import Enum
+from decimal import Decimal
+
+
+class ExchangeRate(Enum):
+    """
+    Constants for exchange rates, as of 31st March 2025.
+    """
+
+    USD = Decimal("1.0")
+    INR = Decimal("0.012")
+    EUR = Decimal("1.08")
+    TRY = Decimal("0.03")
+    JPY = Decimal("0.007")
+
+
+class Currency(Enum):
+    """
+    Constants for currency symbols.
+    """
+
+    USD = "$"
+    INR = "₹"
+    EUR = "€"
+    # turkish lira
+    TRY = "₺"
+    JPY = "¥"
 
 
 def parse_relative_time(relative_str: str | None) -> datetime | None:

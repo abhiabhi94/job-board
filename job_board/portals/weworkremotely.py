@@ -45,7 +45,10 @@ class WeWorkRemotely(BasePortal):
     def get_jobs(self) -> list[Job]:
         response = httpx.get(self.url)
         response.raise_for_status()
-        root = objectify.fromstring(response.content)
+        return self.filter_jobs(response.content)
+
+    def filter_jobs(self, data):
+        root = objectify.fromstring(data)
 
         links_to_look = []
         for item in root.channel.item:
@@ -61,11 +64,11 @@ class WeWorkRemotely(BasePortal):
         logger.debug(f"Found {links_to_look} links to look for salary information")
         job_listings_to_notify: list[Job] = []
         for link in links_to_look:
-            if job_listing := self.get_job(link):
+            if job_listing := self.filter_job(link):
                 job_listings_to_notify.append(job_listing)
         return job_listings_to_notify
 
-    def get_job(self, link) -> Job | None:
+    def filter_job(self, link) -> Job | None:
         response = httpx.get(link)
         response.raise_for_status()
         root = html.fromstring(response.content)
