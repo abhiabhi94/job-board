@@ -42,33 +42,59 @@ def main():
     help="Send notifications, by default it will only print the job_listing",
 )
 @click.option(
-    "--portal",
+    "--include-portals",
     "-P",
-    "portal",
-    default=None,
-    help="Portal to fetch jobs from, by default it will fetch from all portals",
+    "include_portals",
+    type=str,
+    multiple=True,
+    help=(
+        "Portals to include for fetching jobs, cannot be used with --ignore-portal. "
+        "By default, all portals are included."
+    ),
 )
-def run(pdb_flag, portal, to_notify):
+@click.option(
+    "--exclude-portals",
+    "-E",
+    "exclude_portals",
+    type=str,
+    multiple=True,
+    help="Portals to ignore when fetching jobs, cannot be used with --include-portals",
+)
+def run(pdb_flag, include_portals, exclude_portals, to_notify):
     if pdb_flag:
         sys.excepthook = debugger_hook
 
-    if not portal:
-        portals = []
-    else:
-        portals = [portal]
+    if include_portals and exclude_portals:
+        raise click.UsageError(
+            "Cannot use --include-portals and --exclude-portals at the same time."
+        )
 
-    _run(portals=portals, to_notify=to_notify)
+    _run(
+        include_portals=include_portals,
+        exclude_portals=exclude_portals,
+        to_notify=to_notify,
+    )
 
 
-def _run(*, portals: list[str] | None = None, to_notify=False):
+def _run(
+    *,
+    include_portals: list[str] | None = None,
+    exclude_portals: list[str] | None = None,
+    to_notify=False,
+):
     create_tables()
     click.echo("********Notifier started**********")
 
-    if not portals:
+    if not include_portals and not exclude_portals:
         click.echo("Fetching jobs from all portals")
         portals = list(PORTALS.keys())
 
     # TODO: validate that the portal exists
+    elif include_portals:
+        portals = include_portals
+    else:
+        portals = list(set(PORTALS.keys()) - set(exclude_portals))
+
     jobs = []
     for portal_name, portal_class in PORTALS.items():
         if portal_name.lower() in portals:
