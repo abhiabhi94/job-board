@@ -1,25 +1,29 @@
 import pytest
 from decimal import Decimal
 from unittest.mock import patch
+from datetime import datetime, timezone, timedelta
 
 from job_board.portals.base import BasePortal
 from job_board import config
 
 
 @pytest.fixture
-def placeholder_portal():
-    class PlaceholderPortal(BasePortal):
+def portal():
+    class Portal(BasePortal):
         portal_name = "placeholder"
         url = "https://example.com/api"
         region_mapping = {"remote": {"worldwide", "remote", "anywhere"}}
 
-    return PlaceholderPortal()
+    return Portal()
 
 
 def test_abstract_methods():
     portal = BasePortal()
     with pytest.raises(NotImplementedError):
         portal.get_jobs()
+
+    with pytest.raises(NotImplementedError):
+        portal.filter_jobs(data={})
 
 
 @pytest.mark.parametrize(
@@ -90,14 +94,27 @@ def test_abstract_methods():
             },
             id="no_matching_region",
         ),
+        # matching keyword with no region info
+        pytest.param(
+            {
+                "title": "Python Developer",
+                "description": "Looking for a developer",
+                "region": None,
+                "tags": [],
+                "keywords": {"python"},
+                "expected_region": "remote",
+                "expected_result": True,
+            },
+            id="matching_keyword_no_region",
+        ),
     ],
 )
-def test_validate_keywords_and_region(placeholder_portal, test_case):
+def test_validate_keywords_and_region(portal, test_case):
     with (
         patch.object(config, "KEYWORDS", test_case["keywords"]),
         patch.object(config, "REGION", test_case["expected_region"]),
     ):
-        result = placeholder_portal.validate_keywords_and_region(
+        result = portal.validate_keywords_and_region(
             link="https://example.com",
             title=test_case["title"],
             description=test_case["description"],
@@ -158,10 +175,25 @@ def test_validate_keywords_and_region(placeholder_portal, test_case):
         ),
     ],
 )
-def test_validate_salary(placeholder_portal, test_case):
+def test_validate_salary(portal, test_case):
     with patch.object(config, "SALARY", test_case["min_salary"]):
-        result = placeholder_portal.validate_salary(
+        result = portal.validate_salary(
             link="https://example.com", salary=test_case["salary_value"]
         )
 
     assert result == test_case["expected_result"]
+
+
+now = datetime.now(timezone.utc)
+
+
+@pytest.mark.parametrize(
+    ("posted_on, job_age_limit_days, expected"),
+    ((now, 90, True), (now - timedelta(days=21), 20, False)),
+)
+def test_validate_recency(portal, posted_on, job_age_limit_days, expected):
+    with patch.object(config, "JOB_AGE_LIMIT_DAYS", job_age_limit_days):
+        assert (
+            portal.validate_recency(link="https://example.com", posted_on=posted_on)
+            is expected
+        )

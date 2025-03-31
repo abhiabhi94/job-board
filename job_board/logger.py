@@ -13,3 +13,4 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger("job-board")
+job_rejected_logger = logging.getLogger("job-rejected")

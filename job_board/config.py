@@ -41,3 +41,4 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPEN_AI_MODEL = "gpt-4o"
 # days before which we should ignore jobs
 JOB_AGE_LIMIT_DAYS = int(os.getenv("JOB_AGE_LIMIT_DAYS"))
+SCRAPFLY_API_KEY = os.getenv("SCRAPFLY_API_KEY")

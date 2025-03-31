@@ -1,5 +1,7 @@
 from decimal import Decimal, InvalidOperation
 import re
+from datetime import datetime, timedelta, timezone
+
 
 from pydantic import BaseModel
 import openai
@@ -7,7 +9,10 @@ import httpx
 
 from job_board.base import Job
 from job_board import config
-from job_board.logger import logger
+from job_board.logger import (
+    logger,
+    job_rejected_logger,
+)
 
 PORTALS = {}
 # matches "60,000" or "60,000,000"
@@ -37,7 +42,7 @@ class BasePortal:
     url: str
     api_data_format: str = "json"
 
-    region_mapping: dict[str, set[str]]
+    region_mapping: dict[str, set[str]] | None
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -50,16 +55,20 @@ class BasePortal:
         )
 
     def get_jobs(self) -> list[Job]:
+        """Fetch filtered jobs from the portal."""
+        raise NotImplementedError()
+
+    def filter_jobs(self, data) -> list[Job]:
+        """Filters jobs from the data received from the portal."""
         raise NotImplementedError()
 
     def validate_keywords_and_region(
-        self, *, link, title, description, region, tags=None
+        self, *, link, title, description, region=None, tags=None
     ) -> bool:
         logger.debug(f"Validating keywords and region for {link}")
 
         title = title.lower()
         description = description.lower()
-        region = region.lower()
         if not tags:
             tags = []
         tags = [tag.lower() for tag in tags]
@@ -72,13 +81,17 @@ class BasePortal:
         )
 
         if not keyword_matches:
-            logger.debug(f"No keyword matches found for {link}")
+            job_rejected_logger.debug(f"No keyword matches found for {link}")
             return False
 
-        region_matches = self.region_mapping[config.REGION].intersection(region.split())
-        if not region_matches:
-            logger.debug(f"No region matches found for {link}")
-            return False
+        if region:
+            region = region.lower()
+            region_matches = self.region_mapping[config.REGION].intersection(
+                region.split()
+            )
+            if not region_matches:
+                job_rejected_logger.debug(f"No region matches found for {link}")
+                return False
 
         return True
 
@@ -87,23 +100,32 @@ class BasePortal:
 
         if salary is None:
             # no salary information, should we still consider this relevant ???
-            logger.debug(f"No salary information found for {link}")
+            job_rejected_logger.debug(f"No salary information found for {link}")
             return
 
         salary = salary.replace("$", "").replace(",", "")
         try:
             salary = Decimal(str(salary))
         except InvalidOperation:
-            logger.debug(f"Invalid salary {salary} for {link}")
+            job_rejected_logger.debug(f"Invalid salary {salary} for {link}")
             return
 
         if salary < config.SALARY:
-            logger.debug(f"Salary {salary} for {link} is less than {config.SALARY}")
+            job_rejected_logger.debug(
+                f"Salary {salary} for {link} is less than {config.SALARY}"
+            )
             return
 
         return salary
 
-    def process_jobs_with_llm(self, job_data) -> list[Job]:
+    def validate_recency(self, link: str, posted_on: datetime) -> bool:
+        now = datetime.now(timezone.utc)
+        if (now - posted_on) > timedelta(days=config.JOB_AGE_LIMIT_DAYS):
+            job_rejected_logger.debug(f"Removing older job: {link}")
+            return False
+        return True
+
+    def filter_jobs_with_llm(self, job_data) -> list[Job]:
         developer_prompt = f"""
         You are a job extraction and filtering assistant.
         You will be given raw data containing job listings (HTML, JSON, or XML).
