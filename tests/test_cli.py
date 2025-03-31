@@ -16,7 +16,9 @@ def test_run_command_default_options(cli_runner):
         result = cli_runner.invoke(main, ["run"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(portals=[], to_notify=False)
+    mock_run.assert_called_once_with(
+        include_portals=(), exclude_portals=(), to_notify=False
+    )
 
 
 def test_run_command_with_pdb_flag(cli_runner):
@@ -28,7 +30,9 @@ def test_run_command_with_pdb_flag(cli_runner):
 
     assert result.exit_code == 0
     assert mock_sys.excepthook == debugger_hook
-    mock_run.assert_called_once_with(portals=[], to_notify=False)
+    mock_run.assert_called_once_with(
+        include_portals=(), exclude_portals=(), to_notify=False
+    )
 
 
 def test_run_command_with_notify_flag(cli_runner):
@@ -36,7 +40,9 @@ def test_run_command_with_notify_flag(cli_runner):
         result = cli_runner.invoke(main, ["run", "--notify"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(portals=[], to_notify=True)
+    mock_run.assert_called_once_with(
+        include_portals=(), exclude_portals=(), to_notify=True
+    )
 
 
 @pytest.fixture
@@ -67,13 +73,43 @@ def mock_portals(monkeypatch):
         mock_method.assert_called_once()
 
 
-def test_run_command_with_portal_option(cli_runner, mock_portals):
+def test_run_command_with_include_portal_option(cli_runner, mock_portals):
     mock_portals(portals=["weworkremotely"])
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
-        result = cli_runner.invoke(main, ["run", "--portal", "weworkremotely"])
+        result = cli_runner.invoke(main, ["run", "--include-portals", "weworkremotely"])
 
     assert result.exit_code == 0
     mock_store_jobs.assert_called_once()
+
+
+def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
+    portals = list(set(PORTALS.keys()) - set(["weworkremotely", "remotive"]))
+    mock_portals(portals=portals)
+    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
+        result = cli_runner.invoke(
+            main,
+            [
+                "run",
+                "--exclude-portals",
+                "weworkremotely",
+                "--exclude-portals",
+                "remotive",
+            ],
+        )
+
+    assert result.exit_code == 0
+    mock_store_jobs.assert_called_once()
+
+
+def test_run_command_with_both_include_and_exclude_portal_option(
+    cli_runner, mock_portals
+):
+    result = cli_runner.invoke(
+        main,
+        ["run", "--include-portals", "weworkremotely", "--exclude-portals", "remotive"],
+    )
+
+    assert isinstance(result.exception, SystemExit)
 
 
 def test_run_function_all_portals(mock_portals):
@@ -102,7 +138,7 @@ def test_run_function_specific_portal(mock_portals):
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
-        _run(portals=["weworkremotely"])
+        _run(include_portals=["weworkremotely"])
 
     mock_create_tables.assert_called_once()
     mock_store_jobs.assert_called_once()
