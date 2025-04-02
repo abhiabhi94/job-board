@@ -1,0 +1,14 @@
+{
+    "headers": {
+            "accept-language": "en-GB,en;q=0.8",
+            "referer": "https://wellfound.com/jobs",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+            "x-apollo-operation-name": "JobSearchResultsX",
+            "x-apollo-signature": "{{wellfound_apollo_signature}}",
+            "x-requested-with": "XMLHttpRequest"
+    },
+    "cookies": {
+        "datadome": "{{wellfound_datadome_cookie}}",
+        "_wellfound": "{{wellfound_cookie}}"
+    }
+}
