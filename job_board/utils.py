@@ -2,8 +2,10 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from decimal import Decimal
 from functools import partial
+import pathlib
 
 import httpx
+from jinja2 import Environment, FileSystemLoader
 
 from job_board import config
 
@@ -17,6 +19,9 @@ httpx_client = partial(
     timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
     http2=True,
     event_hooks={"response": [response_hooks]},
+)
+jinja_env = Environment(
+    loader=FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
 )
 
 

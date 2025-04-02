@@ -3,18 +3,14 @@ from sqlalchemy import Column, Integer, String, Numeric, DateTime
 from sqlalchemy import Boolean
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update
-from jinja2 import Environment, FileSystemLoader
-import pathlib
+
 
 from job_board.logger import logger
 from job_board.connection import Session, engine
 from job_board.notifier.mail import EmailProvider
 from job_board import config
 from job_board.base import Job as JobListing
-
-jinja_env = Environment(
-    loader=FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
-)
+from job_board.utils import jinja_env
 
 
 # Base class for all models
@@ -67,7 +63,11 @@ def store_jobs(jobs: JobListing):
 
 def notify():
     job_ids = []
-    statement = select(Job).where(Job.notified.is_(False))
+    statement = (
+        select(Job)
+        .where(Job.notified.is_(False))
+        .order_by(Job.salary.desc(), Job.posted_on.desc())
+    )
     template = jinja_env.get_template("mail.html")
     subject = "Jobs To Apply"
 

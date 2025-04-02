@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 from datetime import datetime, timezone
 
@@ -5,7 +6,12 @@ from job_board import config
 from job_board.base import Job
 from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
-from job_board.utils import ExchangeRate, Currency, httpx_client
+from job_board.utils import (
+    ExchangeRate,
+    Currency,
+    httpx_client,
+    jinja_env,
+)
 
 
 class InvalidSalary(Exception):
@@ -22,18 +28,14 @@ class Wellfound(BasePortal):
         return self.filter_jobs(data)
 
     def make_request(self):
-        headers = {
-            "accept-language": "en-GB,en;q=0.8",
-            "referer": "https://wellfound.com/jobs",
-            "user-agent": (
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 "
-                "Safari/537.36"
-            ),
-            "x-apollo-operation-name": "JobSearchResultsX",
-            "x-apollo-signature": f"{config.WELLFOUND_APOLLO_SIGNATURE}",
-            "x-requested-with": "XMLHttpRequest",
-        }
+        template = jinja_env.get_template("wellfound-request-params.json")
+        params = json.loads(
+            template.render(
+                wellfound_apollo_signature=config.WELLFOUND_APOLLO_SIGNATURE,
+                wellfound_datadome_cookie=config.WELLFOUND_DATADOME_COOKIE,
+                wellfound_cookie=config.WELLFOUND_COOKIE,
+            )
+        )
         data = {
             "operationName": "JobSearchResultsX",
             "variables": {
@@ -61,17 +63,15 @@ class Wellfound(BasePortal):
                 ),
             },
         }
-        cookies = {
-            "datadome": f"{config.WELLFOUND_DATADOME_COOKIE}",
-            "_wellfound": f"{config.WELLFOUND_COOKIE}",
-        }
 
         result = []
         page_count = 1
         while True:
             logger.debug(f"[{self.portal_name}] Fetching page {page_count}...")
 
-            with httpx_client(cookies=cookies, headers=headers) as client:
+            with httpx_client(
+                cookies=params["cookies"], headers=params["headers"]
+            ) as client:
                 response = client.post(self.url, json=data)
 
             json_response = response.json()
