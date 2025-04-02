@@ -63,7 +63,7 @@ class BasePortal:
         if not tags:
             tags = []
         tags = [tag.lower() for tag in tags]
-        keywords = config.KEYWORDS
+        keywords = set(config.KEYWORDS)
 
         keyword_matches = (
             keywords.intersection(title.split())
