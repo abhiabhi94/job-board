@@ -1,16 +1,11 @@
 from decimal import Decimal
 from datetime import datetime, timezone
 
-import httpx
-
 from job_board import config
 from job_board.base import Job
 from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
-from job_board.utils import (
-    ExchangeRate,
-    Currency,
-)
+from job_board.utils import ExchangeRate, Currency, httpx_client
 
 
 class InvalidSalary(Exception):
@@ -76,15 +71,9 @@ class Wellfound(BasePortal):
         while True:
             logger.debug(f"[{self.portal_name}] Fetching page {page_count}...")
 
-            response = httpx.post(
-                self.url,
-                headers=headers,
-                json=data,
-                cookies=cookies,
-                timeout=httpx.Timeout(30),
-            )
+            with httpx_client(cookies=cookies, headers=headers) as client:
+                response = client.post(self.url, json=data)
 
-            response.raise_for_status()
             json_response = response.json()
             result.append(json_response)
 

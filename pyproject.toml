@@ -11,7 +11,7 @@ authors = [
 ]
 description = "Job Notifier"
 dependencies = [
-    "httpx",
+    "httpx[http2]",
     "lxml",
     "markdown",
     "google-api-python-client",

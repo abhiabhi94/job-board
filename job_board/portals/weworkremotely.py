@@ -1,11 +1,10 @@
-import httpx
 from lxml import objectify, html
 import re
 
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.base import Job
-from job_board.utils import parse_relative_time
+from job_board.utils import parse_relative_time, httpx_client
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
@@ -43,8 +42,8 @@ class WeWorkRemotely(BasePortal):
     }
 
     def get_jobs(self) -> list[Job]:
-        response = httpx.get(self.url)
-        response.raise_for_status()
+        with httpx_client() as client:
+            response = client.get(self.url)
         return self.filter_jobs(response.content)
 
     def filter_jobs(self, data):
@@ -69,8 +68,8 @@ class WeWorkRemotely(BasePortal):
         return job_listings_to_notify
 
     def filter_job(self, link) -> Job | None:
-        response = httpx.get(link)
-        response.raise_for_status()
+        with httpx_client() as client:
+            response = client.get(link)
         root = html.fromstring(response.content)
         salary_elements = root.xpath(
             "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'salary')]"  # noqa: E501
