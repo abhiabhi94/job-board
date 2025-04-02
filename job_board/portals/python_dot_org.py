@@ -1,4 +1,3 @@
-import httpx
 from lxml import objectify
 from datetime import datetime
 
@@ -10,6 +9,7 @@ from job_board.portals.base import (
     BasePortal,
 )
 from job_board.base import Job
+from job_board.utils import httpx_client
 from lxml import html
 from collections import defaultdict
 from urllib.parse import urljoin
@@ -36,8 +36,8 @@ class PythonDotOrg(BasePortal):
         # provide the posted date in the rss feed
         job_details = defaultdict(dict)
 
-        response = httpx.get(self.jobs_url)
-        response.raise_for_status()
+        with httpx_client() as client:
+            response = client.get(self.jobs_url)
 
         tree = html.fromstring(response.text)
         for job in tree.cssselect("li"):
@@ -57,8 +57,8 @@ class PythonDotOrg(BasePortal):
     def get_jobs(self) -> list[Job]:
         job_details = self.fetch_additional_info()
 
-        response = httpx.get(self.url)
-        response.raise_for_status()
+        with httpx_client() as client:
+            response = client.get(self.url)
         return self.filter_jobs(data=response.content, job_details=job_details)
 
     def filter_jobs(self, data, job_details):

@@ -1,10 +1,9 @@
 import itertools
 from datetime import datetime, timezone
 
-import httpx
-
 from job_board.portals.base import BasePortal
 from job_board.base import Job
+from job_board.utils import httpx_client
 
 RELEVANT_KEYS = {
     "title",
@@ -32,10 +31,8 @@ class Remotive(BasePortal):
     }
 
     def get_jobs(self) -> list[Job]:
-        # TODO: use a router from utils that set the default timeout
-        # and retry for the request.
-        response = httpx.get(self.url, timeout=httpx.Timeout(30))
-        response.raise_for_status()
+        with httpx_client() as client:
+            response = client.get(self.url)
 
         jobs_data = response.json()
         return self.filter_jobs(jobs_data)

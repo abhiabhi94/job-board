@@ -1,6 +1,23 @@
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from decimal import Decimal
+from functools import partial
+
+import httpx
+
+from job_board import config
+
+
+def response_hooks(response: httpx.Response) -> None:
+    response.raise_for_status()
+
+
+httpx_client = partial(
+    httpx.Client,
+    timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
+    http2=True,
+    event_hooks={"response": [response_hooks]},
+)
 
 
 class ExchangeRate(Enum):
