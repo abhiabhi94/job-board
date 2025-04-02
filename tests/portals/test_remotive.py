@@ -1,6 +1,6 @@
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import pytest
 import httpx
@@ -67,6 +67,18 @@ def sample_jobs_response(sample_job, frozen_time):
                 "candidate_required_location": "Worldwide",
                 "tags": ["python"],
                 "publication_date": frozen_time,
+            },
+            # too old
+            {
+                "url": "https://remotive.com/jobs/127",
+                "title": "Python Developer",
+                "description": "<p>We need a Python expert.</p>",
+                "candidate_required_location": "Worldwide",
+                "tags": ["python"],
+                "salary": "90000-120000",
+                "publication_date": (
+                    datetime.now(timezone.utc) - timedelta(days=365)
+                ).strftime(DATE_FORMAT),
             },
         ]
     }
