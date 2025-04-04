@@ -49,7 +49,7 @@ def test_get_currency_and_salary(
     wellfound, compensation, expected_currency, expected_salary
 ):
     currency, salary = wellfound.get_currency_and_salary(
-        "https://example.com", compensation
+        "https://example.com", compensation, range_separator="–"
     )
 
     assert currency.name == expected_currency

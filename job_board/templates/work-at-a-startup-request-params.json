@@ -1,0 +1,18 @@
+{
+    "query_params": {
+        "x-algolia-agent": "Algolia for JavaScript (3.35.1); Browser",
+        "x-algolia-application-id": "45BWZJ1SGC",
+        "x-algolia-api-key": "NmNlZTliM2JlNmIzOGFjOWNjMzRiZDY1NzA0ZmIzMDliMmUzOThlN2QwOWVlYWM1YzdlZjFhODc2ZTBlYTAxNXRhZ0ZpbHRlcnM9JTVCJTVCJTIyam9ic19hcHBsaWNhbnQlMjIlNUQlNUQmYW5hbHl0aWNzVGFncz0lNUIlMjJ3YWFzJTIyJTVEJnVzZXJUb2tlbj1Sb09YblNsYkIxd0JuYUt4MkVQJTJCSnlvVHJhQzRISU9yZHBKaSUyQnQ5dEd1byUzRA=="
+    },
+    "params": {
+        "query": "",
+        "page": 0,
+        "filters": "(role:eng) AND (eng_type:be) AND (remote:yes) AND (has_salary:true) AND (us_visa_required:none OR us_visa_required:possible) AND (job_type:\"fulltime\")",
+        "attributesToRetrieve": "[\"company_id\"]",
+        "attributesToHighlight": "[]",
+        "attributesToSnippet": "[]",
+        "hitsPerPage": {{ hits_per_page }},
+        "clickAnalytics": "true",
+        "distinct": "true"
+    }
+}

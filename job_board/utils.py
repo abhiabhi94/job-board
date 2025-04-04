@@ -10,7 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 from job_board import config
 
 
-def response_hooks(response: httpx.Response) -> None:
+def response_hook(response: httpx.Response) -> None:
     response.raise_for_status()
 
 
@@ -18,7 +18,7 @@ httpx_client = partial(
     httpx.Client,
     timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
     http2=True,
-    event_hooks={"response": [response_hooks]},
+    event_hooks={"response": [response_hook]},
 )
 jinja_env = Environment(
     loader=FileSystemLoader(pathlib.Path(__file__).parent / "templates"),

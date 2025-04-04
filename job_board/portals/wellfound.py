@@ -7,15 +7,9 @@ from job_board.base import Job
 from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
 from job_board.utils import (
-    ExchangeRate,
-    Currency,
     httpx_client,
     jinja_env,
 )
-
-
-class InvalidSalary(Exception):
-    pass
 
 
 class Wellfound(BasePortal):
@@ -154,70 +148,14 @@ class Wellfound(BasePortal):
         ):
             return
 
-        compensation = job_listing["compensation"]
-        if not compensation:
-            job_rejected_logger.debug(f"Job {link} has no compensation.")
-            return
-
-        try:
-            currency, salary = self.get_currency_and_salary(
-                link=link,
-                compensation=compensation,
-            )
-        except InvalidSalary as exc:
-            logger.debug(str(exc))
-            return
-
-        salary_in_dollars = salary * ExchangeRate[currency.name].value
-        if salary_in_dollars < config.SALARY:
-            job_rejected_logger.debug(
-                (
-                    f"Salary {salary_in_dollars} for {link} is less than "
-                    f"{config.SALARY:,}"
-                )
-            )
-            return
-
-        return Job(
-            title=title,
-            salary=salary_in_dollars,
+        if salary := self.validate_salary_range(
             link=link,
-            posted_on=posted_on,
-        )
-
-    def get_currency_and_salary(self, link: str, compensation: str):
-        # compensation is in the format of:
-        # - "$100,000 – $150,000 • 1.0% – 2.0%"
-        # - "₹15L – ₹25L"
-        _, _, salary_and_equity_info = compensation.partition("–")
-        salary_info, _, _ = salary_and_equity_info.partition("•")
-        salary_info = salary_info.strip()
-        if not salary_info:
-            raise InvalidSalary(f"Job {link} has no salary info.")
-
-        symbol = salary_info[0].lower()
-
-        try:
-            currency = Currency(symbol)
-        except ValueError:
-            raise ValueError(f"Job {link} has unsupported currency symbol {symbol}.")
-
-        last_char = salary_info[-1].lower()
-        # remove currency and last character.
-        amount = salary_info[1:-1].replace(",", "")
-
-        match last_char:
-            case "k":
-                salary = Decimal(amount) * 1_000
-            case "m":
-                salary = Decimal(amount) * 1_000_000
-            case "b":
-                salary = Decimal(amount) * 1_000_000_000
-            case "l":
-                salary = Decimal(amount) * 100_000
-            case _:
-                # this is probably an intern kind of job
-                # where the salary is too less.
-                raise InvalidSalary(f"Invalid salary info {salary_info} for {link}")
-
-        return currency, salary
+            compensation=job_listing["compensation"],
+            range_separator="–",
+        ):
+            return Job(
+                title=title,
+                salary=salary,
+                link=link,
+                posted_on=posted_on,
+            )
