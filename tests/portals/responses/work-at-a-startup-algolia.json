@@ -1,0 +1,75 @@
+{
+    "results": [
+        {
+            "hits": [
+                {
+                    "company_id": 27166,
+                    "objectID": "74955"
+                },
+                {
+                    "company_id": 29402,
+                    "objectID": "74954"
+                },
+                {
+                    "company_id": 29761,
+                    "objectID": "74953"
+                },
+                {
+                    "company_id": 22322,
+                    "objectID": "74948"
+                },
+                {
+                    "company_id": 30269,
+                    "objectID": "74946"
+                },
+                {
+                    "company_id": 22319,
+                    "objectID": "74945"
+                },
+                {
+                    "company_id": 29108,
+                    "objectID": "74943"
+                },
+                {
+                    "company_id": 25333,
+                    "objectID": "74940"
+                },
+                {
+                    "company_id": 29420,
+                    "objectID": "74939"
+                },
+                {
+                    "company_id": 24354,
+                    "objectID": "74937"
+                }
+            ],
+            "nbHits": 1045,
+            "page": 0,
+            "nbPages": 100,
+            "hitsPerPage": 10,
+            "exhaustiveNbHits": false,
+            "exhaustiveTypo": true,
+            "exhaustive": {
+                "nbHits": false,
+                "typo": true
+            },
+            "query": "",
+            "params": "query=&page=0&filters=&attributesToRetrieve=%5B%22company_id%22%5D&attributesToHighlight=%5B%5D&attributesToSnippet=%5B%5D&hitsPerPage=10&clickAnalytics=true&distinct=true&tagFilters=%5B%5B%22jobs_applicant%22%5D%5D&analyticsTags=%5B%22waas%22%5D&userToken=RoOXnSlbB1wBnaKx2EP%2BJyoTraC4HIOrdpJi%2Bt9tGuo%3D",
+            "index": "WaaSPublicCompanyJob_created_at_desc_production",
+            "queryID": "3bae106acfd6cb29b205f8785b443fb8",
+            "renderingContent": {},
+            "extensions": {
+                "queryCategorization": {}
+            },
+            "processingTimeMS": 3,
+            "processingTimingsMS": {
+                "_request": {
+                    "roundTrip": 255
+                },
+                "extensions": 2,
+                "total": 3
+            },
+            "serverTimeMS": 3
+        }
+    ]
+}

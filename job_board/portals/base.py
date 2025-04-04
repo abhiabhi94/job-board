@@ -13,6 +13,10 @@ from job_board.logger import (
     logger,
     job_rejected_logger,
 )
+from job_board.utils import (
+    Currency,
+    ExchangeRate,
+)
 
 PORTALS = {}
 # matches "60,000" or "60,000,000"
@@ -23,6 +27,10 @@ RATE_REGEX = re.compile(r"Rate:\s*(?:up to\s*)?\$(\d+)")
 SALARY_RANGE_REGEX = re.compile(r"salary range.*?\$(\d{2,}(?:,\d{3})+)")
 # matches "45–70 USD per hour" or "45-70 USD per hour"
 HOURLY_RATE_REGEX = re.compile(r"(\d+)[–-](\d+)\s*USD\s*per\s*hour")
+
+
+class InvalidSalary(Exception):
+    pass
 
 
 # since openai doesn't support date time, we will need to
@@ -95,8 +103,82 @@ class BasePortal:
 
         return True
 
+    def validate_salary_range(
+        self,
+        link: str,
+        compensation: str | None,
+        range_separator: str = "-",
+    ):
+        if not compensation:
+            job_rejected_logger.debug(f"Job {link} has no salary.")
+            return
+
+        try:
+            currency, salary = self.get_currency_and_salary(
+                link=link,
+                compensation=compensation,
+                range_separator=range_separator,
+            )
+        except InvalidSalary as exc:
+            logger.debug(str(exc))
+            return
+
+        salary_in_dollars = salary * ExchangeRate[currency.name].value
+        if salary_in_dollars < config.SALARY:
+            job_rejected_logger.debug(
+                (
+                    f"Salary {salary_in_dollars} for {link} is less than "
+                    f"{config.SALARY:,}"
+                )
+            )
+            return
+
+        return salary_in_dollars
+
+    def get_currency_and_salary(
+        self,
+        link: str,
+        compensation: str,
+        range_separator: str = "-",
+    ) -> tuple[Currency, Decimal]:
+        # compensation is in the format of:
+        # - "$100,000 – $150,000 • 1.0% – 2.0%"
+        # - "₹15L – ₹25L"
+        _, _, salary_and_equity_info = compensation.partition(range_separator)
+        salary_info, _, _ = salary_and_equity_info.partition("•")
+        salary_info = salary_info.strip()
+        if not salary_info:
+            raise InvalidSalary(f"Job {link} has no salary info.")
+
+        symbol = salary_info[0].lower()
+
+        try:
+            currency = Currency(symbol)
+        except ValueError:
+            raise ValueError(f"Job {link} has unsupported currency symbol {symbol}.")
+
+        last_char = salary_info[-1].lower()
+        # remove currency and last character.
+        amount = salary_info[1:-1].replace(",", "")
+
+        match last_char:
+            case "k":
+                salary = Decimal(amount) * 1_000
+            case "m":
+                salary = Decimal(amount) * 1_000_000
+            case "b":
+                salary = Decimal(amount) * 1_000_000_000
+            case "l":
+                salary = Decimal(amount) * 100_000
+            case _:
+                # this is probably an intern kind of job
+                # where the salary is too less.
+                raise InvalidSalary(f"Invalid salary info {salary_info} for {link}")
+
+        return currency, salary
+
     def validate_salary(self, *, link: str, salary: str) -> str | None:
-        logger.debug(f"Looking for salary information in {link}")
+        logger.debug(f"Validating salary information in {link}")
 
         if salary is None:
             # no salary information, should we still consider this relevant ???
