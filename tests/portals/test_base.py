@@ -197,3 +197,30 @@ def test_validate_recency(portal, posted_on, job_age_limit_days, expected):
             portal.validate_recency(link="https://example.com", posted_on=posted_on)
             is expected
         )
+
+
+@pytest.mark.parametrize(
+    ("compensation", "expected_currency", "expected_salary"),
+    [
+        # Format: "<ignored part> – <salary_info> • <equity info>"
+        ("$100k – $150k • details", "USD", 150_000),
+        ("$100k – $150k CAD • details", "CAD", 150_000),
+        ("$100k – $150k • 1.0% – 2.0%", "USD", 150_000),
+        ("$100m – $150m • details", "USD", 150_000_000),
+        ("$100b – $150b • details", "USD", 150_000_000_000),
+        (
+            "₹15L – ₹25L • details",
+            "INR",
+            2_500_000,
+        ),
+    ],
+)
+def test_get_currency_and_salary(
+    portal, compensation, expected_currency, expected_salary
+):
+    currency, salary = portal.get_currency_and_salary(
+        "https://example.com", compensation, range_separator="–"
+    )
+
+    assert currency.name == expected_currency
+    assert salary == expected_salary
