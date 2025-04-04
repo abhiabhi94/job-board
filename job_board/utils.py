@@ -28,6 +28,8 @@ jinja_env = Environment(
 class ExchangeRate(Enum):
     """
     Constants for exchange rates, as of 31st March 2025.
+    # use this link to find out the exchange rates
+    https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@2025-03-31/v1/currencies/{currency_code}.json
     """
 
     USD = Decimal("1.0")
@@ -35,6 +37,7 @@ class ExchangeRate(Enum):
     EUR = Decimal("1.08")
     TRY = Decimal("0.03")
     JPY = Decimal("0.007")
+    CAD = Decimal("0.75")
 
 
 class Currency(Enum):
@@ -48,6 +51,7 @@ class Currency(Enum):
     # turkish lira
     TRY = "₺"
     JPY = "¥"
+    CAD = "CAD"
 
 
 def parse_relative_time(relative_str: str | None) -> datetime | None:

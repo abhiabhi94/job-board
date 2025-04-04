@@ -28,6 +28,8 @@ SALARY_RANGE_REGEX = re.compile(r"salary range.*?\$(\d{2,}(?:,\d{3})+)")
 # matches "45–70 USD per hour" or "45-70 USD per hour"
 HOURLY_RATE_REGEX = re.compile(r"(\d+)[–-](\d+)\s*USD\s*per\s*hour")
 
+CURRENCY_CODE_REGEX = re.compile(r"([A-Z]{3})$", re.IGNORECASE)
+
 
 class InvalidSalary(Exception):
     pass
@@ -150,15 +152,26 @@ class BasePortal:
         if not salary_info:
             raise InvalidSalary(f"Job {link} has no salary info.")
 
-        symbol = salary_info[0].lower()
-
-        try:
-            currency = Currency(symbol)
-        except ValueError:
-            raise ValueError(f"Job {link} has unsupported currency symbol {symbol}.")
+        # Extract possible currency code at the end
+        if currency_match := CURRENCY_CODE_REGEX.search(salary_info):
+            code = currency_match.group(1)
+            salary_info = salary_info[: -len(code)].strip()
+            try:
+                currency = Currency[code.upper()]
+            except KeyError:
+                raise InvalidSalary(f"Job {link} has unsupported currency code {code}.")
+        else:
+            # fallback to the symbol if no code is found
+            symbol = salary_info[0].lower()
+            try:
+                currency = Currency(symbol)
+            except ValueError:
+                raise InvalidSalary(
+                    f"Job {link} has unsupported currency symbol {symbol}."
+                )
 
         last_char = salary_info[-1].lower()
-        # remove currency and last character.
+        # remove symbol and last character.
         amount = salary_info[1:-1].replace(",", "")
 
         match last_char:

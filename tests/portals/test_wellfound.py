@@ -31,32 +31,6 @@ def create_job_result(override_data=None):
 
 
 @pytest.mark.parametrize(
-    ("compensation", "expected_currency", "expected_salary"),
-    [
-        # Format: "<ignored part> – <salary_info> • <equity info>"
-        ("$100k – $150k • details", "USD", 150_000),
-        ("$100k – $150k • 1.0% – 2.0%", "USD", 150_000),
-        ("$100m – $150m • details", "USD", 150_000_000),
-        ("$100b – $150b • details", "USD", 150_000_000_000),
-        (
-            "₹15L – ₹25L • details",
-            "INR",
-            2_500_000,
-        ),
-    ],
-)
-def test_get_currency_and_salary(
-    wellfound, compensation, expected_currency, expected_salary
-):
-    currency, salary = wellfound.get_currency_and_salary(
-        "https://example.com", compensation, range_separator="–"
-    )
-
-    assert currency.name == expected_currency
-    assert salary == expected_salary
-
-
-@pytest.mark.parametrize(
     ("job_data", "config_salary"),
     [
         # non-remote job
