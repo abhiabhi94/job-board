@@ -29,7 +29,7 @@ def main():
     pass
 
 
-@main.command("run", help="Run the notifier")
+@main.command("fetch", help="Fetch jobs from portals")
 @click.option(
     "--pdb", "pdb_flag", is_flag=True, default=False, help="Drop into pdb on exception."
 )
@@ -60,7 +60,7 @@ def main():
     multiple=True,
     help="Portals to ignore when fetching jobs, cannot be used with --include-portals",
 )
-def run(pdb_flag, include_portals, exclude_portals, to_notify):
+def fetch(pdb_flag, include_portals, exclude_portals, to_notify):
     if pdb_flag:
         sys.excepthook = debugger_hook
 
@@ -69,21 +69,21 @@ def run(pdb_flag, include_portals, exclude_portals, to_notify):
             "Cannot use --include-portals and --exclude-portals at the same time."
         )
 
-    _run(
+    _fetch(
         include_portals=include_portals,
         exclude_portals=exclude_portals,
         to_notify=to_notify,
     )
 
 
-def _run(
+def _fetch(
     *,
     include_portals: list[str] | None = None,
     exclude_portals: list[str] | None = None,
     to_notify=False,
 ):
     create_tables()
-    click.echo("********Notifier started**********")
+    click.echo("********Fetching Jobs**********")
 
     if not include_portals and not exclude_portals:
         click.echo("Fetching jobs from all portals")
@@ -113,13 +113,13 @@ def _run(
         click.echo(f"Jobs to notify:\n {'\n'.join(map(str, jobs))}\n")
         click.echo("Notifications are disabled")
 
-    click.echo("********Notifier completed**********")
+    click.echo("********Fetched jobs**********")
 
 
 @main.command("schedule", help="Schedule the notifier")
 @click.option("--immediate", "-I", is_flag=True, help="Run the scheduler immediately")
 def schedule_notifier(immediate):
-    schedule.every().day.at("10:30").do(_run, to_notify=True)
+    schedule.every().day.at("10:30").do(_fetch, to_notify=True)
     if immediate:
         schedule.run_all(delay_seconds=5)
         click.echo("All schedules executed")

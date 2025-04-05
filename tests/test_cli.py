@@ -2,7 +2,7 @@ from unittest import mock
 import pytest
 from click.testing import CliRunner
 
-from job_board.cli import main, _run, debugger_hook
+from job_board.cli import main, _fetch, debugger_hook
 from job_board.portals import PORTALS
 
 
@@ -12,8 +12,8 @@ def cli_runner():
 
 
 def test_run_command_default_options(cli_runner):
-    with mock.patch("job_board.cli._run") as mock_run:
-        result = cli_runner.invoke(main, ["run"])
+    with mock.patch("job_board.cli._fetch") as mock_run:
+        result = cli_runner.invoke(main, ["fetch"])
 
     assert result.exit_code == 0
     mock_run.assert_called_once_with(
@@ -23,10 +23,10 @@ def test_run_command_default_options(cli_runner):
 
 def test_run_command_with_pdb_flag(cli_runner):
     with (
-        mock.patch("job_board.cli._run") as mock_run,
+        mock.patch("job_board.cli._fetch") as mock_run,
         mock.patch("job_board.cli.sys") as mock_sys,
     ):
-        result = cli_runner.invoke(main, ["run", "--pdb"])
+        result = cli_runner.invoke(main, ["fetch", "--pdb"])
 
     assert result.exit_code == 0
     assert mock_sys.excepthook == debugger_hook
@@ -36,8 +36,8 @@ def test_run_command_with_pdb_flag(cli_runner):
 
 
 def test_run_command_with_notify_flag(cli_runner):
-    with mock.patch("job_board.cli._run") as mock_run:
-        result = cli_runner.invoke(main, ["run", "--notify"])
+    with mock.patch("job_board.cli._fetch") as mock_run:
+        result = cli_runner.invoke(main, ["fetch", "--notify"])
 
     assert result.exit_code == 0
     mock_run.assert_called_once_with(
@@ -76,7 +76,9 @@ def mock_portals(monkeypatch):
 def test_run_command_with_include_portal_option(cli_runner, mock_portals):
     mock_portals(portals=["weworkremotely"])
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
-        result = cli_runner.invoke(main, ["run", "--include-portals", "weworkremotely"])
+        result = cli_runner.invoke(
+            main, ["fetch", "--include-portals", "weworkremotely"]
+        )
 
     assert result.exit_code == 0
     mock_store_jobs.assert_called_once()
@@ -89,7 +91,7 @@ def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
         result = cli_runner.invoke(
             main,
             [
-                "run",
+                "fetch",
                 "--exclude-portals",
                 "weworkremotely",
                 "--exclude-portals",
@@ -106,13 +108,19 @@ def test_run_command_with_both_include_and_exclude_portal_option(
 ):
     result = cli_runner.invoke(
         main,
-        ["run", "--include-portals", "weworkremotely", "--exclude-portals", "remotive"],
+        [
+            "fetch",
+            "--include-portals",
+            "weworkremotely",
+            "--exclude-portals",
+            "remotive",
+        ],
     )
 
     assert isinstance(result.exception, SystemExit)
 
 
-def test_run_function_all_portals(mock_portals):
+def test_fetch_function_all_portals(mock_portals):
     mock_portals()
     with (
         mock.patch("job_board.cli.create_tables") as mock_create_tables,
@@ -120,7 +128,7 @@ def test_run_function_all_portals(mock_portals):
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
-        _run()
+        _fetch()
 
     mock_create_tables.assert_called_once()
     mock_store_jobs.assert_called_once()
@@ -129,7 +137,7 @@ def test_run_function_all_portals(mock_portals):
     assert mock_echo.call_count >= 3
 
 
-def test_run_function_specific_portal(mock_portals):
+def test_fetch_function_specific_portal(mock_portals):
     mock_portals(portals=["weworkremotely"])
 
     with (
@@ -138,14 +146,14 @@ def test_run_function_specific_portal(mock_portals):
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
-        _run(include_portals=["weworkremotely"])
+        _fetch(include_portals=["weworkremotely"])
 
     mock_create_tables.assert_called_once()
     mock_store_jobs.assert_called_once()
     mock_notify.assert_not_called()
 
 
-def test_run_function_with_notify(mock_portals):
+def test_fetch_function_with_notify(mock_portals):
     mock_portals()
 
     with (
@@ -154,7 +162,7 @@ def test_run_function_with_notify(mock_portals):
         mock.patch("job_board.cli.store_jobs"),
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
-        _run(to_notify=True)
+        _fetch(to_notify=True)
 
     mock_notify.assert_called_once()
 
@@ -245,6 +253,6 @@ def test_cli_group():
     runner = CliRunner()
     result = runner.invoke(main, ["--help"])
     assert result.exit_code == 0
-    assert "run" in result.output
+    assert "fetch" in result.output
     assert "schedule" in result.output
     assert "setup-db" in result.output
