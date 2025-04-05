@@ -27,7 +27,7 @@ class WorkAtAStartup(BasePortal):
                     "requests": [
                         {
                             "indexName": (
-                                "WaaSPublicCompanyJob_created_at_desc_production",
+                                "WaaSPublicCompanyJob_created_at_desc_production"
                             ),
                             "params": urllib.parse.urlencode(request_data["params"]),
                         }

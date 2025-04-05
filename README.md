@@ -12,10 +12,10 @@ pre-commit install
 job-board --help
 ```
 
-- For running the command immediately
+- For fetching the jobs immediately
 
 ```sh
-job-board run
+job-board fetch
 ```
 
 - For running it as a schedule, that runs once per day.
