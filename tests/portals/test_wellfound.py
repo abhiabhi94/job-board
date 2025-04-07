@@ -96,3 +96,10 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
     assert "python" in job.link
     assert job.salary >= config.SALARY
     assert job.posted_on is not None
+
+    respx_mock.post(wellfound.url).mock(
+        return_value=httpx.Response(text=page_1, status_code=200)
+    )
+    wellfound.last_run_at = datetime.now(tz=timezone.utc)
+    jobs = wellfound.get_jobs()
+    assert len(jobs) == 2  # only the jobs from the first page.

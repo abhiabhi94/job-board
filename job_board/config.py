@@ -1,4 +1,3 @@
-# TODO: move these to a config file
 import os
 from pathlib import Path
 from decimal import Decimal

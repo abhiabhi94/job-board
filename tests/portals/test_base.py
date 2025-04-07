@@ -224,3 +224,7 @@ def test_get_currency_and_salary(
 
     assert currency.name == expected_currency
     assert salary == expected_salary
+
+
+def test_filter_jobs_with_llm_without_data(portal):
+    assert portal.filter_jobs_with_llm([]) == []

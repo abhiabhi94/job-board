@@ -17,11 +17,11 @@ class Wellfound(BasePortal):
     url = "https://wellfound.com/graphql"
     api_data_format = "html"
 
-    def get_jobs(self):
+    def get_jobs(self) -> list[Job]:
         data = self.make_request()
         return self.filter_jobs(data)
 
-    def make_request(self):
+    def make_request(self) -> list[dict]:
         template = jinja_env.get_template("wellfound-request-params.json")
         params = json.loads(
             template.render(
@@ -68,13 +68,29 @@ class Wellfound(BasePortal):
             ) as client:
                 response = client.post(self.url, json=data)
 
-            json_response = response.json()
-            result.append(json_response)
+            page_data = response.json()
+            job_data = self.get_job_data(page_data)
+            result.append(job_data)
 
-            if (
-                json_response["data"]["talent"]["jobSearchResults"]["hasNextPage"]
-                is False
-            ):
+            if last_run_at := self.last_run_at:
+                # we don't want to go through all
+                # the jobs if we have already seen them.
+
+                # wellfound has promoted job listings which are sent first
+                # and then the normal job listings. these promoted listings
+                # are sent in every page, despite the API request for jobs
+                # being sorted by posted date.
+                # so we are checking the most recent job listing among all the
+                # listings in the page, to be sure that we are not missing any jobs.
+                most_recent_listing = max(
+                    job_data, key=lambda job: self.get_posted_on(job)
+                )
+                most_recent = self.get_posted_on(most_recent_listing)
+
+                if most_recent < last_run_at:
+                    break
+
+            if page_data["data"]["talent"]["jobSearchResults"]["hasNextPage"] is False:
                 break
 
             page_count += 1
@@ -82,19 +98,8 @@ class Wellfound(BasePortal):
 
         return result
 
-    def filter_jobs(self, data) -> list[Job]:
-        # data is a list of data from all pages.
-        # we need to extract the job data from each page.
-        jobs = []
-        for page_data in data:
-            if jobs_data := self._filter_jobs(page_data):
-                jobs.extend(jobs_data)
-        return jobs
-
-    def _filter_jobs(self, page_data) -> list[Job]:
-        # Refer tests/mocked_responses/wellfound-page-1.json
-        # for the structure of the data.
-        jobs = []
+    def get_job_data(self, page_data) -> list[dict]:
+        job_data = []
         for company_edge in page_data["data"]["talent"]["jobSearchResults"]["startups"][
             "edges"
         ]:
@@ -119,27 +124,34 @@ class Wellfound(BasePortal):
                         raise ValueError(f"Unknown company data type: {result_type}")
 
                 job_listings = company_data["highlightedJobListings"]
-                for job_listing in job_listings:
-                    if job := self.filter_job(job_listing):
-                        jobs.append(job)
+                job_data.extend(job_listings)
+
+        return job_data
+
+    def filter_jobs(self, data) -> list[Job]:
+        # data is a list of data from all pages.
+        # we need to extract the job data from each page.
+        jobs = []
+        for page_data in data:
+            for job_data in page_data:
+                if job := self.filter_job(job_data):
+                    jobs.append(job)
         return jobs
 
-    def filter_job(self, job_listing) -> Job | None:
-        slug = job_listing["slug"]
-        job_id = job_listing["id"]
+    def filter_job(self, job_data) -> Job | None:
+        slug = job_data["slug"]
+        job_id = job_data["id"]
         link = f"https://wellfound.com/jobs/{job_id}-{slug}"
-        if not job_listing["remote"]:
+        if not job_data["remote"]:
             job_rejected_logger.debug(f"Job {link} is not remote.")
             return
 
-        posted_on = datetime.fromtimestamp(job_listing["liveStartAt"]).astimezone(
-            timezone.utc
-        )
+        posted_on = self.get_posted_on(job_data)
         if not self.validate_recency(link=link, posted_on=posted_on):
             return
 
-        title = job_listing["title"]
-        description = job_listing["description"]
+        title = job_data["title"]
+        description = job_data["description"]
 
         if not self.validate_keywords_and_region(
             link=link,
@@ -150,7 +162,7 @@ class Wellfound(BasePortal):
 
         if salary := self.validate_salary_range(
             link=link,
-            compensation=job_listing["compensation"],
+            compensation=job_data["compensation"],
             range_separator="–",
         ):
             return Job(
@@ -159,3 +171,6 @@ class Wellfound(BasePortal):
                 link=link,
                 posted_on=posted_on,
             )
+
+    def get_posted_on(self, job_data):
+        return datetime.fromtimestamp(job_data["liveStartAt"]).astimezone(timezone.utc)

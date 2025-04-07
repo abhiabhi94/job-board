@@ -9,7 +9,7 @@ class Job(BaseModel):
     title: str
     salary: Decimal
     link: str
-    posted_on: datetime | None
+    posted_on: datetime | None = None
 
     model_config = ConfigDict(frozen=True)
 

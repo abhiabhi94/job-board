@@ -3,14 +3,18 @@ import pdb
 import sys
 import traceback
 import time
+from datetime import datetime, timezone, timedelta
 
 import click
 import schedule
 
 from job_board.portals import PORTALS
 from job_board.models import store_jobs
-from job_board.models import create_tables, notify
+from job_board.models import notify
+from job_board.init_db import init_db
 from job_board.logger import logger
+from job_board.connection import get_session
+from job_board.portals.models import PortalSetting
 
 
 def debugger_hook(exception_type, value, tb):
@@ -82,7 +86,7 @@ def _fetch(
     exclude_portals: list[str] | None = None,
     to_notify=False,
 ):
-    create_tables()
+    init_db()
     click.echo("********Fetching Jobs**********")
 
     if not include_portals and not exclude_portals:
@@ -97,20 +101,39 @@ def _fetch(
 
     portals = list(map(str.lower, portals))
 
-    jobs = []
+    all_jobs = []
     for portal_name, portal_class in PORTALS.items():
         if portal_name.lower() in portals:
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            fetched_jobs = portal_class().get_jobs()
-            logger.debug(f"Jobs from {portal_name}:\n\n{fetched_jobs}")
-            jobs.extend(fetched_jobs)
+            session = get_session()
+            with session.begin():
+                setting = (
+                    session.query(PortalSetting)
+                    .filter(PortalSetting.portal_name == portal_name)
+                    .scalar()
+                )
+                setting_id = setting.id
+                last_run_at = None
+                if setting.last_run_at:
+                    last_run_at = setting.last_run_at.astimezone(timezone.utc)
+                    # just to have a buffer.
+                    last_run_at -= timedelta(minutes=5)
 
-    store_jobs(jobs)
+            jobs = portal_class(last_run_at=last_run_at).get_jobs()
+            logger.debug(f"Jobs from {portal_name}:\n\n{jobs}")
+            store_jobs(jobs)
+            all_jobs.extend(jobs)
+
+            session = get_session()
+            with session.begin():
+                setting = session.get(PortalSetting, setting_id)
+                setting.last_run_at = datetime.now(timezone.utc)
+                session.add(setting)
 
     if to_notify:
         notify()
     else:
-        click.echo(f"Jobs to notify:\n {'\n'.join(map(str, jobs))}\n")
+        click.echo(f"Jobs to notify:\n {'\n'.join(map(str, all_jobs))}\n")
         click.echo("Notifications are disabled")
 
     click.echo("********Fetched jobs**********")

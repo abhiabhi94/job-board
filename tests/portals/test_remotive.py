@@ -84,6 +84,28 @@ def sample_jobs_response(sample_job, frozen_time):
     }
 
 
+@pytest.mark.parametrize(
+    ("last_run_at", "expected"),
+    [
+        (None, True),
+        (datetime.now(timezone.utc) + timedelta(days=2), False),
+        (datetime.now(timezone.utc) - timedelta(days=2), True),
+    ],
+)
+def test_validate_recency(
+    last_run_at,
+    expected,
+    sample_job,
+):
+    remotive = Remotive(last_run_at=last_run_at)
+    posted_on = remotive.get_posted_on(sample_job)
+
+    assert (
+        remotive.validate_recency(link=sample_job["url"], posted_on=posted_on)
+        is expected
+    )
+
+
 def test_get_jobs(
     respx_mock,
     sample_jobs_response,

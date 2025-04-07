@@ -5,45 +5,11 @@ from unittest import mock
 from job_board.models import Job as JobModel
 from job_board.base import Job
 
-import pytest
 import sqlalchemy
 from job_board.models import (
-    Base as BaseModel,
     store_jobs,
     notify,
-    create_tables,
 )
-from job_board.connection import engine, Session
-
-
-@pytest.fixture(scope="session")
-def db_setup():
-    create_tables()
-    yield
-    BaseModel.metadata.drop_all(engine)
-
-
-@pytest.fixture(scope="function")
-def db_session(db_setup):
-    """
-    Returns a sqlalchemy session, and after the test, it tears down everything properly.
-    """
-    connection = engine.connect()
-    # begin the nested transaction
-    transaction = connection.begin()
-    # use the connection with the already started transaction
-    session = Session(bind=connection)
-
-    with mock.patch("job_board.connection.Session.begin") as mock_begin:
-        # Ensure `Session.begin()` always returns `db_session`
-        mock_begin.return_value.__enter__.return_value = session
-        yield session
-
-    session.close()
-    # roll back the broader transaction
-    transaction.rollback()
-    # put back the connection to the connection pool
-    connection.close()
 
 
 now = datetime.now(timezone.utc)
@@ -64,7 +30,6 @@ def test_store_jobs(db_session):
             link="http://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
-            posted_on=now - timedelta(days=2),
         ),
     ]
 

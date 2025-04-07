@@ -86,5 +86,4 @@ class WorkAtAStartup(BasePortal):
                 title=title,
                 salary=salary,
                 link=link,
-                posted_on=None,
             )
