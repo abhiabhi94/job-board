@@ -4,10 +4,11 @@ from click.testing import CliRunner
 
 from job_board.cli import main, _fetch, debugger_hook
 from job_board.portals import PORTALS
+from job_board.portals.models import PortalSetting
 
 
 @pytest.fixture
-def cli_runner():
+def cli_runner(db_session):
     return CliRunner()
 
 
@@ -73,8 +74,17 @@ def mock_portals(monkeypatch):
         mock_method.assert_called_once()
 
 
-def test_run_command_with_include_portal_option(cli_runner, mock_portals):
-    mock_portals(portals=["weworkremotely"])
+def test_run_command_with_include_portal_option(cli_runner, mock_portals, db_session):
+    portal = "weworkremotely"
+    assert (
+        db_session.query(PortalSetting)
+        .filter(PortalSetting.portal_name == portal)
+        .scalar()
+        .last_run_at
+        is None
+    )
+
+    mock_portals(portals=[portal])
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
         result = cli_runner.invoke(
             main, ["fetch", "--include-portals", "weworkremotely"]
@@ -82,6 +92,14 @@ def test_run_command_with_include_portal_option(cli_runner, mock_portals):
 
     assert result.exit_code == 0
     mock_store_jobs.assert_called_once()
+
+    assert (
+        db_session.query(PortalSetting)
+        .filter(PortalSetting.portal_name == portal)
+        .scalar()
+        .last_run_at
+        is not None
+    )
 
 
 def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
@@ -100,7 +118,7 @@ def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
         )
 
     assert result.exit_code == 0
-    mock_store_jobs.assert_called_once()
+    assert mock_store_jobs.call_count == len(portals)
 
 
 def test_run_command_with_both_include_and_exclude_portal_option(
@@ -123,15 +141,15 @@ def test_run_command_with_both_include_and_exclude_portal_option(
 def test_fetch_function_all_portals(mock_portals):
     mock_portals()
     with (
-        mock.patch("job_board.cli.create_tables") as mock_create_tables,
+        mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo") as mock_echo,
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch()
 
-    mock_create_tables.assert_called_once()
-    mock_store_jobs.assert_called_once()
+    mock_init_db.assert_called_once()
+    assert mock_store_jobs.call_count == len(PORTALS)
     mock_notify.assert_not_called()
 
     assert mock_echo.call_count >= 3
@@ -141,14 +159,14 @@ def test_fetch_function_specific_portal(mock_portals):
     mock_portals(portals=["weworkremotely"])
 
     with (
-        mock.patch("job_board.cli.create_tables") as mock_create_tables,
+        mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo"),
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
         mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch(include_portals=["weworkremotely"])
 
-    mock_create_tables.assert_called_once()
+    mock_init_db.assert_called_once()
     mock_store_jobs.assert_called_once()
     mock_notify.assert_not_called()
 
@@ -157,7 +175,7 @@ def test_fetch_function_with_notify(mock_portals):
     mock_portals()
 
     with (
-        mock.patch("job_board.cli.create_tables"),
+        mock.patch("job_board.cli.init_db"),
         mock.patch("job_board.cli.click.echo"),
         mock.patch("job_board.cli.store_jobs"),
         mock.patch("job_board.cli.notify") as mock_notify,

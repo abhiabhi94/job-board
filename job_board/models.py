@@ -1,12 +1,15 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, Numeric, DateTime
 from sqlalchemy import Boolean
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func, Index
+from sqlalchemy.sql import expression
 
 
 from job_board.logger import logger
-from job_board.connection import Session, engine
+from job_board.connection import get_session
 from job_board.notifier.mail import EmailProvider
 from job_board import config
 from job_board.base import Job as JobListing
@@ -14,24 +17,32 @@ from job_board.utils import jinja_env
 
 
 # Base class for all models
-class Base(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     pass
 
 
-def create_tables():
-    logger.debug("Creating tables")
-    Base.metadata.create_all(bind=engine)
-
-
-class Job(Base):
+class Job(BaseModel):
     __tablename__ = "job"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    link = Column(String, unique=True, nullable=False)
+    link = Column(String, nullable=False)
     title = Column(String, nullable=False)
     salary = Column(Numeric, nullable=False)
-    posted_on = Column(DateTime)
-    notified = Column(Boolean, default=False)
+    posted_on = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        server_default=func.now(),
+    )
+    notified = Column(Boolean, default=False, server_default=expression.false())
+
+    __table_args__ = (
+        Index(
+            "ix_job_link_lower",
+            func.lower(link),
+            unique=True,
+        ),
+    )
 
 
 def store_jobs(jobs: JobListing):
@@ -39,23 +50,25 @@ def store_jobs(jobs: JobListing):
         logger.debug("No jobs to store")
         return
 
-    insert_statement = (
-        insert(Job)
-        .values(
-            [
-                {
-                    "link": job.link,
-                    "title": job.title,
-                    "salary": job.salary,
-                    "posted_on": job.posted_on,
-                }
-                for job in jobs
+    values = []
+    for job in jobs:
+        value = {
+            "link": job.link,
+            "title": job.title,
+            "salary": job.salary,
+        }
+        if posted_on := job.posted_on:
+            value["posted_on"] = posted_on
+        values.append(value)
+
+    insert_statement = insert(Job).values(values).returning(Job.id)
+    session = get_session()
+    with session.begin():
+        statement = insert_statement.on_conflict_do_nothing(
+            index_elements=[
+                func.lower(Job.link),
             ],
         )
-        .returning(Job.id)
-    )
-    with Session.begin() as session:
-        statement = insert_statement.on_conflict_do_nothing(index_elements=[Job.link])
         job_ids = session.execute(statement).scalars().all()
 
     logger.debug(f"Stored {len(job_ids)} new jobs successfully")
@@ -70,8 +83,9 @@ def notify():
     )
     template = jinja_env.get_template("mail.html")
     subject = "Jobs To Apply"
+    session = get_session()
 
-    with Session.begin() as session:
+    with session.begin():
         jobs = session.execute(statement).scalars().all()
         job_ids = [job.id for job in jobs]
         job_listings = [
@@ -115,7 +129,8 @@ def notify():
         .where(Job.notified.is_(False), Job.id.in_(job_ids))
         .values(notified=True)
     )
-    with Session.begin() as session:
+    session = get_session()
+    with session.begin():
         session.execute(statement)
 
     logger.debug("notified flag updated successfully")

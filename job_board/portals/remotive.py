@@ -30,7 +30,7 @@ class Remotive(BasePortal):
         },
     }
 
-    def get_jobs(self) -> list[Job]:
+    def get_jobs(self, last_run_at: None | datetime = None) -> list[Job]:
         with httpx_client() as client:
             response = client.get(self.url)
 
@@ -44,11 +44,8 @@ class Remotive(BasePortal):
         recent_jobs_data = []
         for job_data in jobs_data:
             link = job_data["url"]
-            published_on = (
-                datetime.strptime(job_data["publication_date"], DATE_FORMAT)
-            ).astimezone(timezone.utc)
-
-            if not self.validate_recency(link=link, posted_on=published_on):
+            posted_on = self.get_posted_on(job_data)
+            if not self.validate_recency(link=link, posted_on=posted_on):
                 continue
 
             recent_job_data = {}
@@ -65,3 +62,14 @@ class Remotive(BasePortal):
         for batch in itertools.batched(recent_jobs_data, 100):
             jobs.extend(self.filter_jobs_with_llm(batch))
         return jobs
+
+    def get_posted_on(self, job_data):
+        return (
+            datetime.strptime(job_data["publication_date"], DATE_FORMAT)
+        ).astimezone(timezone.utc)
+
+    def validate_recency(self, *, link, posted_on):
+        if self.last_run_at and self.last_run_at > posted_on:
+            # the job has already been fetched.
+            return False
+        return super().validate_recency(link, posted_on)

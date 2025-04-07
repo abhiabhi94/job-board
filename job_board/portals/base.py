@@ -59,10 +59,11 @@ class BasePortal:
         super().__init_subclass__(*args, **kwargs)
         PORTALS[cls.portal_name] = cls
 
-    def __init__(self):
+    def __init__(self, last_run_at: None | datetime = None):
         self.openai_client = openai.Client(
             api_key=config.OPENAI_API_KEY, timeout=httpx.Timeout(30)
         )
+        self.last_run_at = last_run_at
 
     def get_jobs(self) -> list[Job]:
         """Fetch filtered jobs from the portal."""
@@ -221,6 +222,9 @@ class BasePortal:
         return True
 
     def filter_jobs_with_llm(self, job_data) -> list[Job]:
+        if not job_data:
+            return []
+
         developer_prompt = f"""
         You are a job extraction and filtering assistant.
         You will be given raw data containing job listings (HTML, JSON, or XML).
