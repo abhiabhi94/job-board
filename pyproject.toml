@@ -25,6 +25,7 @@ dependencies = [
     "pydantic",
     "cssselect",
     "Jinja2",
+    "tenacity",
 ]
 [project.optional-dependencies]
 dev = [

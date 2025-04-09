@@ -59,7 +59,6 @@ def db_session(db_setup):
     session = Session()
 
     with mock.patch("job_board.connection._get_session_factory") as mocked_factory:
-        # Ensure `session.begin()` always returns `db_session`
         mocked_factory.return_value = Session
         yield session
 

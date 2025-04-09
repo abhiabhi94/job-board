@@ -25,6 +25,7 @@ RECIPIENTS = [
     for recipient in os.getenv("RECIPIENTS", "").split(",")
     if recipient
 ]
+NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()

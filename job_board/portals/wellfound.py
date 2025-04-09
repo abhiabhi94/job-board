@@ -143,7 +143,7 @@ class Wellfound(BasePortal):
         job_id = job_data["id"]
         link = f"https://wellfound.com/jobs/{job_id}-{slug}"
         if not job_data["remote"]:
-            job_rejected_logger.debug(f"Job {link} is not remote.")
+            job_rejected_logger.info(f"Job {link} is not remote.")
             return
 
         posted_on = self.get_posted_on(job_data)
