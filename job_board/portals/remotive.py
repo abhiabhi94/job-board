@@ -18,7 +18,7 @@ DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
 class Remotive(BasePortal):
-    """https://github.com/remotive-com/remote-jobs-api"""
+    """Docs: https://github.com/remotive-com/remote-jobs-api"""
 
     portal_name = "remotive"
     url = "https://remotive.com/api/remote-jobs?category=software-dev&limit=500"
@@ -30,7 +30,7 @@ class Remotive(BasePortal):
         },
     }
 
-    def get_jobs(self, last_run_at: None | datetime = None) -> list[Job]:
+    def get_jobs(self) -> list[Job]:
         with httpx_client() as client:
             response = client.get(self.url)
 

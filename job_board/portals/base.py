@@ -92,7 +92,7 @@ class BasePortal:
         )
 
         if not keyword_matches:
-            job_rejected_logger.debug(f"No keyword matches found for {link}")
+            job_rejected_logger.info(f"No keyword matches found for {link}")
             return False
 
         if region:
@@ -101,7 +101,7 @@ class BasePortal:
                 region.split()
             )
             if not region_matches:
-                job_rejected_logger.debug(f"No region matches found for {link}")
+                job_rejected_logger.info(f"No region matches found for {link}")
                 return False
 
         return True
@@ -113,7 +113,7 @@ class BasePortal:
         range_separator: str = "-",
     ):
         if not compensation:
-            job_rejected_logger.debug(f"Job {link} has no salary.")
+            job_rejected_logger.info(f"Job {link} has no salary.")
             return
 
         try:
@@ -128,7 +128,7 @@ class BasePortal:
 
         salary_in_dollars = salary * ExchangeRate[currency.name].value
         if salary_in_dollars < config.SALARY:
-            job_rejected_logger.debug(
+            job_rejected_logger.info(
                 (
                     f"Salary {salary_in_dollars} for {link} is less than "
                     f"{config.SALARY:,}"
@@ -196,18 +196,18 @@ class BasePortal:
 
         if salary is None:
             # no salary information, should we still consider this relevant ???
-            job_rejected_logger.debug(f"No salary information found for {link}")
+            job_rejected_logger.info(f"No salary information found for {link}")
             return
 
         salary = salary.replace("$", "").replace(",", "")
         try:
             salary = Decimal(str(salary))
         except InvalidOperation:
-            job_rejected_logger.debug(f"Invalid salary {salary} for {link}")
+            job_rejected_logger.info(f"Invalid salary {salary} for {link}")
             return
 
         if salary < config.SALARY:
-            job_rejected_logger.debug(
+            job_rejected_logger.info(
                 f"Salary {salary} for {link} is less than {config.SALARY:,}"
             )
             return
@@ -217,7 +217,7 @@ class BasePortal:
     def validate_recency(self, link: str, posted_on: datetime) -> bool:
         now = datetime.now(timezone.utc)
         if (now - posted_on) > timedelta(days=config.JOB_AGE_LIMIT_DAYS):
-            job_rejected_logger.debug(f"Removing older job: {link}")
+            job_rejected_logger.info(f"Removing older job: {link}")
             return False
         return True
 

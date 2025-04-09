@@ -1,4 +1,7 @@
 from unittest import mock
+from datetime import datetime, timezone
+
+from sqlalchemy import update
 import pytest
 from click.testing import CliRunner
 
@@ -8,7 +11,7 @@ from job_board.portals.models import PortalSetting
 
 
 @pytest.fixture
-def cli_runner(db_session):
+def cli_runner():
     return CliRunner()
 
 
@@ -98,11 +101,28 @@ def test_run_command_with_include_portal_option(cli_runner, mock_portals, db_ses
         .filter(PortalSetting.portal_name == portal)
         .scalar()
         .last_run_at
-        is not None
+    ) is not None
+
+
+def test_run_command_with_last_run_at(cli_runner, mock_portals, db_session):
+    now = datetime.now(timezone.utc)
+    statement = (
+        update(PortalSetting)
+        .where(PortalSetting.portal_name == "weworkremotely")
+        .values(last_run_at=now)
     )
+    db_session.execute(statement)
+
+    mock_portals(portals=["weworkremotely"])
+    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
+        result = cli_runner.invoke(
+            main, ["fetch", "--include-portals", "weworkremotely"]
+        )
+    assert result.exit_code == 0
+    mock_store_jobs.assert_called_once()
 
 
-def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
+def test_run_command_with_exclude_portals_option(cli_runner, db_session, mock_portals):
     portals = list(set(PORTALS.keys()) - set(["weworkremotely", "remotive"]))
     mock_portals(portals=portals)
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
@@ -121,9 +141,7 @@ def test_run_command_with_exclude_portals_option(cli_runner, mock_portals):
     assert mock_store_jobs.call_count == len(portals)
 
 
-def test_run_command_with_both_include_and_exclude_portal_option(
-    cli_runner, mock_portals
-):
+def test_run_command_with_both_include_and_exclude_portal_option(cli_runner):
     result = cli_runner.invoke(
         main,
         [
@@ -138,7 +156,7 @@ def test_run_command_with_both_include_and_exclude_portal_option(
     assert isinstance(result.exception, SystemExit)
 
 
-def test_fetch_function_all_portals(mock_portals):
+def test_fetch_function_all_portals(db_session, mock_portals):
     mock_portals()
     with (
         mock.patch("job_board.cli.init_db") as mock_init_db,
@@ -155,7 +173,7 @@ def test_fetch_function_all_portals(mock_portals):
     assert mock_echo.call_count >= 3
 
 
-def test_fetch_function_specific_portal(mock_portals):
+def test_fetch_function_specific_portal(db_session, mock_portals):
     mock_portals(portals=["weworkremotely"])
 
     with (
@@ -171,7 +189,7 @@ def test_fetch_function_specific_portal(mock_portals):
     mock_notify.assert_not_called()
 
 
-def test_fetch_function_with_notify(mock_portals):
+def test_fetch_function_with_notify(db_session, mock_portals):
     mock_portals()
 
     with (
