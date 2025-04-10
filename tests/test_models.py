@@ -46,15 +46,22 @@ def test_store_jobs(db_session):
 def test_notify(db_session):
     # No jobs to notify, nothing happens
     notify()
-
-    job = JobModel(
-        link="http://job.com",
+    job_1 = JobModel(
+        link="http://job-1.com",
         title="Job Title",
         salary=Decimal(str(70_000)),
         posted_on=now - timedelta(days=1),
     )
-    db_session.add(job)
+    job_2 = JobModel(
+        link="http://job-2.com",
+        title="Job Title",
+        salary=Decimal(str(80_000)),
+        posted_on=now - timedelta(days=1),
+    )
+    db_session.add_all([job_1, job_2])
     db_session.commit()
+
+    from job_board import config
 
     with (
         mock.patch(
@@ -63,10 +70,14 @@ def test_notify(db_session):
         mock.patch(
             "job_board.notifier.mail.EmailProvider.send_email"
         ) as mock_send_email,
+        mock.patch.object(config, "MAX_JOBS_PER_EMAIL", 1),
     ):
         notify()
 
-    db_session.refresh(job)
-    assert job.notified is True
     mock_service.assert_called_once()
-    mock_send_email.assert_called_once()
+    assert mock_send_email.call_count == 2
+
+    db_session.refresh(job_1)
+    assert job_1.notified is True
+    db_session.refresh(job_2)
+    assert job_2.notified is True
