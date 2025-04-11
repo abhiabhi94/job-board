@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 import itertools
+import uuid
 
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, Numeric, DateTime
 from sqlalchemy import Boolean
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, update, func, Index
+from sqlalchemy import select, func, Index
 from sqlalchemy.sql import expression
 
 
@@ -98,34 +99,41 @@ def notify():
             )
 
     template = jinja_env.get_template("mail.html")
-    subject = "Jobs To Apply"
+    today = datetime.today().strftime("%B %d, %Y")
+    subject = f"Jobs To Apply | {today}"
     email_provider = EmailProvider()
 
+    message_id = str(uuid.uuid4())
+    message_ids = [message_id]
     for batched_ids in itertools.batched(
         job_listings_by_id,
         config.MAX_JOBS_PER_EMAIL,
     ):
         batched_listings = [job_listings_by_id[job_id] for job_id in batched_ids]
+
         email_body = template.render(
             jobs=batched_listings,
             subject=subject,
         )
-        logger.debug(f"Email to send:::\n{email_body}")
 
-        email_provider.send_email(
+        message = email_provider.send_email(
             sender=config.SERVER_EMAIL,
             receivers=config.RECIPIENTS,
             subject=subject,
             body=email_body,
+            references=message_ids,
+            thread_id=message_id,
         )
         logger.info(f"{len(batched_ids)} jobs sent successfully")
+        message_id = message["id"]
+        message_ids.append(message_id)
 
         # update `notified` flag after notified with email.
-        statement = (
-            update(Job)
-            .where(Job.notified.is_(False), Job.id.in_(batched_ids))
-            .values(notified=True)
-        )
-        session = get_session()
-        with session.begin():
-            session.execute(statement)
+        # statement = (
+        #     update(Job)
+        #     .where(Job.notified.is_(False), Job.id.in_(batched_ids))
+        #     .values(notified=True)
+        # )
+        # session = get_session()
+        # with session.begin():
+        #     session.execute(statement)
