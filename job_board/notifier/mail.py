@@ -28,22 +28,49 @@ class EmailProvider:
         service = build("gmail", "v1", credentials=creds)
         return service
 
-    def send_email(self, *, sender: str, receivers: list, subject: str, body: str):
+    def send_email(
+        self,
+        *,
+        sender: str,
+        receivers: list[str],
+        subject: str,
+        body: str,
+        references: list[str] | None = None,
+        thread_id: str | None = None,
+    ):
         """
-        https://developers.google.com/gmail/api/guides/sending#python
+        Docs: https://developers.google.com/gmail/api/guides/sending#python
         """
         message = MIMEMultipart()
+        message["from"] = sender
         message["to"] = ", ".join(receivers)
         message["subject"] = subject
         msg = MIMEText(body, "html")
         message.attach(msg)
 
+        if thread_id:
+            message["threadId"] = f"<{thread_id}>@mail.gmail.com"
+
+        if references:
+            message["References"] = " ".join(
+                f"<{r}@mail.gmail.com>" for r in references
+            )
+            message["In-Reply-To"] = f"<{references[-1]}@mail.gmail.com>"
+
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-        message = (
+        sent_message = (
             self.service.users()
             .messages()
             .send(userId=sender, body={"raw": raw_message})
             .execute()
         )
-        logger.debug(f"Message Id: {message['id']}")
-        return message
+        logger.debug(
+            (
+                f"Message Id: {message['id']}, "
+                f"Subject: {subject}, "
+                f"References: {message.get('References')}, "
+                f"Thread Id: {message.get('threadId')}, ",
+                f"In-Reply-To: {message.get('In-Reply-To')}",
+            )
+        )
+        return sent_message
