@@ -8,17 +8,24 @@ import httpx
 from jinja2 import Environment, FileSystemLoader
 
 from job_board import config
+from job_board.logger import logger
 
 
 def response_hook(response: httpx.Response) -> None:
     response.raise_for_status()
 
 
+def request_hook(request: httpx.Request) -> None:
+    logger.debug(
+        (f"Headers: {request.headers} Method: {request.method} URL: {request.url} ")
+    )
+
+
 httpx_client = partial(
     httpx.Client,
     timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
     http2=True,
-    event_hooks={"response": [response_hook]},
+    event_hooks={"response": [response_hook], "request": [request_hook]},
 )
 jinja_env = Environment(
     loader=FileSystemLoader(pathlib.Path(__file__).parent / "templates"),

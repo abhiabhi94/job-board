@@ -45,7 +45,7 @@ def test_store_jobs(db_session):
 
 def test_notify(db_session):
     # No jobs to notify, nothing happens
-    notify()
+    notify([])
     job_1 = JobModel(
         link="http://job-1.com",
         title="Job Title",
@@ -72,7 +72,7 @@ def test_notify(db_session):
         ) as mock_send_email,
         mock.patch.object(config, "MAX_JOBS_PER_EMAIL", 1),
     ):
-        notify()
+        notify([job_1.id, job_2.id])
 
     mock_service.assert_called_once()
     assert mock_send_email.call_count == 2
@@ -81,3 +81,7 @@ def test_notify(db_session):
     assert job_1.notified is True
     db_session.refresh(job_2)
     assert job_2.notified is True
+
+    # calling notify again should not send email
+    # so nothing is patched.
+    notify([job_1.id, job_2.id])

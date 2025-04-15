@@ -9,6 +9,19 @@ from job_board.logger import logger
 # Set the API scope
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
+_email_provider = None
+
+
+def get_email_provider(*args, **kwargs):
+    """
+    Lazy load the EmailProvider class to avoid building the gmail
+    service multiple times.
+    """
+    global _email_provider
+    if _email_provider is None:
+        _email_provider = EmailProvider(*args, **kwargs)
+    return _email_provider
+
 
 class EmailProvider:
     def __init__(self, *args, **kwargs) -> None:

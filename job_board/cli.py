@@ -101,7 +101,8 @@ def _fetch(
 
     portals = list(map(str.lower, portals))
 
-    all_jobs = []
+    job_listings = []
+    job_ids = []
     for portal_name, portal_class in PORTALS.items():
         if portal_name.lower() in portals:
             click.echo(f"Fetching jobs from {portal_name.title()}")
@@ -119,10 +120,11 @@ def _fetch(
                     # just to have a buffer.
                     last_run_at -= timedelta(minutes=5)
 
-            jobs = portal_class(last_run_at=last_run_at).get_jobs()
-            logger.debug(f"Jobs from {portal_name}:\n\n{jobs}")
-            store_jobs(jobs)
-            all_jobs.extend(jobs)
+            listings = portal_class(last_run_at=last_run_at).get_jobs()
+            logger.debug(f"Jobs from {portal_name}:\n\n{listings}")
+            ids = store_jobs(listings)
+            job_ids.extend(ids)
+            job_listings.extend(listings)
 
             session = get_session()
             with session.begin():
@@ -131,9 +133,9 @@ def _fetch(
                 session.add(setting)
 
     if to_notify:
-        notify()
+        notify(job_ids)
     else:
-        click.echo(f"Jobs to notify:\n {'\n'.join(map(str, all_jobs))}\n")
+        click.echo(f"Jobs to notify:\n {'\n'.join(map(str, job_listings))}\n")
         click.echo("Notifications are disabled")
 
     click.echo("********Fetched jobs**********")

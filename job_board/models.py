@@ -11,7 +11,7 @@ from sqlalchemy.sql import expression
 
 from job_board.logger import logger
 from job_board.connection import get_session
-from job_board.notifier.mail import EmailProvider
+from job_board.notifier.mail import get_email_provider
 from job_board import config
 from job_board.base import Job as JobListing
 from job_board.utils import jinja_env
@@ -73,13 +73,18 @@ def store_jobs(jobs: JobListing):
         job_ids = session.execute(statement).scalars().all()
 
     logger.debug(f"Stored {len(job_ids)} new jobs successfully")
+    return job_ids
 
 
-def notify():
+def notify(job_ids: list[int]):
+    if not job_ids:
+        logger.info("No jobs to notify")
+        return
+
     statement = (
         select(Job)
-        .where(Job.notified.is_(False))
-        .order_by(Job.salary.desc(), Job.posted_on.desc())
+        .where(Job.notified.is_(False) & Job.id.in_(job_ids))
+        .order_by(Job.posted_on.desc(), Job.salary.desc())
     )
     session = get_session()
     with session.begin():
@@ -88,38 +93,19 @@ def notify():
             logger.info("No new jobs found for notification")
             return
 
-        job_listings_by_id = {}
-        for job in jobs:
-            job_listings_by_id[job.id] = JobListing(
-                link=job.link,
+        job_listings_by_id = {
+            job.id: JobListing(
                 title=job.title,
+                link=job.link,
                 salary=job.salary,
                 posted_on=job.posted_on,
             )
+            for job in jobs
+        }
 
-    template = jinja_env.get_template("mail.html")
-    subject = "Jobs To Apply"
-    email_provider = EmailProvider()
-
-    for batched_ids in itertools.batched(
-        job_listings_by_id,
-        config.MAX_JOBS_PER_EMAIL,
-    ):
+    for batched_ids in itertools.batched(job_listings_by_id, config.MAX_JOBS_PER_EMAIL):
         batched_listings = [job_listings_by_id[job_id] for job_id in batched_ids]
-        email_body = template.render(
-            jobs=batched_listings,
-            subject=subject,
-        )
-        logger.debug(f"Email to send:::\n{email_body}")
-
-        email_provider.send_email(
-            sender=config.SERVER_EMAIL,
-            receivers=config.RECIPIENTS,
-            subject=subject,
-            body=email_body,
-        )
-        logger.info(f"{len(batched_ids)} jobs sent successfully")
-
+        _notify(batched_listings)
         # update `notified` flag after notified with email.
         statement = (
             update(Job)
@@ -129,3 +115,24 @@ def notify():
         session = get_session()
         with session.begin():
             session.execute(statement)
+
+
+def _notify(job_listings: list[JobListing]):
+    template = jinja_env.get_template("mail.html")
+    today = datetime.today().strftime("%B %d, %Y")
+    subject = f"Jobs To Apply | {today}"
+    email_provider = get_email_provider()
+
+    email_body = template.render(
+        jobs=job_listings,
+        subject=subject,
+    )
+    logger.debug(f"Email to send:::\n{email_body}")
+
+    email_provider.send_email(
+        sender=config.SERVER_EMAIL,
+        receivers=config.RECIPIENTS,
+        subject=subject,
+        body=email_body,
+    )
+    logger.info(f"{len(job_listings)} jobs sent successfully")
