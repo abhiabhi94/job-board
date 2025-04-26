@@ -25,7 +25,10 @@ RECIPIENTS = [
     for recipient in os.getenv("RECIPIENTS", "").split(",")
     if recipient
 ]
-NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY")
+NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY", "").strip()
+PREFERRED_CITIES = [
+    city.strip() for city in os.getenv("PREFERRED_CITIES", "").split(", ") if city
+]
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
@@ -43,8 +46,8 @@ MAX_JOBS_PER_EMAIL = int(os.getenv("MAX_JOBS_PER_EMAIL", 10))
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPEN_AI_MODEL = "gpt-4o"
-WELLFOUND_APOLLO_SIGNATURE = os.getenv("WELLFOUND_APOLLO_SIGNATURE")
-WELLFOUND_COOKIE = os.getenv("WELLFOUND_COOKIE")
-WELLFOUND_DATADOME_COOKIE = os.getenv("WELLFOUND_DATADOME_COOKIE")
+SCRAPFLY_API_KEY = os.getenv("SCRAPFLY_API_KEY")
+SCRAPFLY_REQUEST_TIMEOUT = int(os.getenv("SCRAPFLY_REQUEST_TIMEOUT", 500))  # seconds
+
 WORK_AT_A_STARTUP_COOKIE = os.getenv("WORK_AT_A_STARTUP_COOKIE")
 WORK_AT_A_STARTUP_CSRF_TOKEN = os.getenv("WORK_AT_A_STARTUP_CSRF_TOKEN")
