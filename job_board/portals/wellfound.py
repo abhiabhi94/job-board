@@ -1,6 +1,8 @@
 import json
-from decimal import Decimal
 from datetime import datetime, timezone
+
+from lxml import html
+import httpx
 
 from job_board import config
 from job_board.base import Job
@@ -8,133 +10,123 @@ from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
 from job_board.utils import (
     httpx_client,
-    jinja_env,
 )
+
+SCRAPFLY_URL = "https://api.scrapfly.io/scrape"
+
+
+class ScrapflyError(httpx.HTTPStatusError):
+    """
+    Custom exception to handle errors from the Scrapfly API.
+    This is necessary because the Scrapfly API returns a 200 status code
+    even when there is an error in the response.
+    """
+
+    def __init__(self, message, *, request, response, is_retryable=False):
+        super().__init__(message=message, request=request, response=response)
+        self.message = message
+        self.request = request
+        self.response = response
+        self.is_retryable = is_retryable
+
+
+def _raise_for_status(response):
+    """
+    Raises an HTTPStatusError if the response indicates an error.
+    Helps to handle the response from the Scrapfly API similar to
+    how httpx would handle it.
+    This is necessary because the Scrapfly API returns a 200 status code
+    even when there is an error in the response.
+
+    https://scrapfly.io/docs/scrape-api/errors#web_scraping_api_error
+    """
+    result = response.json()["result"]
+    logger.debug(f"Scrapfly monitoring link: {result['log_url']}")
+    if result["success"]:
+        return
+
+    status_code = result["status_code"]
+    url = result["url"]
+    request = httpx.Request("GET", url)
+    response = httpx.Response(
+        status_code=status_code,
+        request=request,
+        content=result["content"],
+        headers=result["response_headers"],
+    )
+    error = result["error"]
+    raise ScrapflyError(
+        message=error["message"],
+        request=request,
+        response=response,
+        is_retryable=error["retryable"],
+    )
 
 
 class Wellfound(BasePortal):
     portal_name = "wellfound"
-    url = "https://wellfound.com/graphql"
+    # This url actually depends upon the keywords
+    # Wellfound doesn't seem to provide tags that we can
+    # use to filter the jobs
+    # The generic URL is: https://wellfound.com/role/r/software-engineer
+    # but that would require us to scrape a lot more pages and
+    # each of them would have to bypass the detection.
+    # For now, we are just hardcoding the url for python
+    # developers.
+    url = "https://wellfound.com/role/r/python-developer"
     api_data_format = "html"
 
     def get_jobs(self) -> list[Job]:
-        data = self.make_request()
-        return self.filter_jobs(data)
-
-    def make_request(self) -> list[dict]:
-        template = jinja_env.get_template("wellfound-request-params.json")
-        params = json.loads(
-            template.render(
-                wellfound_apollo_signature=config.WELLFOUND_APOLLO_SIGNATURE,
-                wellfound_datadome_cookie=config.WELLFOUND_DATADOME_COOKIE,
-                wellfound_cookie=config.WELLFOUND_COOKIE,
-            )
-        )
-        data = {
-            "operationName": "JobSearchResultsX",
-            "variables": {
-                "filterConfigurationInput": {
-                    "page": 1,
-                    # countries where the job is available,
-                    # this is for india and asia.
-                    "remoteCompanyLocationTagIds": ["1647", "153509"],
-                    # this is for software developer.
-                    "roleTagIds": ["151647"],
-                    "equity": {"min": None, "max": None},
-                    "remotePreference": "REMOTE_OPEN",
-                    # for some reason this accepts salary in thousands
-                    "salary": {
-                        "min": int(config.SALARY // Decimal(str(1_000))),
-                        "max": None,
-                    },
-                    "yearsExperience": {"min": 4, "max": None},
-                    "sortBy": "LAST_POSTED",
-                }
-            },
-            "extensions": {
-                "operationId": (
-                    "tfe/2aeb9d7cc572a94adfe2b888b32e64eb8b7fb77215b168ba4256b08f9a94f37b"
-                ),
-            },
-        }
-
-        result = []
-        page_count = 1
+        page_number = 1
+        jobs_data = []
         while True:
-            logger.debug(f"[{self.portal_name}] Fetching page {page_count}...")
-
-            with httpx_client(
-                cookies=params["cookies"], headers=params["headers"]
-            ) as client:
-                response = client.post(self.url, json=data)
-
-            page_data = response.json()
-            job_data = self.get_job_data(page_data)
-            result.append(job_data)
-
-            if last_run_at := self.last_run_at:
-                # we don't want to go through all
-                # the jobs if we have already seen them.
-
-                # wellfound has promoted job listings which are sent first
-                # and then the normal job listings. these promoted listings
-                # are sent in every page, despite the API request for jobs
-                # being sorted by posted date.
-                # so we are checking the most recent job listing among all the
-                # listings in the page, to be sure that we are not missing any jobs.
-                most_recent_listing = max(
-                    job_data, key=lambda job: self.get_posted_on(job)
+            with httpx_client() as client:
+                # https://scrapfly.io/docs/scrape-api/getting-started#spec
+                response = client.get(
+                    SCRAPFLY_URL,
+                    timeout=httpx.Timeout(config.SCRAPFLY_REQUEST_TIMEOUT),
+                    params={
+                        "key": config.SCRAPFLY_API_KEY,
+                        "url": f"{self.url}?page={page_number}",
+                        "debug": True,
+                        "asp": True,
+                    },
                 )
-                most_recent = self.get_posted_on(most_recent_listing)
+                _raise_for_status(response)
 
-                if most_recent < last_run_at:
+            content = response.json()["result"]["content"]
+            element = html.fromstring(content)
+            # graphQL data is embeded in this element
+            data_element = element.get_element_by_id("__NEXT_DATA__")
+            data = json.loads(data_element.text)
+            # this is the data we need
+            graph_data = data["props"]["pageProps"]["apolloState"]["data"]
+            jobs_data.append(graph_data)
+            talent_data = graph_data["ROOT_QUERY"]["talent"]
+            for key, value in talent_data.items():
+                if key.startswith("seoLandingPageJobSearchResults({"):
                     break
 
-            if page_data["data"]["talent"]["jobSearchResults"]["hasNextPage"] is False:
+            total_pages = value["pageCount"]
+            logger.info(f"[Wellfound]: On {page_number=}, {total_pages=}")
+            page_number += 1
+            if page_number > total_pages:
                 break
 
-            page_count += 1
-            data["variables"]["filterConfigurationInput"]["page"] = page_count
-
-        return result
-
-    def get_job_data(self, page_data) -> list[dict]:
-        job_data = []
-        for company_edge in page_data["data"]["talent"]["jobSearchResults"]["startups"][
-            "edges"
-        ]:
-            company_node = company_edge["node"]
-            company_type = company_node["__typename"]
-            match company_type:
-                case "FeaturedStartups":
-                    companies = company_node["featuredStartups"]
-                case "PromotedResult" | "StartupSearchResult":
-                    companies = [company_node]
-                case _:
-                    raise ValueError(f"Unknown company node type: {company_type}")
-
-            for company in companies:
-                result_type = company["__typename"]
-                match result_type:
-                    case "PromotedResult":
-                        company_data = company["promotedStartup"]
-                    case "StartupSearchResult":
-                        company_data = company
-                    case _:
-                        raise ValueError(f"Unknown company data type: {result_type}")
-
-                job_listings = company_data["highlightedJobListings"]
-                job_data.extend(job_listings)
-
-        return job_data
+        return self.filter_jobs(jobs_data)
 
     def filter_jobs(self, data) -> list[Job]:
         # data is a list of data from all pages.
         # we need to extract the job data from each page.
         jobs = []
-        for page_data in data:
-            for job_data in page_data:
-                if job := self.filter_job(job_data):
+        for job_data in data:
+            job_results = [
+                value
+                for key, value in job_data.items()
+                if key.startswith("JobListingSearchResult:")
+            ]
+            for job_result in job_results:
+                if job := self.filter_job(job_result):
                     jobs.append(job)
         return jobs
 
@@ -142,8 +134,28 @@ class Wellfound(BasePortal):
         slug = job_data["slug"]
         job_id = job_data["id"]
         link = f"https://wellfound.com/jobs/{job_id}-{slug}"
+
         if not job_data["remote"]:
             job_rejected_logger.info(f"Job {link} is not remote.")
+            return
+
+        allowed_locations = {c.lower() for c in job_data["locationNames"]}
+        preferred_locations = {c.lower() for c in config.PREFERRED_CITIES}
+        preferred_locations.update(
+            [
+                config.NATIVE_COUNTRY.lower(),
+                # some jobs are remote but only available in certain
+                # countries.
+                # TODO: maybe do this based on a config, but we are already
+                # checking for remote jobs.
+                "remote",
+            ]
+        )
+        if preferred_locations.isdisjoint(allowed_locations):
+            job_rejected_logger.info(
+                f"Job {link} is not available in {', '.join(preferred_locations)}. "
+                f"Allowed locations: {', '.join(allowed_locations)}"
+            )
             return
 
         posted_on = self.get_posted_on(job_data)
@@ -161,9 +173,7 @@ class Wellfound(BasePortal):
             return
 
         if salary := self.validate_salary_range(
-            link=link,
-            compensation=job_data["compensation"],
-            range_separator="–",
+            link=link, compensation=job_data["compensation"], range_separator="–"
         ):
             return Job(
                 title=title,
