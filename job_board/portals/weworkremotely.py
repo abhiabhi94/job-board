@@ -4,7 +4,7 @@ import re
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.base import Job
-from job_board.utils import parse_relative_time, httpx_client
+from job_board.utils import parse_relative_time, make_scrapfly_request
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
@@ -42,13 +42,11 @@ class WeWorkRemotely(BasePortal):
     }
 
     def get_jobs(self) -> list[Job]:
-        with httpx_client() as client:
-            response = client.get(self.url)
-        return self.filter_jobs(response.content)
+        response = make_scrapfly_request(self.url)
+        return self.filter_jobs(response)
 
     def filter_jobs(self, data):
-        root = objectify.fromstring(data)
-
+        root = objectify.fromstring(data.encode())
         links_to_look = []
         for item in root.channel.item:
             link = item.link.text
@@ -68,9 +66,8 @@ class WeWorkRemotely(BasePortal):
         return job_listings_to_notify
 
     def filter_job(self, link) -> Job | None:
-        with httpx_client() as client:
-            response = client.get(link)
-        root = html.fromstring(response.content)
+        response = make_scrapfly_request(link)
+        root = html.fromstring(response)
         salary_elements = root.xpath(
             "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'salary')]"  # noqa: E501
         )

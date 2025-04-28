@@ -2,65 +2,14 @@ import json
 from datetime import datetime, timezone
 
 from lxml import html
-import httpx
 
 from job_board import config
 from job_board.base import Job
 from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
 from job_board.utils import (
-    httpx_client,
+    make_scrapfly_request,
 )
-
-SCRAPFLY_URL = "https://api.scrapfly.io/scrape"
-
-
-class ScrapflyError(httpx.HTTPStatusError):
-    """
-    Custom exception to handle errors from the Scrapfly API.
-    This is necessary because the Scrapfly API returns a 200 status code
-    even when there is an error in the response.
-    """
-
-    def __init__(self, message, *, request, response, is_retryable=False):
-        super().__init__(message=message, request=request, response=response)
-        self.message = message
-        self.request = request
-        self.response = response
-        self.is_retryable = is_retryable
-
-
-def _raise_for_status(response):
-    """
-    Raises an HTTPStatusError if the response indicates an error.
-    Helps to handle the response from the Scrapfly API similar to
-    how httpx would handle it.
-    This is necessary because the Scrapfly API returns a 200 status code
-    even when there is an error in the response.
-
-    https://scrapfly.io/docs/scrape-api/errors#web_scraping_api_error
-    """
-    result = response.json()["result"]
-    logger.debug(f"Scrapfly monitoring link: {result['log_url']}")
-    if result["success"]:
-        return
-
-    status_code = result["status_code"]
-    url = result["url"]
-    request = httpx.Request("GET", url)
-    response = httpx.Response(
-        status_code=status_code,
-        request=request,
-        content=result["content"],
-        headers=result["response_headers"],
-    )
-    error = result["error"]
-    raise ScrapflyError(
-        message=error["message"],
-        request=request,
-        response=response,
-        is_retryable=error["retryable"],
-    )
 
 
 class Wellfound(BasePortal):
@@ -80,21 +29,8 @@ class Wellfound(BasePortal):
         page_number = 1
         jobs_data = []
         while True:
-            with httpx_client() as client:
-                # https://scrapfly.io/docs/scrape-api/getting-started#spec
-                response = client.get(
-                    SCRAPFLY_URL,
-                    timeout=httpx.Timeout(config.SCRAPFLY_REQUEST_TIMEOUT),
-                    params={
-                        "key": config.SCRAPFLY_API_KEY,
-                        "url": f"{self.url}?page={page_number}",
-                        "debug": True,
-                        "asp": True,
-                    },
-                )
-                _raise_for_status(response)
-
-            content = response.json()["result"]["content"]
+            url = f"{self.url}?page={page_number}"
+            content = make_scrapfly_request(url=url, asp=True)
             element = html.fromstring(content)
             # graphQL data is embeded in this element
             data_element = element.get_element_by_id("__NEXT_DATA__")
