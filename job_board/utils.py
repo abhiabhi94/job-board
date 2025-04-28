@@ -8,6 +8,7 @@ import httpx
 from jinja2 import Environment, FileSystemLoader
 
 from job_board import config
+from job_board.logger import logger
 
 
 def response_hook(response: httpx.Response) -> None:
@@ -79,3 +80,85 @@ def parse_relative_time(relative_str: str | None) -> datetime | None:
             return now - timedelta(days=30 * value)
         case _:
             raise ValueError(f"Unsupported time unit: {unit}")
+
+
+SCRAPFLY_URL = "https://api.scrapfly.io/scrape"
+
+
+class ScrapflyError(httpx.HTTPStatusError):
+    """
+    Custom exception to handle errors from the Scrapfly API.
+    This is necessary because the Scrapfly API returns a 200 status code
+    even when there is an error in the response.
+    """
+
+    def __init__(self, message, *, request, response, is_retryable=False):
+        super().__init__(message=message, request=request, response=response)
+        self.message = message
+        self.request = request
+        self.response = response
+        self.is_retryable = is_retryable
+
+
+def _raise_for_status(response) -> None:
+    """
+    Raises an HTTPStatusError if the response indicates an error.
+    Helps to handle the response from the Scrapfly API similar to
+    how httpx would handle it.
+    This is necessary because the Scrapfly API returns a 200 status code
+    even when there is an error in the response.
+
+    https://scrapfly.io/docs/scrape-api/errors#web_scraping_api_error
+    """
+    result = response.json()["result"]
+    logger.debug(f"Scrapfly monitoring link: {result['log_url']}")
+    if result["success"]:
+        return
+
+    status_code = result["status_code"]
+    url = result["url"]
+    actual_request = httpx.Request("GET", url)
+    actual_response = httpx.Response(
+        status_code=status_code,
+        request=actual_request,
+        content=result["content"],
+        headers=result["response_headers"],
+    )
+    error = result["error"]
+    raise ScrapflyError(
+        message=error["message"],
+        request=actual_request,
+        response=actual_response,
+        is_retryable=error["retryable"],
+    )
+
+
+def make_scrapfly_request(
+    url: str,
+    *,
+    asp=False,
+    **kwargs,
+) -> str:
+    params = {
+        "key": config.SCRAPFLY_API_KEY,
+        "url": url,
+        "asp": asp,
+        "debug": True,
+    }
+    params.update(kwargs)
+    if asp:
+        # large timeout is required only when using asp.
+        timeout = config.SCRAPFLY_REQUEST_TIMEOUT
+    else:
+        timeout = config.DEFAULT_HTTP_TIMEOUT
+
+    with httpx_client() as client:
+        # https://scrapfly.io/docs/scrape-api/getting-started#spec
+        response = client.get(
+            SCRAPFLY_URL,
+            timeout=timeout,
+            params=params,
+        )
+        _raise_for_status(response)
+
+    return response.json()["result"]["content"]

@@ -9,6 +9,8 @@ from job_board import config
 from job_board.base import Job
 from job_board.portals.wellfound import (
     Wellfound,
+)
+from job_board.utils import (
     SCRAPFLY_URL,
     ScrapflyError,
 )
