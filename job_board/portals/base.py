@@ -194,7 +194,7 @@ class BasePortal:
         return currency, salary
 
     def validate_salary(self, *, link: str, salary: str) -> str | None:
-        logger.debug(f"Validating salary information in {link}")
+        logger.debug(f"Validating salary information in {link}, {salary=}")
 
         if salary is None:
             # no salary information, should we still consider this relevant ???

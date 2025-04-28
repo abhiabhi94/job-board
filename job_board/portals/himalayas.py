@@ -129,7 +129,12 @@ class Himalayas(BasePortal):
         ):
             return
 
-        max_salary = Decimal(str(job["maxSalary"]))
+        max_salary = job["maxSalary"]
+        if not max_salary:
+            job_rejected_logger.info(f"{link} doesn't have a salary.")
+            return
+
+        max_salary = Decimal(str(max_salary))
         if allowed_countries == {"india"}:
             # if the job is only available in India, then salary
             # is probably in INR. There is no direct field for currency
