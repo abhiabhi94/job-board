@@ -126,7 +126,9 @@ class BasePortal:
             logger.debug(str(exc))
             return
 
-        salary_in_dollars = salary * ExchangeRate[currency.name].value
+        salary_in_dollars = (salary * ExchangeRate[currency.name].value).quantize(
+            Decimal("0")
+        )
         if salary_in_dollars < config.SALARY:
             job_rejected_logger.info(
                 (

@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from decimal import Decimal
 
 from lxml import html
 from tenacity import (
@@ -11,7 +12,7 @@ import httpx
 
 from job_board.portals.base import BasePortal
 from job_board.base import Job
-from job_board.utils import httpx_client
+from job_board.utils import httpx_client, ExchangeRate
 from job_board import config
 from job_board.logger import job_rejected_logger, logger
 
@@ -128,7 +129,13 @@ class Himalayas(BasePortal):
         ):
             return
 
-        max_salary = job["maxSalary"]
+        max_salary = Decimal(str(job["maxSalary"]))
+        if allowed_countries == {"india"}:
+            # if the job is only available in India, then salary
+            # is probably in INR. There is no direct field for currency
+            # in the API response.
+            max_salary = (max_salary * ExchangeRate.INR.value).quantize(Decimal("0.01"))
+
         if salary := self.validate_salary(link=link, salary=str(max_salary)):
             return Job(
                 title=title,
