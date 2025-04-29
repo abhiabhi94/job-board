@@ -22,9 +22,21 @@ class PortalSetting(BaseModel):
     )
 
     @classmethod
-    def create_portal_setting(cls):
-        session = get_session()
-        with session.begin():
-            existing_settings = session.query(cls).all()
-            portals = set(PORTALS.keys()) - {s.portal_name for s in existing_settings}
-            session.add_all(cls(portal_name=p) for p in portals)
+    def get_or_create(cls, portal_name: str) -> "PortalSetting":
+        if portal_name not in PORTALS:
+            raise ValueError(f"Portal {portal_name} is not supported")
+
+        session = get_session(readonly=False)
+        with session:
+            setting = (
+                session.query(PortalSetting)
+                .filter(PortalSetting.portal_name == portal_name)
+                .one_or_none()
+            )
+            if setting is None:
+                setting = PortalSetting(portal_name=portal_name)
+                session.add(setting)
+                # this is needed to get the id of the newly
+                # created setting object.
+                session.flush()
+        return setting
