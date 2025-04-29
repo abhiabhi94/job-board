@@ -21,14 +21,14 @@ KEYWORDS = [
 REGION = os.getenv("REGION")
 SALARY = Decimal(os.environ.get("SALARY", str(60_000)))
 CURRENCY_SALARY = os.environ.get("CURRENCY_SALARY")
+NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY", "").strip()
+PREFERRED_CITIES = [
+    city.strip() for city in os.getenv("PREFERRED_CITIES", "").split(",") if city
+]
 RECIPIENTS = [
     recipient.strip()
     for recipient in os.getenv("RECIPIENTS", "").split(",")
     if recipient
-]
-NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY", "").strip()
-PREFERRED_CITIES = [
-    city.strip() for city in os.getenv("PREFERRED_CITIES", "").split(", ") if city
 ]
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -46,7 +46,7 @@ DEFAULT_HTTP_TIMEOUT = int(os.getenv("DEFAULT_HTTP_TIMEOUT", 30))
 MAX_JOBS_PER_EMAIL = int(os.getenv("MAX_JOBS_PER_EMAIL", 10))
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPEN_AI_MODEL = "gpt-4o"
+OPEN_AI_MODEL = os.getenv("OPEN_AI_MODEL", "gpt-4o")
 SCRAPFLY_API_KEY = os.getenv("SCRAPFLY_API_KEY")
 SCRAPFLY_REQUEST_TIMEOUT = int(os.getenv("SCRAPFLY_REQUEST_TIMEOUT", 500))  # seconds
 
