@@ -105,30 +105,25 @@ def _fetch(
     for portal_name, portal_class in PORTALS.items():
         if portal_name.lower() in portals:
             click.echo(f"Fetching jobs from {portal_name.title()}")
-            session = get_session()
-            with session.begin():
-                setting = (
-                    session.query(PortalSetting)
-                    .filter(PortalSetting.portal_name == portal_name)
-                    .scalar()
-                )
-                setting_id = setting.id
-                last_run_at = None
-                if setting.last_run_at:
-                    last_run_at = setting.last_run_at.astimezone(timezone.utc)
-                    # just to have a buffer.
-                    last_run_at -= timedelta(minutes=5)
+            setting = PortalSetting.get_or_create(portal_name=portal_name)
+            setting_id = setting.id
+            last_run_at = None
+            if setting.last_run_at:
+                last_run_at = setting.last_run_at.astimezone(timezone.utc)
+                # just to have a buffer.
+                last_run_at -= timedelta(minutes=5)
 
             jobs = portal_class(last_run_at=last_run_at).get_jobs()
             logger.debug(f"Jobs from {portal_name}:\n\n{jobs}")
             store_jobs(jobs)
             all_jobs.extend(jobs)
 
-            session = get_session()
-            with session.begin():
+            session = get_session(readonly=False)
+            with session:
                 setting = session.get(PortalSetting, setting_id)
                 setting.last_run_at = datetime.now(timezone.utc)
                 session.add(setting)
+                session.flush()
 
     if to_notify:
         notify()

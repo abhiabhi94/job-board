@@ -63,8 +63,8 @@ def store_jobs(jobs: JobListing):
         values.append(value)
 
     insert_statement = insert(Job).values(values).returning(Job.id)
-    session = get_session()
-    with session.begin():
+    session = get_session(readonly=False)
+    with session:
         statement = insert_statement.on_conflict_do_nothing(
             index_elements=[
                 func.lower(Job.link),
@@ -81,8 +81,8 @@ def notify():
         .where(Job.notified.is_(False))
         .order_by(Job.salary.desc(), Job.posted_on.desc())
     )
-    session = get_session()
-    with session.begin():
+    session = get_session(readonly=True)
+    with session:
         jobs = session.execute(statement).scalars().all()
         if not jobs:
             logger.info("No new jobs found for notification")
@@ -126,6 +126,6 @@ def notify():
             .where(Job.notified.is_(False), Job.id.in_(batched_ids))
             .values(notified=True)
         )
-        session = get_session()
-        with session.begin():
+        session = get_session(readonly=False)
+        with session:
             session.execute(statement)

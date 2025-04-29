@@ -3,7 +3,6 @@ import logging
 from job_board import config
 
 log_file = "job-board-test.log" if config.TEST_ENV else "job-board.log"
-
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%z %m/%d/%Y %I:%M:%S %p",

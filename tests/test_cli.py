@@ -1,7 +1,6 @@
 from unittest import mock
 from datetime import datetime, timezone
 
-from sqlalchemy import update
 import pytest
 from click.testing import CliRunner
 
@@ -78,40 +77,26 @@ def mock_portals(monkeypatch):
 
 
 def test_run_command_with_include_portal_option(cli_runner, mock_portals, db_session):
-    portal = "weworkremotely"
-    assert (
-        db_session.query(PortalSetting)
-        .filter(PortalSetting.portal_name == portal)
-        .scalar()
-        .last_run_at
-        is None
-    )
+    portal_name = "weworkremotely"
+    setting = PortalSetting.get_or_create(portal_name=portal_name)
+    assert setting.last_run_at is None
 
-    mock_portals(portals=[portal])
+    mock_portals(portals=[portal_name])
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
-        result = cli_runner.invoke(
-            main, ["fetch", "--include-portals", "weworkremotely"]
-        )
+        result = cli_runner.invoke(main, ["fetch", "--include-portals", portal_name])
 
     assert result.exit_code == 0
     mock_store_jobs.assert_called_once()
 
-    assert (
-        db_session.query(PortalSetting)
-        .filter(PortalSetting.portal_name == portal)
-        .scalar()
-        .last_run_at
-    ) is not None
+    db_session.flush()
+    assert db_session.get(PortalSetting, setting.id).last_run_at is not None
 
 
 def test_run_command_with_last_run_at(cli_runner, mock_portals, db_session):
     now = datetime.now(timezone.utc)
-    statement = (
-        update(PortalSetting)
-        .where(PortalSetting.portal_name == "weworkremotely")
-        .values(last_run_at=now)
-    )
-    db_session.execute(statement)
+    setting = PortalSetting.get_or_create(portal_name="weworkremotely")
+    setting.last_run_at = now
+    db_session.add(setting)
 
     mock_portals(portals=["weworkremotely"])
     with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:

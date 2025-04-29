@@ -4,15 +4,48 @@ from unittest import mock
 
 from job_board.models import Job as JobModel
 from job_board.base import Job
+from job_board import config
 
 import sqlalchemy
+import pytest
+
 from job_board.models import (
     store_jobs,
     notify,
 )
+from job_board.connection import get_session
+from job_board.portals.models import PortalSetting
 
 
 now = datetime.now(timezone.utc)
+
+
+def test_session_can_be_used_only_during_tests(db_session):
+    with mock.patch.object(config, "TEST_ENV", False):
+        with pytest.raises(RuntimeError):
+            get_session()
+
+
+def test_read_only_session(db_setup):
+    with get_session(readonly=True) as session:
+        with pytest.raises(sqlalchemy.exc.InternalError) as exc:
+            session.execute(
+                sqlalchemy.insert(JobModel).values(
+                    link="http://example.com",
+                    title="Test Job",
+                    salary=Decimal(str(100_000)),
+                    posted_on=now,
+                )
+            )
+
+    assert "cannot execute INSERT in a read-only transaction" in str(exc.value)
+
+
+def test_portal_setting_get_or_create_with_invalid_portal_name():
+    with pytest.raises(ValueError) as exception:
+        PortalSetting.get_or_create(portal_name="invalid_portal")
+
+    assert "invalid_portal" in str(exception)
 
 
 def test_store_jobs(db_session):
@@ -59,9 +92,6 @@ def test_notify(db_session):
         posted_on=now - timedelta(days=1),
     )
     db_session.add_all([job_1, job_2])
-    db_session.commit()
-
-    from job_board import config
 
     with (
         mock.patch(
@@ -77,7 +107,13 @@ def test_notify(db_session):
     mock_service.assert_called_once()
     assert mock_send_email.call_count == 2
 
-    db_session.refresh(job_1)
-    assert job_1.notified is True
-    db_session.refresh(job_2)
-    assert job_2.notified is True
+    # Check that the jobs are marked as notified
+    ids = [job_1.id, job_2.id]
+    statement = (
+        sqlalchemy.select(sqlalchemy.func.count())
+        .select_from(JobModel)
+        .where(JobModel.id.in_(ids), JobModel.notified.is_(True))
+    )
+    count = db_session.execute(statement).scalar_one()
+
+    assert count == len(ids)

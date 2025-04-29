@@ -1,6 +1,5 @@
 import os
 import importlib
-from unittest import mock
 
 import pytest
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +8,8 @@ from job_board import config
 from job_board.init_db import init_db
 from job_board.connection import get_engine
 from job_board.models import BaseModel
+import job_board.connection as connection_module
+from job_board.connection import _test_session
 
 
 def pytest_configure():
@@ -44,7 +45,8 @@ def db_setup():
 @pytest.fixture(scope="function")
 def db_session(db_setup):
     """
-    Returns a sqlalchemy session, and after the test, it tears down everything properly.
+    Returns a sqlalchemy session, and after the test, it tears down
+    everything properly.
     """
     engine = get_engine()
     # ensure the database URL is set correctly
@@ -54,13 +56,15 @@ def db_session(db_setup):
     connection = engine.connect()
     # begin the nested transaction
     transaction = connection.begin()
-    # use a custom session factory for tests.
-    Session = sessionmaker(bind=connection)
-    session = Session()
 
-    with mock.patch("job_board.connection._get_session_factory") as mocked_factory:
-        mocked_factory.return_value = Session
-        yield session
+    TestSession = sessionmaker(bind=connection, future=True)
+    session = TestSession()
+    # This is just a hack to make sure that the session
+    # for the test is same as the one in this fixture.
+    # TODO: find a better way to do this
+    connection_module._test_session = session
+    yield session
+    connection_module._test_session = _test_session
 
     session.close()
     # roll back the broader transaction
