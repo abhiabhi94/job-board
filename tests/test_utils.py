@@ -1,9 +1,13 @@
-import pytest
 from datetime import datetime, timezone, timedelta
+from unittest import mock
+
+import pytest
 from freezegun import freeze_time
+import httpx
 
 from job_board.utils import (
     parse_relative_time,
+    retry_on_http_errors,
 )
 
 # Fixed datetime for consistent testing
@@ -68,3 +72,23 @@ def test_parse_relative_time_uses_current_time():
 
     # The two results should differ by exactly 31 days
     assert (time_2 - time_1) == timedelta(days=31)
+
+
+def test_retrying_with_errors(respx_mock):
+    url = "https://example.com"
+
+    @retry_on_http_errors()
+    def foo():
+        return httpx.get(url)
+
+    respx_mock.get(url).mock(
+        side_effect=[
+            httpx.TimeoutException,  # http error retried.
+            ValueError,  # non-http error re-raised.
+        ]
+    )
+    with mock.patch("tenacity.nap.time.sleep") as mocked_sleep:
+        with pytest.raises(ValueError):
+            foo()
+
+    mocked_sleep.assert_called_once()

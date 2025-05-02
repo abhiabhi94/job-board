@@ -100,6 +100,23 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
                 status_code=200,
                 json={
                     "result": {
+                        "content": "",
+                        "status_code": 403,
+                        "response_headers": {},
+                        "url": wellfound.url,
+                        "success": False,
+                        "error": {
+                            "message": "The website responded with a 403 status code",
+                            "retryable": True,
+                        },
+                        "log_url": "https://scrapfly.io/dashboard/monitoring/log/01JSSF871YYCVQJY9MPFTGPF78",
+                    }
+                },
+            ),
+            httpx.Response(
+                status_code=200,
+                json={
+                    "result": {
                         "content": page_2,
                         "success": True,
                         "log_url": "https://scrapfly.io/dashboard/monitoring/log/01JSSJ7SNMEEJJDP0JPAACQ03D",
@@ -109,7 +126,10 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
         ]
     )
 
-    jobs = wellfound.get_jobs()
+    with patch("tenacity.nap.time.sleep") as mocked_sleep:
+        jobs = wellfound.get_jobs()
+
+    mocked_sleep.assert_called_once()
 
     assert len(jobs) == 2
     # just pick any one job from the list
@@ -123,9 +143,7 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
     assert job.posted_on is not None
 
 
-def test_scrapfly_api_returns_non_successfull_response(
-    wellfound, load_response, respx_mock
-):
+def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):
     respx_mock.get(SCRAPFLY_URL).mock(
         return_value=httpx.Response(
             status_code=200,
@@ -148,8 +166,13 @@ def test_scrapfly_api_returns_non_successfull_response(
         ),
     )
 
-    with pytest.raises(ScrapflyError) as excinfo:
+    with (
+        pytest.raises(ScrapflyError) as excinfo,
+        patch("tenacity.nap.time.sleep") as mocked_sleep,
+    ):
         wellfound.get_jobs()
+
+    assert mocked_sleep.call_count == 4
 
     assert excinfo.value.message == "Forbidden"
     assert excinfo.value.request.method == "GET"

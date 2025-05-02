@@ -9,6 +9,7 @@ from job_board.portals.base import BasePortal
 from job_board.logger import job_rejected_logger, logger
 from job_board.utils import (
     make_scrapfly_request,
+    retry_on_http_errors,
 )
 
 
@@ -30,7 +31,7 @@ class Wellfound(BasePortal):
         jobs_data = []
         while True:
             url = f"{self.url}?page={page_number}"
-            content = make_scrapfly_request(url=url, asp=True)
+            content = self.make_request(url)
             element = html.fromstring(content)
             # graphQL data is embeded in this element
             data_element = element.get_element_by_id("__NEXT_DATA__")
@@ -50,6 +51,10 @@ class Wellfound(BasePortal):
                 break
 
         return self.filter_jobs(jobs_data)
+
+    @retry_on_http_errors(additional_status_codes=[403])
+    def make_request(self, url: str) -> str:
+        return make_scrapfly_request(url, asp=True)
 
     def filter_jobs(self, data) -> list[Job]:
         # data is a list of data from all pages.
