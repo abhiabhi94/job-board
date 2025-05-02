@@ -2,35 +2,16 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
 from lxml import html
-from tenacity import (
-    Retrying,
-    wait_exponential,
-    retry_if_exception,
-    stop_after_attempt,
-)
-import httpx
 
 from job_board.portals.base import BasePortal
 from job_board.base import Job
-from job_board.utils import httpx_client, ExchangeRate
+from job_board.utils import (
+    httpx_client,
+    ExchangeRate,
+    retry_on_http_errors,
+)
 from job_board import config
 from job_board.logger import job_rejected_logger, logger
-
-
-def is_retryable(exception):
-    if isinstance(exception, httpx.HTTPStatusError):
-        status = exception.response.status_code
-        return status == 429 or 500 <= status < 600
-    return False
-
-
-def before_sleep_logging(retry_state):
-    logger.warning(
-        (
-            f"Retrying due to {retry_state.outcome.exception()!r}, "
-            f"attempt: {retry_state.attempt_number}"
-        )
-    )
 
 
 class Himalayas(BasePortal):
@@ -40,6 +21,7 @@ class Himalayas(BasePortal):
     api_data_format = "json"
     portal_name = "himalayas"
 
+    @retry_on_http_errors()
     def get_jobs(self) -> list[Job]:
         if self.last_run_at:
             cutoff_date = self.last_run_at
@@ -50,46 +32,41 @@ class Himalayas(BasePortal):
 
         jobs_data = []
         jobs_fetched = 0
-        with httpx_client() as client:
-            while True:
-                for attempt in Retrying(
-                    stop=stop_after_attempt(5),
-                    retry=retry_if_exception(is_retryable),
-                    wait=wait_exponential(min=1, multiplier=1, max=5),
-                    reraise=True,
-                    before_sleep=before_sleep_logging,
-                ):
-                    with attempt:
-                        response = client.get(
-                            self.url,
-                            params={"offset": jobs_fetched, "limit": 20},
-                        ).json()
-
-                total_jobs = response["totalCount"]
-                job_data = response["jobs"]
-                jobs_data.extend(job_data)
-                jobs_fetched += len(job_data)
-                logger.info(
-                    (
-                        f"[Himalayas]: Fetched {jobs_fetched} of {total_jobs} jobs, "
-                        f"Remaining: {total_jobs - jobs_fetched}"
-                    )
+        while True:
+            response = self.make_request(params={"offset": jobs_fetched, "limit": 20})
+            total_jobs = response["totalCount"]
+            job_data = response["jobs"]
+            jobs_data.extend(job_data)
+            jobs_fetched += len(job_data)
+            logger.info(
+                (
+                    f"[Himalayas]: Fetched {jobs_fetched} of {total_jobs} jobs, "
+                    f"Remaining: {total_jobs - jobs_fetched}"
                 )
+            )
 
-                # no need to make any more requests if we have
-                # already fetched all the jobs that were posted
-                # after the last run or all jobs are too old.
-                if all(cutoff_date > self.get_posted_on(j) for j in job_data):
-                    logger.info(
-                        f"[Himalayas]: No more jobs to fetch. "
-                        f"{cutoff_date=}, {jobs_fetched=}"
-                    )
-                    break
+            # no need to make any more requests if we have
+            # already fetched all the jobs that were posted
+            # after the last run or all jobs are too old.
+            if all(cutoff_date > self.get_posted_on(j) for j in job_data):
+                logger.info(
+                    f"[Himalayas]: No more jobs to fetch. "
+                    f"{cutoff_date=}, {jobs_fetched=}"
+                )
+                break
 
-                if jobs_fetched >= total_jobs:
-                    break
+            if jobs_fetched >= total_jobs:
+                break
 
         return self.filter_jobs(jobs_data)
+
+    @retry_on_http_errors()
+    def make_request(self, params):
+        with httpx_client() as client:
+            return client.get(
+                self.url,
+                params=params,
+            ).json()
 
     def filter_jobs(self, jobs_data) -> list[Job]:
         jobs = []

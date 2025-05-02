@@ -3,9 +3,17 @@ from enum import Enum
 from decimal import Decimal
 from functools import partial
 import pathlib
+from typing import Callable
 
 import httpx
 from jinja2 import Environment, FileSystemLoader
+from tenacity import (
+    retry,
+    wait_exponential,
+    retry_if_exception,
+    stop_after_attempt,
+    RetryCallState,
+)
 
 from job_board import config
 from job_board.logger import logger
@@ -162,3 +170,79 @@ def make_scrapfly_request(
         _raise_for_status(response)
 
     return response.json()["result"]["content"]
+
+
+def retry_on_http_errors(
+    max_attempts: int = 5,
+    additional_status_codes: list[int] | None = None,
+    min_wait: float = 1,
+    wait_multiplier: float = 1,
+    max_wait: float = 5,
+) -> Callable:
+    """
+    A retry decorator for HTTP errors.
+
+    Args:
+        max_attempts: Maximum number of retry attempts
+        additional_status_codes: Additional HTTP status codes to retry on
+        min_wait: Minimum wait time in seconds
+        wait_multiplier: Multiplier for wait time
+        max_wait: Maximum wait time in seconds
+
+    Returns:
+        A tenacity retry decorator configured for HTTP errors
+    """
+    return retry(
+        stop=stop_after_attempt(max_attempts),
+        retry=retry_if_exception(lambda e: _is_retryable(e, additional_status_codes)),
+        wait=wait_exponential(min=min_wait, multiplier=wait_multiplier, max=max_wait),
+        before_sleep=_before_sleep_logging,
+        reraise=True,
+    )
+
+
+def _before_sleep_logging(retry_state: RetryCallState) -> None:
+    """
+    Logs information before retrying an operation.
+
+    Args:
+        retry_state: Current state of retry
+    """
+    logger.warning(
+        (
+            f"Retrying due to {retry_state.outcome.exception()!r}, "
+            f"attempt: {retry_state.attempt_number}"
+        )
+    )
+
+
+def _is_retryable(
+    exception: Exception, additional_status_codes: list[int] | None = None
+) -> bool:
+    """
+    Determines if an exception should trigger a retry.
+
+    Args:
+        exception: The exception to check
+        additional_status_codes: Optional list of additional HTTP status codes
+          to retry on
+
+    Returns:
+        True if the exception is retryable, False otherwise
+    """
+    if isinstance(exception, httpx.RequestError):
+        return True
+
+    if isinstance(exception, httpx.HTTPStatusError):
+        status = exception.response.status_code
+        retryable_codes = {429}
+
+        # Add server errors
+        retryable_codes.update(list(range(500, 600)))
+
+        # Add any additional status codes provided
+        if additional_status_codes:
+            retryable_codes.update(additional_status_codes)
+
+        return status in retryable_codes
+    return False
