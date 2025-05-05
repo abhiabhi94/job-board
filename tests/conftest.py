@@ -1,6 +1,3 @@
-import importlib
-import os
-
 import pytest
 from sqlalchemy.orm import sessionmaker
 
@@ -12,16 +9,9 @@ from job_board.init_db import init_db
 from job_board.models import BaseModel
 
 
-def pytest_configure():
-    os.environ["TEST_ENV"] = "true"
-    # reload the config module to apply
-    # the test environment variables
-    importlib.reload(config)
-
-
 @pytest.fixture(autouse=True)
 def disable_real_http_requests(respx_mock):
-    yield
+    return
 
 
 @pytest.fixture
