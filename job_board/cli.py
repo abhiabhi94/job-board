@@ -1,19 +1,21 @@
-import subprocess
 import pdb
+import subprocess
 import sys
-import traceback
 import time
-from datetime import datetime, timezone, timedelta
+import traceback
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
 import click
 import schedule
 
-from job_board.portals import PORTALS
-from job_board.models import store_jobs
-from job_board.models import notify
+from job_board.connection import get_session
 from job_board.init_db import init_db
 from job_board.logger import logger
-from job_board.connection import get_session
+from job_board.models import notify
+from job_board.models import store_jobs
+from job_board.portals import PORTALS
 from job_board.portals.models import PortalSetting
 
 

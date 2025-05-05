@@ -1,15 +1,19 @@
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone, timedelta
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
-import pytest
 import httpx
+import pytest
 from freezegun import freeze_time
 
-from job_board.portals import Remotive
-from job_board.portals.remotive import DATE_FORMAT
 from job_board.base import Job
-from job_board.portals.base import JobsOpenAI, JobOpenAI
+from job_board.portals import Remotive
+from job_board.portals.base import JobOpenAI
+from job_board.portals.base import JobsOpenAI
+from job_board.portals.remotive import DATE_FORMAT
 
 
 @pytest.fixture

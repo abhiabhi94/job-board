@@ -1,9 +1,13 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, Index
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import func
+from sqlalchemy import Index
+from sqlalchemy import Integer
+from sqlalchemy import String
 
-
+from job_board.connection import get_session
 from job_board.models import BaseModel
 from job_board.portals.base import PORTALS
-from job_board.connection import get_session
 
 
 class PortalSetting(BaseModel):

@@ -1,5 +1,7 @@
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from job_board.notifier.mail import EmailProvider
 

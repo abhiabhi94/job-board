@@ -1,8 +1,9 @@
 import itertools
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
-from job_board.portals.base import BasePortal
 from job_board.base import Job
+from job_board.portals.base import BasePortal
 from job_board.utils import httpx_client
 
 RELEVANT_KEYS = {

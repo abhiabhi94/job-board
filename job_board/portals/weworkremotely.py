@@ -1,10 +1,13 @@
-from lxml import objectify, html
 import re
 
+from lxml import html
+from lxml import objectify
+
+from job_board.base import Job
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
-from job_board.base import Job
-from job_board.utils import parse_relative_time, make_scrapfly_request
+from job_board.utils import make_scrapfly_request
+from job_board.utils import parse_relative_time
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")

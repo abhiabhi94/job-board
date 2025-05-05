@@ -1,12 +1,14 @@
-import pytest
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
-from datetime import datetime, timezone, timedelta
 
-from freezegun import freeze_time
 import httpx
+import pytest
+from freezegun import freeze_time
 
-from job_board.portals import WeWorkRemotely
 from job_board.base import Job
+from job_board.portals import WeWorkRemotely
 from job_board.utils import SCRAPFLY_URL
 
 

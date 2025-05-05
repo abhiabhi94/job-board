@@ -1,19 +1,18 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
 from unittest import mock
 
-from job_board.models import Job as JobModel
-from job_board.base import Job
-from job_board import config
-
-import sqlalchemy
 import pytest
+import sqlalchemy
 
-from job_board.models import (
-    store_jobs,
-    notify,
-)
+from job_board import config
+from job_board.base import Job
 from job_board.connection import get_session
+from job_board.models import Job as JobModel
+from job_board.models import notify
+from job_board.models import store_jobs
 from job_board.portals.models import PortalSetting
 
 

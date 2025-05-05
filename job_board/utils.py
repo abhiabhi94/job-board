@@ -1,19 +1,20 @@
-from datetime import datetime, timedelta, timezone
-from enum import Enum
-from decimal import Decimal
-from functools import partial
 import pathlib
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
+from decimal import Decimal
+from enum import Enum
+from functools import partial
 from typing import Callable
 
 import httpx
-from jinja2 import Environment, FileSystemLoader
-from tenacity import (
-    retry,
-    wait_exponential,
-    retry_if_exception,
-    stop_after_attempt,
-    RetryCallState,
-)
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+from tenacity import retry
+from tenacity import retry_if_exception
+from tenacity import RetryCallState
+from tenacity import stop_after_attempt
+from tenacity import wait_exponential
 
 from job_board import config
 from job_board.logger import logger

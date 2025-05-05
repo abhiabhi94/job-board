@@ -1,8 +1,10 @@
 import base64
-from googleapiclient.discovery import build
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
 from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
 from job_board import config
 from job_board.logger import logger
 

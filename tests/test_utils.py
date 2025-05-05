@@ -1,14 +1,14 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from unittest import mock
 
+import httpx
 import pytest
 from freezegun import freeze_time
-import httpx
 
-from job_board.utils import (
-    parse_relative_time,
-    retry_on_http_errors,
-)
+from job_board.utils import parse_relative_time
+from job_board.utils import retry_on_http_errors
 
 # Fixed datetime for consistent testing
 FIXED_NOW = datetime(2025, 3, 13, 12, 0, 0, tzinfo=timezone.utc)

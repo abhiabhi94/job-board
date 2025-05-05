@@ -1,19 +1,26 @@
-from datetime import datetime, timezone
 import itertools
+from datetime import datetime
+from datetime import timezone
 
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, Numeric, DateTime
 from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import func
+from sqlalchemy import Index
+from sqlalchemy import Integer
+from sqlalchemy import Numeric
+from sqlalchemy import select
+from sqlalchemy import String
+from sqlalchemy import update
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, update, func, Index
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import expression
 
-
-from job_board.logger import logger
-from job_board.connection import get_session
-from job_board.notifier.mail import EmailProvider
 from job_board import config
 from job_board.base import Job as JobListing
+from job_board.connection import get_session
+from job_board.logger import logger
+from job_board.notifier.mail import EmailProvider
 from job_board.utils import jinja_env
 
 

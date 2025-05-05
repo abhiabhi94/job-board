@@ -1,6 +1,6 @@
-from job_board.models import BaseModel
-from job_board.logger import logger
 from job_board.connection import get_engine
+from job_board.logger import logger
+from job_board.models import BaseModel
 
 
 def init_db():

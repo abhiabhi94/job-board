@@ -1,9 +1,10 @@
 from decimal import Decimal
+
 import httpx
 
+from job_board.base import Job
 from job_board.portals import WorkAtAStartup
 from job_board.portals.work_at_a_startup import ALGOLIA_URL
-from job_board.base import Job
 
 
 def test_get_jobs(respx_mock, load_response):

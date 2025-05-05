@@ -1,22 +1,20 @@
-from decimal import Decimal, InvalidOperation
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
+from decimal import Decimal
+from decimal import InvalidOperation
 
-
-from pydantic import BaseModel
-import openai
 import httpx
+import openai
+from pydantic import BaseModel
 
-from job_board.base import Job
 from job_board import config
-from job_board.logger import (
-    logger,
-    job_rejected_logger,
-)
-from job_board.utils import (
-    Currency,
-    ExchangeRate,
-)
+from job_board.base import Job
+from job_board.logger import job_rejected_logger
+from job_board.logger import logger
+from job_board.utils import Currency
+from job_board.utils import ExchangeRate
 
 PORTALS = {}
 # matches "60,000" or "60,000,000"

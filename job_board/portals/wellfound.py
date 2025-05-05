@@ -1,16 +1,16 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
 from lxml import html
 
 from job_board import config
 from job_board.base import Job
+from job_board.logger import job_rejected_logger
+from job_board.logger import logger
 from job_board.portals.base import BasePortal
-from job_board.logger import job_rejected_logger, logger
-from job_board.utils import (
-    make_scrapfly_request,
-    retry_on_http_errors,
-)
+from job_board.utils import make_scrapfly_request
+from job_board.utils import retry_on_http_errors
 
 
 class Wellfound(BasePortal):

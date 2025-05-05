@@ -1,8 +1,10 @@
-from unittest.mock import patch
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
-from datetime import datetime, timezone, timedelta
-import httpx
+from unittest.mock import patch
 
+import httpx
 import pytest
 
 from job_board import config
@@ -10,10 +12,8 @@ from job_board.base import Job
 from job_board.portals.wellfound import (
     Wellfound,
 )
-from job_board.utils import (
-    SCRAPFLY_URL,
-    ScrapflyError,
-)
+from job_board.utils import SCRAPFLY_URL
+from job_board.utils import ScrapflyError
 
 
 @pytest.fixture

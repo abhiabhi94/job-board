@@ -1,10 +1,13 @@
+from datetime import datetime
+from datetime import timezone
 from unittest import mock
-from datetime import datetime, timezone
 
 import pytest
 from click.testing import CliRunner
 
-from job_board.cli import main, _fetch, debugger_hook
+from job_board.cli import _fetch
+from job_board.cli import debugger_hook
+from job_board.cli import main
 from job_board.portals import PORTALS
 from job_board.portals.models import PortalSetting
 

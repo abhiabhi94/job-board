@@ -1,18 +1,17 @@
-from lxml import objectify
-from datetime import datetime
-
-from job_board.portals.base import (
-    HOURLY_RATE_REGEX,
-    RATE_REGEX,
-    SALARY_RANGE_REGEX,
-    SALARY_REGEX,
-    BasePortal,
-)
-from job_board.base import Job
-from job_board.utils import httpx_client
-from lxml import html
 from collections import defaultdict
+from datetime import datetime
 from urllib.parse import urljoin
+
+from lxml import html
+from lxml import objectify
+
+from job_board.base import Job
+from job_board.portals.base import BasePortal
+from job_board.portals.base import HOURLY_RATE_REGEX
+from job_board.portals.base import RATE_REGEX
+from job_board.portals.base import SALARY_RANGE_REGEX
+from job_board.portals.base import SALARY_REGEX
+from job_board.utils import httpx_client
 
 
 class PythonDotOrg(BasePortal):

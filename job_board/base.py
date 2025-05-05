@@ -1,8 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
 import humanize
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
 
 class Job(BaseModel):

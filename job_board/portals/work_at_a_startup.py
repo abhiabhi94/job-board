@@ -1,11 +1,11 @@
 import json
-
 import urllib.parse
 
-from job_board.portals.base import BasePortal
-from job_board.base import Job
-from job_board.utils import httpx_client, jinja_env
 from job_board import config
+from job_board.base import Job
+from job_board.portals.base import BasePortal
+from job_board.utils import httpx_client
+from job_board.utils import jinja_env
 
 
 ALGOLIA_URL = "https://45bwzj1sgc-3.algolianet.com/1/indexes/*/queries"

@@ -1,11 +1,13 @@
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
-from datetime import datetime, timezone, timedelta
 from unittest.mock import patch
 
 import httpx
 
-from job_board.portals import Himalayas
 from job_board.base import Job
+from job_board.portals import Himalayas
 
 
 def test_get_jobs(respx_mock, load_response):

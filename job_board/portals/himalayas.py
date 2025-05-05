@@ -1,17 +1,18 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
 
 from lxml import html
 
-from job_board.portals.base import BasePortal
-from job_board.base import Job
-from job_board.utils import (
-    httpx_client,
-    ExchangeRate,
-    retry_on_http_errors,
-)
 from job_board import config
-from job_board.logger import job_rejected_logger, logger
+from job_board.base import Job
+from job_board.logger import job_rejected_logger
+from job_board.logger import logger
+from job_board.portals.base import BasePortal
+from job_board.utils import ExchangeRate
+from job_board.utils import httpx_client
+from job_board.utils import retry_on_http_errors
 
 
 class Himalayas(BasePortal):

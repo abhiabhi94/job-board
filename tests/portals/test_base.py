@@ -1,10 +1,13 @@
-import pytest
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from decimal import Decimal
 from unittest.mock import patch
-from datetime import datetime, timezone, timedelta
 
-from job_board.portals.base import BasePortal
+import pytest
+
 from job_board import config
+from job_board.portals.base import BasePortal
 
 
 @pytest.fixture

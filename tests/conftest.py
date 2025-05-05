@@ -1,15 +1,15 @@
-import os
 import importlib
+import os
 
 import pytest
 from sqlalchemy.orm import sessionmaker
 
-from job_board import config
-from job_board.init_db import init_db
-from job_board.connection import get_engine
-from job_board.models import BaseModel
 import job_board.connection as connection_module
+from job_board import config
 from job_board.connection import _test_session
+from job_board.connection import get_engine
+from job_board.init_db import init_db
+from job_board.models import BaseModel
 
 
 def pytest_configure():
