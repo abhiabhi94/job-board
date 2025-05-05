@@ -22,7 +22,6 @@ class Himalayas(BasePortal):
     api_data_format = "json"
     portal_name = "himalayas"
 
-    @retry_on_http_errors()
     def get_jobs(self) -> list[Job]:
         if self.last_run_at:
             cutoff_date = self.last_run_at
