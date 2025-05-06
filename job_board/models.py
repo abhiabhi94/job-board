@@ -1,6 +1,4 @@
 import itertools
-from datetime import datetime
-from datetime import timezone
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -22,23 +20,38 @@ from job_board.connection import get_session
 from job_board.logger import logger
 from job_board.notifier.mail import EmailProvider
 from job_board.utils import jinja_env
+from job_board.utils import utcnow_naive
 
 
 # Base class for all models
 class BaseModel(DeclarativeBase):
-    pass
+    __abstract__ = True
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    created_at = Column(
+        DateTime,
+        default=utcnow_naive,
+        nullable=False,
+        server_default=func.now(),
+    )
+    edited_at = Column(
+        DateTime,
+        default=utcnow_naive,
+        onupdate=utcnow_naive,
+        server_default=func.now(),
+        nullable=False,
+    )
 
 
 class Job(BaseModel):
     __tablename__ = "job"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     link = Column(String, nullable=False)
     title = Column(String, nullable=False)
     salary = Column(Numeric, nullable=False)
     posted_on = Column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=utcnow_naive,
         nullable=False,
         server_default=func.now(),
     )
@@ -70,8 +83,8 @@ def store_jobs(jobs: JobListing):
         values.append(value)
 
     insert_statement = insert(Job).values(values).returning(Job.id)
-    session = get_session(readonly=False)
-    with session:
+
+    with get_session(readonly=False) as session:
         statement = insert_statement.on_conflict_do_nothing(
             index_elements=[
                 func.lower(Job.link),
@@ -88,8 +101,7 @@ def notify():
         .where(Job.notified.is_(False))
         .order_by(Job.salary.desc(), Job.posted_on.desc())
     )
-    session = get_session(readonly=True)
-    with session:
+    with get_session(readonly=True) as session:
         jobs = session.execute(statement).scalars().all()
         if not jobs:
             logger.info("No new jobs found for notification")
@@ -133,6 +145,6 @@ def notify():
             .where(Job.notified.is_(False), Job.id.in_(batched_ids))
             .values(notified=True)
         )
-        session = get_session(readonly=False)
-        with session:
+
+        with get_session(readonly=False) as session:
             session.execute(statement)

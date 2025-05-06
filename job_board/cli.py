@@ -3,7 +3,6 @@ import subprocess
 import sys
 import time
 import traceback
-from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 
@@ -17,6 +16,7 @@ from job_board.models import notify
 from job_board.models import store_jobs
 from job_board.portals import PORTALS
 from job_board.portals.models import PortalSetting
+from job_board.utils import utcnow_naive
 
 
 def debugger_hook(exception_type, value, tb):
@@ -120,12 +120,9 @@ def _fetch(
             store_jobs(jobs)
             all_jobs.extend(jobs)
 
-            session = get_session(readonly=False)
-            with session:
+            with get_session(readonly=False) as session:
                 setting = session.get(PortalSetting, setting_id)
-                setting.last_run_at = datetime.now(timezone.utc)
-                session.add(setting)
-                session.flush()
+                setting.last_run_at = utcnow_naive()
 
     if to_notify:
         notify()
