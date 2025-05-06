@@ -22,7 +22,8 @@ now = datetime.now(timezone.utc)
 def test_session_can_be_used_only_during_tests(db_session):
     with mock.patch.object(config, "TEST_ENV", False):
         with pytest.raises(RuntimeError):
-            get_session()
+            with get_session():
+                pass
 
 
 def test_read_only_session(db_setup):

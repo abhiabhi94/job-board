@@ -2,7 +2,6 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import Index
-from sqlalchemy import Integer
 from sqlalchemy import String
 
 from job_board.connection import get_session
@@ -13,7 +12,6 @@ from job_board.portals.base import PORTALS
 class PortalSetting(BaseModel):
     __tablename__ = "portal_setting"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     portal_name = Column(String, nullable=False)
     last_run_at = Column(DateTime)
 
@@ -30,8 +28,7 @@ class PortalSetting(BaseModel):
         if portal_name not in PORTALS:
             raise ValueError(f"Portal {portal_name} is not supported")
 
-        session = get_session(readonly=False)
-        with session:
+        with get_session(readonly=False) as session:
             setting = (
                 session.query(PortalSetting)
                 .filter(PortalSetting.portal_name == portal_name)

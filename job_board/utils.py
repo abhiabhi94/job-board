@@ -20,6 +20,10 @@ from job_board import config
 from job_board.logger import logger
 
 
+def utcnow_naive():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 def response_hook(response: httpx.Response) -> None:
     response.raise_for_status()
 
