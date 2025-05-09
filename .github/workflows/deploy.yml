@@ -1,0 +1,49 @@
+name: Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:    # Allows manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: deployment
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+    - name: Copy code to server
+      run: |
+        # Ensure the target directory exists
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} "mkdir -p ${{ secrets.APP_DIR }}"
+        rsync -avz --exclude '.git' --exclude 'venv' --exclude '.env' ./ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.APP_DIR }}/
+
+    - name: Run deployment in tmux session
+      run: |
+        # force ssh to allocate a pseudo-terminal
+        ssh -tt ${{ secrets.USER }}@${{ secrets.HOST }} '
+          tmux new-session -d -s job-board
+          tmux send-keys "cd ${{ secrets.APP_DIR }}" C-m
+          tmux send-keys "chmod +x ${{ secrets.APP_DIR }}/deploy.sh" C-m
+          # Run deployment script and capture its output
+          tmux send-keys "${{ secrets.APP_DIR }}/deploy.sh | tee ${{ secrets.APP_DIR }}/deploy_log.txt" C-m
+          # now attach so output flows back into this SSH session (and into Actions)
+          tmux attach-session -t job-board
+          # Give the script time to start and generate some output
+          sleep 3
+
+          # Get the log file content instead of trying to capture pane
+          cat ${{ secrets.APP_DIR }}/deploy_log.txt || echo "No log file yet"
+
+          echo "Deployment started in tmux session named job-board."
+          echo "Connect to server and view the session with: tmux attach -t job-board"
+          echo "Or check logs at: ${{ secrets.APP_DIR }}/deploy_log.txt"
+        '
