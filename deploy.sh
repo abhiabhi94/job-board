@@ -4,9 +4,10 @@
 set -euxo pipefail
 
 # Create and activate virtual environment
-python3.13 -m venv venv
-. venv/bin/activate
+python3.13 -m venv .venv
+. .venv/bin/activate
 
+pip install --upgrade pip setuptools wheel
 pip install .
 
-job-board schedule
+nohup job-board schedule &
