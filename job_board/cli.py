@@ -136,6 +136,7 @@ def _fetch(
 @main.command("schedule", help="Schedule the notifier")
 @click.option("--immediate", "-I", is_flag=True, help="Run the scheduler immediately")
 def schedule_notifier(immediate):
+    click.echo("********Scheduling Notifier**********")
     schedule.every().day.at("10:30").do(_fetch, to_notify=True)
     if immediate:
         schedule.run_all(delay_seconds=5)
