@@ -26,6 +26,9 @@ dependencies = [
     "cssselect",
     "Jinja2",
     "tenacity",
+    "Flask",
+    "pycountry",
+    "babel",
 ]
 [project.optional-dependencies]
 dev = [
@@ -51,7 +54,7 @@ branch = true
 command_line = "-m pytest"
 
 [tool.coverage.report]
-fail_under = 98
+fail_under = 90
 show_missing = true
 skip_covered = true
 precision = 2

@@ -22,9 +22,7 @@ def test_run_command_default_options(cli_runner):
         result = cli_runner.invoke(main, ["fetch"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=False
-    )
+    mock_run.assert_called_once_with(include_portals=(), exclude_portals=())
 
 
 def test_run_command_with_pdb_flag(cli_runner):
@@ -36,19 +34,7 @@ def test_run_command_with_pdb_flag(cli_runner):
 
     assert result.exit_code == 0
     assert mock_sys.excepthook == debugger_hook
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=False
-    )
-
-
-def test_run_command_with_notify_flag(cli_runner):
-    with mock.patch("job_board.cli._fetch") as mock_run:
-        result = cli_runner.invoke(main, ["fetch", "--notify"])
-
-    assert result.exit_code == 0
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=True
-    )
+    mock_run.assert_called_once_with(include_portals=(), exclude_portals=())
 
 
 @pytest.fixture
@@ -150,13 +136,11 @@ def test_fetch_function_all_portals(db_session, mock_portals):
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo") as mock_echo,
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch()
 
     mock_init_db.assert_called_once()
     assert mock_store_jobs.call_count == len(PORTALS)
-    mock_notify.assert_not_called()
 
     assert mock_echo.call_count >= 3
 
@@ -168,27 +152,11 @@ def test_fetch_function_specific_portal(db_session, mock_portals):
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo"),
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch(include_portals=["weworkremotely"])
 
     mock_init_db.assert_called_once()
     mock_store_jobs.assert_called_once()
-    mock_notify.assert_not_called()
-
-
-def test_fetch_function_with_notify(db_session, mock_portals):
-    mock_portals()
-
-    with (
-        mock.patch("job_board.cli.init_db"),
-        mock.patch("job_board.cli.click.echo"),
-        mock.patch("job_board.cli.store_jobs"),
-        mock.patch("job_board.cli.notify") as mock_notify,
-    ):
-        _fetch(to_notify=True)
-
-    mock_notify.assert_called_once()
 
 
 def test_schedule_command(cli_runner):
