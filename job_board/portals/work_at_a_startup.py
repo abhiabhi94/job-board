@@ -2,10 +2,47 @@ import json
 import urllib.parse
 
 from job_board import config
-from job_board.base import Job
 from job_board.portals.base import BasePortal
+from job_board.portals.parser import Job
+from job_board.portals.parser import JobParser
 from job_board.utils import httpx_client
 from job_board.utils import jinja_env
+
+
+class Parser(JobParser):
+    def get_link(self) -> str:
+        return f"https://www.workatastartup.com/jobs/{self.item['id']}"
+
+    def get_title(self):
+        return self.item["title"]
+
+    def get_description(self):
+        return self.item["description"]
+
+    def get_posted_on(self):
+        return None
+
+    def get_salary(self):
+        compensation = self.item["pretty_salary_range"]
+        return self.parse_salary_range(
+            compensation=compensation,
+            range_separator="-",
+        )
+
+    def get_is_remote(self) -> bool:
+        return self.item["remote"].lower() in {"yes", "only"}
+
+    def get_tags(self):
+        return [s["name"] for s in self.item["skills"]]
+
+    def get_locations(self):
+        locations = self.item["locations"]
+        if locations:
+            if not isinstance(locations[0], str):
+                # This API sometimes returns weird data
+                # like {"locations": [[['Remote - UK or Europe']]]}
+                return []
+        return self.item["locations"]
 
 
 ALGOLIA_URL = "https://45bwzj1sgc-3.algolianet.com/1/indexes/*/queries"
@@ -15,8 +52,9 @@ class WorkAtAStartup(BasePortal):
     url = "https://www.workatastartup.com/companies/fetch"
     api_data_format = "json"
     portal_name = "work_at_a_startup"
+    parser_class = Parser
 
-    def get_jobs(self) -> list[Job]:
+    def make_request(self) -> list[Job]:
         template = jinja_env.get_template("work-at-a-startup-request-params.json")
         request_data = json.loads(template.render(hits_per_page=100))
         with httpx_client() as client:
@@ -47,43 +85,12 @@ class WorkAtAStartup(BasePortal):
         ) as client:
             response = client.post(self.url, json={"ids": company_ids})
 
-        return self.filter_jobs(response.json())
+        return response.json()
 
-    def filter_jobs(self, data) -> list[Job]:
-        jobs = []
+    def get_items(self, data) -> list:
+        # data is a list of data from all pages.
+        # we need to extract the job data from each page.
+        items = []
         for company in data["companies"]:
-            for job_data in company["jobs"]:
-                if job := self.filter_job(job_data):
-                    jobs.append(job)
-        return jobs
-
-    def filter_job(self, job) -> Job | None:
-        if job["remote"] not in {"yes", "only"}:
-            return
-
-        link = f"https://www.workatastartup.com/jobs/{job['id']}"
-        # no date available regarding the job, so validate_recency
-        # can't be used.
-        title = job["title"]
-        description = job["description"]
-        skills = [s["name"] for s in job["skills"]]
-
-        if not self.validate_keywords_and_region(
-            link=link,
-            title=title,
-            description=description,
-            tags=skills,
-        ):
-            return
-
-        compensation = job["pretty_salary_range"]
-        if salary := self.validate_salary_range(
-            link=link,
-            compensation=compensation,
-            range_separator="-",
-        ):
-            return Job(
-                title=title,
-                salary=salary,
-                link=link,
-            )
+            items.extend(company["jobs"])
+        return items

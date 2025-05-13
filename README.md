@@ -1,12 +1,9 @@
 ### Introduction
 
 A remote job board, this was initially built out of boring job hunting.
-This basically scans through different portals and based upon the preferences
-like keywords, salary, native country etc., and brings the
-jobs that match your preference.
-
-Also has an option to email these jobs if the service account
-credentials are set.
+This basically scans through different portals and based upon the
+preferences like keywords, salary, etc., and brings the jobs that match
+your preference.
 
 ### Portals Integrated
 - [WeWorkRemotely](https://weworkremotely.com)
@@ -17,54 +14,51 @@ credentials are set.
 - [Wellfound](https://wellfound.com)
 
 ### Configurations
-
 Most configurations can be set through a `.env` file. All configurations
 can be found in [`job_board/config.py`](./job_board/config.py) file.
 
 
-### Installing development version
-```sh
-pip install -e ".[dev]"
-pre-commit install
-```
-
-### Running as a command
-
+### CLI
 - Most options should be available using the `--help` flag.
 
 ```sh
 job-board --help
 ```
 
-- For fetching the jobs immediately
+- Running the webserver in debug mode.
+```sh
+job-board runserver -d
+```
+
+- Fetching the jobs immediately
 
 ```sh
 job-board fetch
 ```
 
-- For running it for only specific portals
+- Run it for only specific portals(_include_ these portals)
 ```sh
-job-board fetch -P weworkremotely -P python_dot_org
+job-board fetch -I weworkremotely -I python_dot_org
 ```
 
-- For running it for all portals, but ignoring some(maybe the portal is down, etc)
+- Run it for all portals, but _exclude_ some(maybe the portal is down, etc)
 ```sh
-job-board fetch -I wellfound -I work_at_a_startup
+job-board fetch -E wellfound -E work_at_a_startup
 ```
 
-- For running it as a schedule, that runs once per day.
+- Run it as a schedule, that runs once per day
 
 ```sh
 job-board schedule
 ```
 
-- For running the schedule immediately, usually useful in checking stuff
+- Run the schedule immediately, usually useful in checking stuff
 
 ```sh
 job-board schedule -I
 ```
 
-### Running Tests
+### Tests
 
 ```sh
 pytest
@@ -74,6 +68,12 @@ pytest
 
 - Please use global `gitignore`, rather than adding a `gitignore` to the repository.
 A writeup illustrating the reasoning behind this decision: https://sebastiandedeyne.com/setting-up-a-global-gitignore-file/
+
+#### Installing development version
+```sh
+pip install -e ".[dev]"
+pre-commit install
+```
 
 #### Integrations Per Portal
 
@@ -91,9 +91,6 @@ from scripts.
 
 ##### [Remotive](https://remotive.com)
 - Although, they have API for fetching jobs, the data is pretty unstructured.
-- [openAI](https://openai.com) along with `LLM` is used to filter
-out relevant jobs.
-
 
 ##### [Python](https://python.org)
 - They have a public RSS feed, so the integration is mostly straightforward.
@@ -120,3 +117,8 @@ out relevant jobs.
   to make requests and scrape.
     - These cookies seem to be long-lasting(haven't needed to change them even
     once since this was implemented.)
+
+
+### TODO
+- Add filtering as per location, nowadays remote doesn't actually
+mean remote. Some job descriptions say remote India, remote USA etc.

@@ -1,13 +1,14 @@
 import pathlib
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
 from decimal import Decimal
-from enum import Enum
 from functools import partial
+from typing import Any
 from typing import Callable
 
 import httpx
+import pycountry
+from babel.numbers import get_currency_symbol
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from tenacity import retry
@@ -20,11 +21,25 @@ from job_board import config
 from job_board.logger import logger
 
 
+EXCHANGE_RATE_API_URL = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@{date}/v1/currencies/{currency}.json"
+EXCHANGE_RATE_FALLBACK_API_URL = (
+    "https://{date}.currency-api.pages.dev/v1/currencies/{currency}.json"
+)
+
+
 def utcnow_naive():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def response_hook(response: httpx.Response) -> None:
+    response.raise_for_status()
+
+
+async def response_hook_async(response: httpx.Response) -> None:
+    """
+    Asynchronous response hook to raise for status.
+    This is used with httpx.AsyncClient.
+    """
     response.raise_for_status()
 
 
@@ -34,65 +49,48 @@ httpx_client = partial(
     http2=True,
     event_hooks={"response": [response_hook]},
 )
+httpx_async_client = partial(
+    httpx.AsyncClient,
+    timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
+    http2=True,
+    event_hooks={"response": [response_hook_async]},
+)
 jinja_env = Environment(
     loader=FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
 )
 
 
-class ExchangeRate(Enum):
+def get_currency_from_symbol(symbol: str, locale: str = "en_US") -> str | None:
+    symbol_map = _build_symbol_to_code_map(locale)
+    return symbol_map.get(symbol)
+
+
+_SYMBOL_CACHE: dict[str, str] | None = None
+
+
+def _build_symbol_to_code_map(locale: str = config.DEFAULT_LOCALE) -> dict[str, str]:
     """
-    Constants for exchange rates, as of 31st March 2025.
-    # use this link to find out the exchange rates
-    https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@2025-03-31/v1/currencies/{currency_code}.json
+    both pycountry and babel don't provide a way to get
+    currency from symbol, so we build a mapping that is
+    generated from babel's currency symbols.
+    This is a one-time operation, so we cache the result
+    in a global variable.
     """
+    global _SYMBOL_CACHE
+    if _SYMBOL_CACHE is not None:
+        return _SYMBOL_CACHE
 
-    USD = Decimal("1.0")
-    INR = Decimal("0.012")
-    EUR = Decimal("1.08")
-    TRY = Decimal("0.03")
-    JPY = Decimal("0.007")
-    CAD = Decimal("0.75")
+    symbol_map = {}
+    for currency in pycountry.currencies:
+        symbol = get_currency_symbol(currency.alpha_3, locale=locale)
+        # babel sends the currency code back when it doesn't
+        # find an appropriate symbol, so the below check filters
+        # for such occurences.
+        if symbol != currency.alpha_3:
+            symbol_map[symbol] = currency.alpha_3
 
-
-class Currency(Enum):
-    """
-    Constants for currency symbols.
-    """
-
-    USD = "$"
-    INR = "₹"
-    EUR = "€"
-    # turkish lira
-    TRY = "₺"
-    JPY = "¥"
-    CAD = "CAD"
-
-
-def parse_relative_time(relative_str: str | None) -> datetime | None:
-    if relative_str is None:
-        return
-
-    value, unit = relative_str.replace(" ago", "").split(" ")
-    value = int(value)
-
-    now = datetime.now(timezone.utc)
-
-    match unit:
-        case "day" | "days":
-            return now - timedelta(days=value)
-        case "hour" | "hours":
-            return now - timedelta(hours=value)
-        case "minute" | "minutes":
-            return now - timedelta(minutes=value)
-        case "second" | "seconds":
-            return now - timedelta(seconds=value)
-        case "month" | "months":
-            # although this might be a little inaccurate
-            # don't want to use another library dateutil
-            # for just this one case.
-            return now - timedelta(days=30 * value)
-        case _:
-            raise ValueError(f"Unsupported time unit: {unit}")
+    _SYMBOL_CACHE = symbol_map
+    return symbol_map
 
 
 SCRAPFLY_URL = "https://api.scrapfly.io/scrape"
@@ -149,25 +147,46 @@ def _raise_for_status(response) -> None:
 def make_scrapfly_request(
     url: str,
     *,
+    timeout: int | None = None,
+    asp=False,
+    **kwargs: dict[str, Any],
+) -> dict[str, Any]:
+    params = _prepare_scrapfly_params(url, asp=asp, **kwargs)
+    if timeout is not None:
+        _timeout = timeout
+    elif asp:
+        # large timeout is required only when using asp.
+        _timeout = config.SCRAPFLY_REQUEST_TIMEOUT
+    else:
+        _timeout = config.DEFAULT_HTTP_TIMEOUT
+
+    with httpx_client(timeout=_timeout) as client:
+        # https://scrapfly.io/docs/scrape-api/getting-started#spec
+        response = client.get(
+            SCRAPFLY_URL,
+            params=params,
+        )
+        _raise_for_status(response)
+
+    return response.json()["result"]["content"]
+
+
+async def make_scrapfly_async_request(
+    url: str,
+    *,
     asp=False,
     **kwargs,
-) -> str:
-    params = {
-        "key": config.SCRAPFLY_API_KEY,
-        "url": url,
-        "asp": asp,
-        "debug": True,
-    }
-    params.update(kwargs)
+) -> dict[str, Any]:
+    params = _prepare_scrapfly_params(url, asp=asp, **kwargs)
     if asp:
         # large timeout is required only when using asp.
         timeout = config.SCRAPFLY_REQUEST_TIMEOUT
     else:
         timeout = config.DEFAULT_HTTP_TIMEOUT
 
-    with httpx_client() as client:
+    async with httpx_async_client() as client:
         # https://scrapfly.io/docs/scrape-api/getting-started#spec
-        response = client.get(
+        response = await client.get(
             SCRAPFLY_URL,
             timeout=timeout,
             params=params,
@@ -175,6 +194,17 @@ def make_scrapfly_request(
         _raise_for_status(response)
 
     return response.json()["result"]["content"]
+
+
+def _prepare_scrapfly_params(url: str, *, asp: bool, **kwargs: Any) -> dict[str, Any]:
+    params = {
+        "key": config.SCRAPFLY_API_KEY,
+        "url": url,
+        "asp": asp,
+        "debug": True,
+    }
+    params.update(kwargs)
+    return params
 
 
 def retry_on_http_errors(
@@ -251,3 +281,43 @@ def _is_retryable(
 
         return status in retryable_codes
     return False
+
+
+@retry_on_http_errors(additional_status_codes=[404])
+def get_exchange_rate(
+    *,
+    to_currency: str = config.DEFAULT_CURRENCY,
+    from_currency: str,
+    exchange_date: datetime | None = None,
+) -> Decimal | None:
+    """
+    Doc: https://github.com/fawazahmed0/exchange-api?tab=readme-ov-file
+    """
+    if from_currency == to_currency:
+        return Decimal("1")
+
+    if exchange_date is None:
+        # some portals might not provide the posted date.
+        exchange_date = utcnow_naive().date()
+
+    exchange_date_str = exchange_date.strftime("%Y-%m-%d")
+    from_currency = from_currency.lower()
+    to_currency = to_currency.lower()
+    url = EXCHANGE_RATE_API_URL.format(date=exchange_date_str, currency=to_currency)
+    with httpx_client() as client:
+        try:
+            response = client.get(url)
+        except (
+            httpx.RequestError,
+            httpx.HTTPStatusError,
+        ) as exc:
+            logger.warning(f"Failed to fetch exchange rate from {url}: {exc}")
+            fallback_url = EXCHANGE_RATE_FALLBACK_API_URL.format(
+                date=exchange_date_str, currency=to_currency
+            )
+            response = client.get(fallback_url)
+
+    data = response.json()
+    rate = data[to_currency].get(from_currency)
+    if rate:
+        return Decimal(str(rate))

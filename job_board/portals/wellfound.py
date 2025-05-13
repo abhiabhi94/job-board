@@ -1,127 +1,140 @@
+import asyncio
 import json
 from datetime import datetime
 from datetime import timezone
+from typing import Any
 
 from lxml import html
 
-from job_board import config
-from job_board.base import Job
-from job_board.logger import job_rejected_logger
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
-from job_board.utils import make_scrapfly_request
+from job_board.portals.parser import JobParser
+from job_board.utils import make_scrapfly_async_request
 from job_board.utils import retry_on_http_errors
+
+
+class Parser(JobParser):
+    def get_link(self):
+        slug = self.item["slug"]
+        job_id = self.item["id"]
+        return f"https://wellfound.com/jobs/{job_id}-{slug}"
+
+    def get_is_remote(self):
+        return self.item["remote"]
+
+    def get_locations(self):
+        return self.item["locationNames"]
+
+    def get_posted_on(self):
+        return datetime.fromtimestamp(self.item["liveStartAt"]).astimezone(timezone.utc)
+
+    def get_title(self):
+        return self.item["title"]
+
+    def get_description(self):
+        return self.item["description"]
+
+    def get_salary(self):
+        compensation = self.item["compensation"]
+        return self.parse_salary_range(
+            compensation=compensation,
+            range_separator="–",
+        )
+
+    def get_tags(self):
+        # Tags are not directly available in the job data.
+        # for now, we will just return software developer as a tag
+        # so that these jobs can be discovered.
+        return ["developer"]
 
 
 class Wellfound(BasePortal):
     portal_name = "wellfound"
-    # This url actually depends upon the keywords
-    # Wellfound doesn't seem to provide tags that we can
-    # use to filter the jobs
-    # The generic URL is: https://wellfound.com/role/r/software-engineer
-    # but that would require us to scrape a lot more pages and
-    # each of them would have to bypass the detection.
-    # For now, we are just hardcoding the url for python
-    # developers.
-    url = "https://wellfound.com/role/r/python-developer"
-    api_data_format = "html"
+    url = "https://wellfound.com/role/r/software-engineer"
+    # although the API returns HTML, but the JSON content is embedded in the HTML
+    # so we will treat it as JSON for our purposes.
+    api_data_format = "json"
+    _REQUEST_BATCH_SIZE = 10  # Number of requests to process concurrently
+    parser_class = Parser
 
-    def get_jobs(self) -> list[Job]:
-        page_number = 1
-        jobs_data = []
-        while True:
-            url = f"{self.url}?page={page_number}"
-            content = self.make_request(url)
-            element = html.fromstring(content)
-            # graphQL data is embeded in this element
-            data_element = element.get_element_by_id("__NEXT_DATA__")
-            data = json.loads(data_element.text)
-            # this is the data we need
-            graph_data = data["props"]["pageProps"]["apolloState"]["data"]
-            jobs_data.append(graph_data)
-            talent_data = graph_data["ROOT_QUERY"]["talent"]
-            for key, value in talent_data.items():
-                if key.startswith("seoLandingPageJobSearchResults({"):
-                    break
+    def _parse_page_content(self, content: str) -> dict[str, Any]:
+        element = html.fromstring(content)
+        data_element = element.get_element_by_id("__NEXT_DATA__")
+        data = json.loads(data_element.text)
+        return data["props"]["pageProps"]["apolloState"]["data"]
 
-            total_pages = value["pageCount"]
-            logger.info(f"[Wellfound]: On {page_number=}, {total_pages=}")
-            page_number += 1
-            if page_number > total_pages:
+    def make_request(self) -> list[dict[str, Any]]:
+        return asyncio.run(self._fetch_all_pages())
+
+    async def _fetch_all_pages(self) -> list[dict[str, Any]]:
+        # First, get the first page to determine total pages
+        first_page_url = f"{self.url}?page=1"
+        first_page_content = await self._make_request(first_page_url)
+        graph_data = self._parse_page_content(first_page_content)
+
+        # Extract total pages fropm first page
+        talent_data = graph_data["ROOT_QUERY"]["talent"]
+        total_pages = 1  # default fallback
+
+        for key, value in talent_data.items():
+            if key.startswith("seoLandingPageJobSearchResults({"):
+                total_pages = value["pageCount"]
                 break
 
-        return self.filter_jobs(jobs_data)
+        logger.info(f"[Wellfound]: Found {total_pages=}")
 
-    @retry_on_http_errors(additional_status_codes=[403])
-    def make_request(self, url: str) -> str:
-        return make_scrapfly_request(url, asp=True)
+        # If only one page, return early
+        if total_pages == 1:
+            return [graph_data]
 
-    def filter_jobs(self, data) -> list[Job]:
+        # Create tasks for remaining pages (2 to total_pages)
+        remaining_pages = list(range(2, total_pages + 1))
+
+        # Process pages in batches of 10
+        jobs_data = [graph_data]  # Start with first page data
+        for batch_index in range(0, len(remaining_pages), self._REQUEST_BATCH_SIZE):
+            batch_pages = remaining_pages[
+                batch_index : batch_index + self._REQUEST_BATCH_SIZE
+            ]
+            batch_urls = [f"{self.url}?page={page}" for page in batch_pages]
+
+            logger.info(
+                (
+                    "[Wellfound]: Fetching batch "
+                    f"{batch_index // self._REQUEST_BATCH_SIZE + 1}, "
+                    f"batch info: pages {batch_pages[0]}-{batch_pages[-1]}"
+                )
+            )
+            async with asyncio.TaskGroup() as tg:
+                tasks = [tg.create_task(self._make_request(url)) for url in batch_urls]
+
+            task_results = [t.result() for t in tasks]
+            for page_num, result in zip(batch_pages, task_results, strict=True):
+                graph_data = self._parse_page_content(result)
+                jobs_data.append(graph_data)
+                logger.info(f"[Wellfound]: Processed page {page_num}")
+
+        return jobs_data
+
+    @retry_on_http_errors(
+        additional_status_codes=[403, 422],
+        max_attempts=10,
+        # Reduce the retry attempts and wait time for faster response
+        min_wait=5,
+        max_wait=30,
+    )
+    async def _make_request(self, url: str) -> str:
+        return await make_scrapfly_async_request(url, asp=True)
+
+    def get_items(self, jobs_data) -> list:
         # data is a list of data from all pages.
         # we need to extract the job data from each page.
-        jobs = []
-        for job_data in data:
+        items = []
+        for job_data in jobs_data:
             job_results = [
                 value
                 for key, value in job_data.items()
                 if key.startswith("JobListingSearchResult:")
             ]
-            for job_result in job_results:
-                if job := self.filter_job(job_result):
-                    jobs.append(job)
-        return jobs
-
-    def filter_job(self, job_data) -> Job | None:
-        slug = job_data["slug"]
-        job_id = job_data["id"]
-        link = f"https://wellfound.com/jobs/{job_id}-{slug}"
-
-        if not job_data["remote"]:
-            job_rejected_logger.info(f"Job {link} is not remote.")
-            return
-
-        allowed_locations = {c.lower() for c in job_data["locationNames"]}
-        preferred_locations = {c.lower() for c in config.PREFERRED_CITIES}
-        preferred_locations.update(
-            [
-                config.NATIVE_COUNTRY.lower(),
-                # some jobs are remote but only available in certain
-                # countries.
-                # TODO: maybe do this based on a config, but we are already
-                # checking for remote jobs.
-                "remote",
-            ]
-        )
-        if preferred_locations.isdisjoint(allowed_locations):
-            job_rejected_logger.info(
-                f"Job {link} is not available in {', '.join(preferred_locations)}. "
-                f"Allowed locations: {', '.join(allowed_locations)}"
-            )
-            return
-
-        posted_on = self.get_posted_on(job_data)
-        if not self.validate_recency(link=link, posted_on=posted_on):
-            return
-
-        title = job_data["title"]
-        description = job_data["description"]
-
-        if not self.validate_keywords_and_region(
-            link=link,
-            title=title,
-            description=description,
-        ):
-            return
-
-        if salary := self.validate_salary_range(
-            link=link, compensation=job_data["compensation"], range_separator="–"
-        ):
-            return Job(
-                title=title,
-                salary=salary,
-                link=link,
-                posted_on=posted_on,
-            )
-
-    def get_posted_on(self, job_data):
-        return datetime.fromtimestamp(job_data["liveStartAt"]).astimezone(timezone.utc)
+            items.extend(job_results)
+        return items
