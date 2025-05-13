@@ -29,6 +29,7 @@ def db_setup():
     init_db()
     yield
     engine = get_engine()
+    assert "tester" in str(engine.url)
     BaseModel.metadata.drop_all(engine)
 
 

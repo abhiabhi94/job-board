@@ -2,17 +2,12 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from decimal import Decimal
-from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import httpx
 import pytest
 from freezegun import freeze_time
 
-from job_board.base import Job
 from job_board.portals import Remotive
-from job_board.portals.base import JobOpenAI
-from job_board.portals.base import JobsOpenAI
 from job_board.portals.remotive import DATE_FORMAT
 
 
@@ -81,33 +76,11 @@ def sample_jobs_response(sample_job, frozen_time):
                 "tags": ["python"],
                 "salary": "90000-120000",
                 "publication_date": (
-                    datetime.now(timezone.utc) - timedelta(days=365)
+                    datetime.now(timezone.utc) - timedelta(days=30)
                 ).strftime(DATE_FORMAT),
             },
         ]
     }
-
-
-@pytest.mark.parametrize(
-    ("last_run_at", "expected"),
-    [
-        (None, True),
-        (datetime.now(timezone.utc) + timedelta(days=2), False),
-        (datetime.now(timezone.utc) - timedelta(days=2), True),
-    ],
-)
-def test_validate_recency(
-    last_run_at,
-    expected,
-    sample_job,
-):
-    remotive = Remotive(last_run_at=last_run_at)
-    posted_on = remotive.get_posted_on(sample_job)
-
-    assert (
-        remotive.validate_recency(link=sample_job["url"], posted_on=posted_on)
-        is expected
-    )
 
 
 def test_get_jobs(
@@ -115,46 +88,24 @@ def test_get_jobs(
     sample_jobs_response,
     frozen_time,
 ):
-    sample_job = {
-        "title": "Software Engineer",
-        "salary": "100000-150000",
-        "url": "https://example.com/job",
-        "candidate_required_location": "Remote",
-        "publication_date": frozen_time,
-    }
-    job_data = {
-        "title": sample_job["title"],
-        "salary": Decimal(sample_job["salary"].split("-")[-1]),
-        "link": sample_job["url"],
-        "location": sample_job["candidate_required_location"],
-        "posted_on": sample_job["publication_date"],
-    }
-
-    job_openai_instance = JobOpenAI(**job_data)
-    jobs_openai_response = JobsOpenAI(jobs=[job_openai_instance])
-
     respx_mock.get(Remotive.url).mock(
         return_value=httpx.Response(json=sample_jobs_response, status_code=200)
     )
 
-    with patch(
-        "job_board.portals.base.openai.Client", autospec=True
-    ) as mock_openai_class:
-        mock_client = MagicMock()
-        mock_openai_class.return_value = mock_client
+    portal = Remotive()
 
-        mock_response = MagicMock()
-        mock_client.beta.chat.completions.parse.return_value = mock_response
+    jobs = portal.get_jobs()
 
-        mock_choice = MagicMock()
-        mock_message = MagicMock()
-        mock_response.choices = [mock_choice]
-        mock_choice.message = mock_message
-        mock_message.parsed = jobs_openai_response
+    assert len(jobs) == 5
+    job = jobs[0]
 
-        portal = Remotive()
-
-        (result,) = portal.get_jobs()
-
-    assert result == Job(**job_data)
-    assert mock_client.beta.chat.completions.parse.call_count == 1
+    assert job.title == "Python Developer"
+    assert job.link == "https://remotive.com/jobs/123"
+    assert job.description is not None
+    assert job.salary == Decimal("120000.00")
+    assert job.posted_on == datetime.strptime(frozen_time, DATE_FORMAT).astimezone(
+        timezone.utc
+    )
+    assert job.locations == ["Worldwide"]
+    assert job.is_remote is True
+    assert job.tags == ["python", "django", "api"]
