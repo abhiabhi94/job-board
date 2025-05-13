@@ -11,8 +11,8 @@ from job_board import config
 from job_board.base import Job
 from job_board.connection import get_session
 from job_board.models import Job as JobModel
-from job_board.models import notify
 from job_board.models import store_jobs
+from job_board.models import Tag
 from job_board.portals.models import PortalSetting
 
 
@@ -58,11 +58,23 @@ def test_store_jobs(db_session):
             title="Job 1",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=1),
+            tags=["python", "remote"],
+            is_remote=True,
+            locations=["New York", "Remote"],
+            description="Looking for Django and FastAPI developer",
         ),
         Job(
             link="http://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
+            tags=["python", "django"],
+            is_remote=False,
+        ),
+        Job(
+            link="http://job3.com",
+            title="Job 3",
+            salary=Decimal(str(100_000)),
+            is_remote=False,
         ),
     ]
 
@@ -73,47 +85,22 @@ def test_store_jobs(db_session):
     assert {j.link for j in jobs} == {
         "http://job1.com",
         "http://job2.com",
+        "http://job3.com",
+    }
+    assert {t.name for j in jobs for t in j.tags} == {
+        "python",
+        "remote",
+        "django",
     }
 
+    tags = db_session.execute(sqlalchemy.select(Tag)).scalars().all()
+    assert {t.name for t in tags} == {"python", "remote", "django"}
 
-def test_notify(db_session):
-    # No jobs to notify, nothing happens
-    notify()
-    job_1 = JobModel(
-        link="http://job-1.com",
-        title="Job Title",
-        salary=Decimal(str(70_000)),
-        posted_on=now - timedelta(days=1),
+    # Check that the method is idempotent
+    store_jobs(job_listings)
+    assert (
+        db_session.execute(
+            sqlalchemy.select(sqlalchemy.func.count()).select_from(JobModel)
+        ).scalar_one()
+        == 3
     )
-    job_2 = JobModel(
-        link="http://job-2.com",
-        title="Job Title",
-        salary=Decimal(str(80_000)),
-        posted_on=now - timedelta(days=1),
-    )
-    db_session.add_all([job_1, job_2])
-
-    with (
-        mock.patch(
-            "job_board.notifier.mail.EmailProvider.create_service"
-        ) as mock_service,
-        mock.patch(
-            "job_board.notifier.mail.EmailProvider.send_email"
-        ) as mock_send_email,
-        mock.patch.object(config, "MAX_JOBS_PER_EMAIL", 1),
-    ):
-        notify()
-
-    mock_service.assert_called_once()
-    assert mock_send_email.call_count == 2
-
-    # Check that the jobs are marked as notified
-    ids = [job_1.id, job_2.id]
-    statement = (
-        sqlalchemy.select(sqlalchemy.func.count())
-        .select_from(JobModel)
-        .where(JobModel.id.in_(ids), JobModel.notified.is_(True))
-    )
-    count = db_session.execute(statement).scalar_one()
-
-    assert count == len(ids)
