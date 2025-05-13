@@ -1,8 +1,7 @@
 import contextlib
 from typing import Generator
 
-from sqlalchemy import create_engine
-from sqlalchemy import text
+import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
@@ -16,7 +15,7 @@ _test_session = None
 def get_engine():
     global _engine
     if _engine is None:
-        _engine = create_engine(
+        _engine = sa.create_engine(
             config.DATABASE_URL,
             echo=config.SQL_DEBUG,
         )
@@ -39,7 +38,7 @@ def _get_session_factory():
 def get_session(*, readonly=True) -> Generator[Session, None, None]:
     global _test_session
     if _test_session:
-        if not config.TEST_ENV:
+        if not config.ENV == "test":
             raise RuntimeError("Please use the test environment to run tests. ")
         yield _test_session
 
@@ -49,6 +48,6 @@ def get_session(*, readonly=True) -> Generator[Session, None, None]:
     with Session() as session:
         with session.begin():
             if readonly:
-                session.execute(text("SET TRANSACTION READ ONLY"))
+                session.execute(sa.text("SET TRANSACTION READ ONLY"))
 
             yield session

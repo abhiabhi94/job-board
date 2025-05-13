@@ -1,8 +1,4 @@
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import func
-from sqlalchemy import Index
-from sqlalchemy import String
+import sqlalchemy as sa
 
 from job_board.connection import get_session
 from job_board.models import BaseModel
@@ -12,13 +8,13 @@ from job_board.portals.base import PORTALS
 class PortalSetting(BaseModel):
     __tablename__ = "portal_setting"
 
-    portal_name = Column(String, nullable=False)
-    last_run_at = Column(DateTime)
+    portal_name = sa.Column(sa.String, nullable=False)
+    last_run_at = sa.Column(sa.DateTime)
 
     __table_args__ = (
-        Index(
+        sa.Index(
             "ix_portal_name_lower",
-            func.lower(portal_name),
+            sa.func.lower(portal_name),
             unique=True,
         ),
     )

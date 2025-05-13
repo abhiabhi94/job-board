@@ -14,28 +14,21 @@ def test_job_str():
         title="Software Engineer",
         salary=Decimal(str(120_000.75)),
         posted_on=now - timedelta(days=3, hours=5),
-        notified=False,
+        description=None,
+        tags=["python"],
+        is_remote=True,
+        locations=["New York", "Remote"],
+        payload="some data",
     )
 
     expected_output = """\
-Title      : Software Engineer
-Salary     : 120,000.75
-Link       : https://python.org/jobs/1/
-Posted On  : 3 days ago\
-"""
-    assert str(job) == expected_output
-
-    job = Job(
-        link="https://python.org/jobs/1/",
-        title="Software Engineer",
-        salary=Decimal(str(120_000.75)),
-        posted_on=None,
-    )
-
-    expected_output = """\
-Title      : Software Engineer
-Salary     : 120,000.75
-Link       : https://python.org/jobs/1/
-Posted On  : N/A\
+Title        : Software Engineer
+Description  : N/A
+Link         : https://python.org/jobs/1/
+Salary       : 120,000.75
+Posted On    : 3 days ago
+Tags         : python
+Is Remote    : Yes
+Locations    : New York, Remote\
 """
     assert str(job) == expected_output
