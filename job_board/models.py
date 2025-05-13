@@ -1,75 +1,193 @@
 import itertools
 
-from sqlalchemy import Boolean
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import func
-from sqlalchemy import Index
-from sqlalchemy import Integer
-from sqlalchemy import Numeric
-from sqlalchemy import select
-from sqlalchemy import String
-from sqlalchemy import update
+import sqlalchemy as sa
+from requests.structures import CaseInsensitiveDict
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import expression
 
-from job_board import config
-from job_board.base import Job as JobListing
 from job_board.connection import get_session
 from job_board.logger import logger
-from job_board.notifier.mail import EmailProvider
-from job_board.utils import jinja_env
+from job_board.portals.parser import Job as JobListing
 from job_board.utils import utcnow_naive
 
 
-# Base class for all models
-class BaseModel(DeclarativeBase):
+class Base(DeclarativeBase):
+    pass
+
+
+class BaseModel(Base):
     __abstract__ = True
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    created_at = Column(
-        DateTime,
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    created_at = sa.Column(
+        sa.DateTime,
         default=utcnow_naive,
         nullable=False,
-        server_default=func.now(),
+        server_default=sa.func.now(),
     )
-    edited_at = Column(
-        DateTime,
+    edited_at = sa.Column(
+        sa.DateTime,
         default=utcnow_naive,
         onupdate=utcnow_naive,
-        server_default=func.now(),
+        server_default=sa.func.now(),
         nullable=False,
+    )
+
+
+class JobTag(BaseModel):
+    __tablename__ = "job_tag"
+
+    job_id: Mapped[int] = mapped_column(
+        sa.Integer,
+        sa.ForeignKey("job.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    tag_id: Mapped[int] = mapped_column(
+        sa.Integer,
+        sa.ForeignKey("tag.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "job_id",
+            "tag_id",
+            name="uq_job_tag_job_id_tag_id",
+        ),
+    )
+
+
+class Tag(BaseModel):
+    __tablename__ = "tag"
+
+    name = sa.Column(sa.String, nullable=False)
+    jobs = relationship(
+        "Job",
+        secondary=JobTag.__table__,
+        back_populates="tags",
+        lazy="noload",
+    )
+
+    __table_args__ = (
+        sa.Index(
+            "ix_tag_name_lower",
+            sa.func.lower(name),
+            unique=True,
+        ),
     )
 
 
 class Job(BaseModel):
     __tablename__ = "job"
 
-    link = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-    salary = Column(Numeric, nullable=False)
-    posted_on = Column(
-        DateTime,
+    is_active = sa.Column(
+        sa.Boolean,
+        default=True,
+        server_default=expression.true(),
+        nullable=False,
+        index=True,
+    )
+    link = sa.Column(sa.String, nullable=False)
+    title = sa.Column(sa.String, nullable=False, index=True)
+    description = sa.Column(sa.String, nullable=True)
+    salary = sa.Column(sa.Numeric, nullable=True, index=True)
+    posted_on = sa.Column(
+        sa.DateTime,
         default=utcnow_naive,
         nullable=False,
-        server_default=func.now(),
+        server_default=sa.func.now(),
+        index=True,
     )
-    notified = Column(Boolean, default=False, server_default=expression.false())
+    tags = relationship(
+        "Tag",
+        secondary=JobTag.__table__,
+        back_populates="jobs",
+        lazy="selectin",
+    )
+    is_remote = sa.Column(
+        sa.Boolean,
+        default=False,
+        server_default=expression.false(),
+        index=True,
+    )
+    # FIXME: find a way to make this more uniform.
+    # locations = sa.Column(sa.String, nullable=True)
 
     __table_args__ = (
-        Index(
+        sa.Index(
             "ix_job_link_lower",
-            func.lower(link),
+            sa.func.lower(link),
+            unique=True,
+        ),
+        sa.Index(
+            "ix_job_title_lower",
+            sa.func.lower(title),
+        ),
+    )
+
+
+class Payload(BaseModel):
+    __tablename__ = "payload"
+
+    link = sa.Column(sa.String, nullable=False)
+    payload = sa.Column(sa.String, nullable=False)
+
+    __table_args__ = (
+        sa.Index(
+            "ix_payload_link_lower",
+            sa.func.lower(link),
             unique=True,
         ),
     )
 
 
+BATCH_JOB_SIZE = 500
+BATCH_PAYLOAD_SIZE = 200
+
+
 def store_jobs(jobs: JobListing):
-    if not jobs:
-        logger.debug("No jobs to store")
-        return
+    for batch in itertools.batched(jobs, BATCH_JOB_SIZE):
+        with get_session(readonly=False) as session:
+            _store_jobs(session=session, jobs=batch)
+
+    store_payloads(jobs)
+
+
+def _store_jobs(session, jobs: JobListing):
+    tags = set()
+    for job in jobs:
+        if _tags := job.tags:
+            tags.update(_tags)
+
+    if tags:
+        session.execute(
+            insert(Tag)
+            .values([{"name": t} for t in tags])
+            .on_conflict_do_nothing(
+                index_elements=[
+                    sa.func.lower(Tag.name),
+                ],
+            )
+        )
+        logger.info("Stored tags")
+    else:
+        logger.info("No tags to store")
+
+    existing_tags = (
+        session.execute(sa.select(Tag).where(Tag.name.ilike(sa.any_(list(tags)))))
+        .scalars()
+        .all()
+    )
+
+    tag_map = CaseInsensitiveDict()
+    for tag in existing_tags:
+        tag_map[tag.name] = tag.id
 
     values = []
     for job in jobs:
@@ -77,74 +195,96 @@ def store_jobs(jobs: JobListing):
             "link": job.link,
             "title": job.title,
             "salary": job.salary,
+            "description": job.description,
+            "is_remote": job.is_remote,
+            # FIXME: find a way to make this more uniform.
+            # "locations": job.locations,
         }
         if posted_on := job.posted_on:
             value["posted_on"] = posted_on
         values.append(value)
 
-    insert_statement = insert(Job).values(values).returning(Job.id)
-
-    with get_session(readonly=False) as session:
-        statement = insert_statement.on_conflict_do_nothing(
-            index_elements=[
-                func.lower(Job.link),
-            ],
+    job_ids = (
+        session.execute(
+            insert(Job)
+            .values(values)
+            .on_conflict_do_nothing(
+                index_elements=[
+                    sa.func.lower(Job.link),
+                ],
+            )
+            .returning(Job.id)
         )
-        job_ids = session.execute(statement).scalars().all()
-
-    logger.debug(f"Stored {len(job_ids)} new jobs successfully")
-
-
-def notify():
-    statement = (
-        select(Job)
-        .where(Job.notified.is_(False))
-        .order_by(Job.salary.desc(), Job.posted_on.desc())
+        .scalars()
+        .all()
     )
-    with get_session(readonly=True) as session:
-        jobs = session.execute(statement).scalars().all()
-        if not jobs:
-            logger.info("No new jobs found for notification")
-            return
+    logger.info(f"Stored {len(job_ids)} new jobs")
 
-        job_listings_by_id = {}
-        for job in jobs:
-            job_listings_by_id[job.id] = JobListing(
-                link=job.link,
-                title=job.title,
-                salary=job.salary,
-                posted_on=job.posted_on,
+    # now associate the jobs with the tags
+    job_objs = (
+        session.execute(sa.select(Job).where(Job.id.in_(job_ids))).scalars().all()
+    )
+
+    job_link_map = CaseInsensitiveDict()
+    for job in job_objs:
+        job_link_map[job.link] = job.id
+
+    job_tags = []
+    for job in jobs:
+        job_id = job_link_map.get(job.link)
+        if not job_id:
+            # the job already exists
+            continue
+        for tag in job.tags:
+            job_tags.append(
+                {
+                    "job_id": job_id,
+                    "tag_id": tag_map[tag],
+                }
             )
 
-    template = jinja_env.get_template("mail.html")
-    subject = "Jobs To Apply"
-    email_provider = EmailProvider()
-
-    for batched_ids in itertools.batched(
-        job_listings_by_id,
-        config.MAX_JOBS_PER_EMAIL,
-    ):
-        batched_listings = [job_listings_by_id[job_id] for job_id in batched_ids]
-        email_body = template.render(
-            jobs=batched_listings,
-            subject=subject,
-        )
-        logger.debug(f"Email to send:::\n{email_body}")
-
-        email_provider.send_email(
-            sender=config.SERVER_EMAIL,
-            receivers=config.RECIPIENTS,
-            subject=subject,
-            body=email_body,
-        )
-        logger.info(f"{len(batched_ids)} jobs sent successfully")
-
-        # update `notified` flag after notified with email.
-        statement = (
-            update(Job)
-            .where(Job.notified.is_(False), Job.id.in_(batched_ids))
-            .values(notified=True)
+    if job_tags:
+        session.execute(
+            insert(JobTag)
+            .values(job_tags)
+            .on_conflict_do_nothing(
+                index_elements=[
+                    JobTag.job_id,
+                    JobTag.tag_id,
+                ],
+            )
         )
 
+    logger.info(f"Stored {len(job_link_map)} new job tag links")
+
+
+def store_payloads(jobs: JobListing) -> None:
+    for batch in itertools.batched(jobs, BATCH_PAYLOAD_SIZE):
         with get_session(readonly=False) as session:
-            session.execute(statement)
+            _store_payloads(session=session, jobs=batch)
+
+
+def _store_payloads(session, jobs: JobListing) -> None:
+    values = []
+    for job in jobs:
+        value = {
+            "link": job.link,
+            "payload": job.payload,
+        }
+        values.append(value)
+
+    payload_ids = (
+        session.execute(
+            insert(Payload)
+            .values(values)
+            .on_conflict_do_nothing(
+                index_elements=[
+                    sa.func.lower(Payload.link),
+                ],
+            )
+            .returning(Payload.id)
+        )
+        .scalars()
+        .all()
+    )
+    logger.info(f"Stored {len(payload_ids)} new payloads")

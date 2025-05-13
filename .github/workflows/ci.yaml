@@ -32,6 +32,8 @@ jobs:
         pip install -e ".[dev]"
 
     - name: Tests
+      env:
+        ENV: test
       run: |
         pip install -e ".[dev]"
         coverage run -m pytest

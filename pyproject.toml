@@ -21,11 +21,13 @@ dependencies = [
     "schedule",
     "click",
     "humanize",
-    "openai",
     "pydantic",
     "cssselect",
     "Jinja2",
     "tenacity",
+    "Flask",
+    "pycountry",
+    "babel",
 ]
 [project.optional-dependencies]
 dev = [
@@ -35,7 +37,7 @@ dev = [
     "respx",
     "coverage",
     "freezegun",
-    "openai-responses",
+    "pytest-randomly",
 ]
 
 [project.scripts]
