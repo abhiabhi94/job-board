@@ -1,16 +1,7 @@
-from collections import defaultdict
-from datetime import datetime
-from urllib.parse import urljoin
-
-from lxml import html
 from lxml import objectify
 
 from job_board.base import Job
 from job_board.portals.base import BasePortal
-from job_board.portals.base import HOURLY_RATE_REGEX
-from job_board.portals.base import RATE_REGEX
-from job_board.portals.base import SALARY_RANGE_REGEX
-from job_board.portals.base import SALARY_REGEX
 from job_board.utils import httpx_client
 
 
@@ -21,95 +12,52 @@ class PythonDotOrg(BasePortal):
     url = f"{base_url}/jobs/feed/rss/"
     api_data_format = "xml"
 
-    region_mapping = {
-        "remote": {
-            "remote",
-            "worldwide",
-            "anywhere",
-            "global",
-        },
-    }
-
-    def fetch_additional_info(self) -> dict[str, dict[str, datetime]]:
-        # yeah this is awkward, but python dot org doesn't
-        # provide the posted date in the rss feed
-        job_details = defaultdict(dict)
-
-        with httpx_client() as client:
-            response = client.get(self.jobs_url)
-
-        tree = html.fromstring(response.text)
-        for job in tree.cssselect("li"):
-            # Extract the first <a> tag with href
-            job_link = job.cssselect("a[href]")
-            if not job_link:
-                continue
-
-            job_url = urljoin(self.base_url, job_link[0].get("href"))
-
-            time_tag = job.cssselect("time[datetime]")
-            if time_tag:
-                job_details[job_url]["posted_on"] = time_tag[0].get("datetime")
-
-        return dict(job_details)
-
-    def get_jobs(self) -> list[Job]:
-        job_details = self.fetch_additional_info()
-
+    def make_request(self):
         with httpx_client() as client:
             response = client.get(self.url)
-        return self.filter_jobs(data=response.content, job_details=job_details)
 
-    def filter_jobs(self, data, job_details):
-        root = objectify.fromstring(data)
+        return objectify.fromstring(response.content)
 
-        jobs: list[Job] = []
-        for item in root.channel.item:
-            if job := self.filter_job(item, job_details):
-                jobs.append(job)
-        return jobs
+    def get_items(self, data) -> list[Job]:
+        # The RSS feed contains a list of items
+        # Each item is a job posting
+        return data.channel.item
 
-    def filter_job(self, item, job_details) -> Job | None:
-        link = item.link.text
-        title = item.title.text
-        description = item.description.text.lower()
-        location = description.split("\n")[0]  # First line contains location
+    def get_link(self, item):
+        return item.link.text
 
-        if not self.validate_keywords_and_region(
-            link=link,
-            title=title,
-            description=description,
-            region=location,
-        ):
-            return
+    def get_title(self, item):
+        return item.title.text
 
-        salary = None
-        # Try different salary patterns
-        if salary_matches := SALARY_RANGE_REGEX.search(description):
-            salary = salary_matches.group(1)
-        elif rate_matches := RATE_REGEX.search(description):
-            rate = int(rate_matches.group(1))
-            # Convert hourly rate to annual (assuming 40 hours/week, 52 weeks/year)
-            salary = str(rate * 40 * 52)
-        elif hourly_matches := HOURLY_RATE_REGEX.search(description):
-            min_rate, max_rate = map(int, hourly_matches.groups())
-            # Use the higher rate for salary validation
-            salary = str(max_rate * 40 * 52)
-        elif salary_matches := SALARY_REGEX.search(description):
-            salary = salary_matches.group()
+    def get_description(self, item):
+        return item.description.text
 
-        validated_salary = self.validate_salary(link=link, salary=salary)
-        if not validated_salary:
-            return
+    def get_locations(self, item):
+        description = self.get_description(item)
+        # First line contains location
+        location = description.split("\n")[0]
+        return [location]
 
-        posted_on = None
-        if posted_on_str := job_details.get(link, {}).get("posted_on"):
-            posted_on = datetime.fromisoformat(posted_on_str)
-
-        return Job(
-            title=title,
-            salary=validated_salary,
-            link=link,
-            location=location,
-            posted_on=posted_on,
+    def is_remote(self, item):
+        locations = self.get_locations(item)
+        locations = list(map(str.lower, locations))
+        return (
+            "remote" in locations
+            or "worldwide" in locations
+            or "anywhere" in locations
+            or "global" in locations
         )
+
+    def get_posted_on(self, item):
+        # There is no posted date in the rss feed
+        # Can be fetched from the HTML description
+        # on the job page, but too much work for now
+        return
+
+    def get_salary(self, item):
+        # Most of the jobs don't have a salary
+        # No direct way to get the salary from the rss feed
+        return
+
+    def get_tags(self, item):
+        return ["python"]

@@ -1,17 +1,15 @@
 import re
 from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
 from decimal import Decimal
 from decimal import InvalidOperation
 
 import httpx
 import openai
 from pydantic import BaseModel
+from pydantic import Field
 
 from job_board import config
 from job_board.base import Job
-from job_board.logger import job_rejected_logger
 from job_board.logger import logger
 from job_board.utils import Currency
 from job_board.utils import ExchangeRate
@@ -36,21 +34,23 @@ class InvalidSalary(Exception):
 # since openai doesn't support date time, we will need to
 # convert the date time to a string
 # also, openAI wants all fields to be required.
-class JobOpenAI(Job):
-    posted_on: str
-    location: str
+# class JobOpenAI(Job):
+#     posted_on: str
+#     salary: Decimal | None
+#     tags: list[str] | None = Field(default_factory=list)
+#     is_remote: bool = False
+#     location: str | None
 
 
 class JobsOpenAI(BaseModel):
-    jobs: list[JobOpenAI]
+    # jobs: list[JobOpenAI]
+    jobs: list[Job] = Field(default_factory=list)
 
 
 class BasePortal:
     portal_name: str
     url: str
     api_data_format: str = "json"
-
-    region_mapping: dict[str, set[str]] | None
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -65,53 +65,97 @@ class BasePortal:
 
     def get_jobs(self) -> list[Job]:
         """Fetch filtered jobs from the portal."""
-        raise NotImplementedError()
+        response = self.make_request()
+        with open(f"{self.portal_name}.txt", "w") as f:
+            f.write(str(response))
 
-    def filter_jobs(self, data) -> list[Job]:
-        """Filters jobs from the data received from the portal."""
-        raise NotImplementedError()
+        items = self.get_items(response)
+        jobs = []
+        for item in items:
+            link = self.get_link(item)
+            title = self.get_title(item)
+            description = self.get_description(item)
+            tags = self.get_tags(item)
+            posted_on = self.get_posted_on(item)
+            salary = self.get_salary(item)
+            is_remote = self.is_remote(item)
+            locations = self.get_locations(item)
 
-    def validate_keywords_and_region(
-        self, *, link, title, description, region=None, tags=None
-    ) -> bool:
-        logger.debug(f"Validating keywords and region for {link}")
-
-        title = title.lower()
-        description = description.lower()
-        if not tags:
-            tags = []
-        tags = [tag.lower() for tag in tags]
-        keywords = set(config.KEYWORDS)
-
-        keyword_matches = (
-            keywords.intersection(title.split())
-            or keywords.intersection(description.split())
-            or keywords.intersection(tags)
-        )
-
-        if not keyword_matches:
-            job_rejected_logger.info(f"No keyword matches found for {link}")
-            return False
-
-        if region:
-            region = region.lower()
-            region_matches = self.region_mapping[config.REGION].intersection(
-                region.split()
+            jobs.append(
+                Job(
+                    link=link,
+                    title=title,
+                    description=description,
+                    tags=tags,
+                    posted_on=posted_on,
+                    salary=salary,
+                    is_remote=is_remote,
+                    locations=locations,
+                )
             )
-            if not region_matches:
-                job_rejected_logger.info(f"No region matches found for {link}")
-                return False
+        return jobs
 
-        return True
+    def make_request(self) -> bytes | dict:
+        """Makes a request to the portal and returns the response."""
+        raise NotImplementedError()
 
-    def validate_salary_range(
+    def get_items(self, response: bytes | dict) -> list[object]:
+        """Parses the response and returns the items."""
+        raise NotImplementedError()
+
+    def get_link(self, item) -> str:
+        """Extracts the link from the item."""
+        raise NotImplementedError()
+
+    def get_title(self, item) -> str:
+        """Extracts the title from the item."""
+        raise NotImplementedError()
+
+    def get_description(self, item) -> str:
+        """Extracts the description from the item."""
+        raise NotImplementedError()
+
+    def get_posted_on(self, item) -> datetime:
+        """Extracts the posted date from the item."""
+        raise NotImplementedError()
+
+    def get_tags(self, item) -> list[str]:
+        """Extracts the tags from the item."""
+        return []
+
+    def get_salary(self, item) -> str | None:
+        """Extracts the salary from the item."""
+        raise NotImplementedError()
+
+    def is_remote(self, item) -> bool:
+        """Checks if the job is remote."""
+        raise NotImplementedError()
+
+    def get_locations(self, item) -> list[str] | None:
+        return []
+
+    def parse_salary(self, *, link: str, salary_str: str) -> Decimal | None:
+        logger.debug(f"Getting salary information in {link}, {salary_str=}")
+
+        if salary_str is None:
+            return
+
+        salary_str = salary_str.replace("$", "").replace(",", "")
+        try:
+            salary = Decimal(str(salary_str))
+        except InvalidOperation:
+            logger.info(f"Invalid salary {salary_str} for {link}")
+            return
+
+        return salary
+
+    def parse_salary_range(
         self,
         link: str,
         compensation: str | None,
         range_separator: str = "-",
     ):
         if not compensation:
-            job_rejected_logger.info(f"Job {link} has no salary.")
             return
 
         try:
@@ -121,20 +165,12 @@ class BasePortal:
                 range_separator=range_separator,
             )
         except InvalidSalary as exc:
-            logger.debug(str(exc))
+            logger.exception(str(exc), stack_info=True)
             return
 
         salary_in_dollars = (salary * ExchangeRate[currency.name].value).quantize(
             Decimal("0")
         )
-        if salary_in_dollars < config.SALARY:
-            job_rejected_logger.info(
-                (
-                    f"Salary {salary_in_dollars} for {link} is less than "
-                    f"{config.SALARY:,}"
-                )
-            )
-            return
 
         return salary_in_dollars
 
@@ -147,11 +183,20 @@ class BasePortal:
         # compensation is in the format of:
         # - "$100,000 – $150,000 • 1.0% – 2.0%"
         # - "₹15L – ₹25L"
+        # - "90000-120000"  -> remotive has this format
         _, _, salary_and_equity_info = compensation.partition(range_separator)
         salary_info, _, _ = salary_and_equity_info.partition("•")
         salary_info = salary_info.strip()
         if not salary_info:
             raise InvalidSalary(f"Job {link} has no salary info.")
+
+        if salary_info.isnumeric():
+            # this is probably salary without currency symbol
+            # e.g. "100000 - 150000"
+            # assume the currency is USD
+            currency = Currency.USD
+            amount = Decimal(salary_info)
+            return currency, amount
 
         # Extract possible currency code at the end
         if currency_match := CURRENCY_CODE_REGEX.search(salary_info):
@@ -190,178 +235,3 @@ class BasePortal:
                 raise InvalidSalary(f"Invalid salary info {salary_info} for {link}")
 
         return currency, salary
-
-    def validate_salary(self, *, link: str, salary: str) -> str | None:
-        logger.debug(f"Validating salary information in {link}, {salary=}")
-
-        if salary is None:
-            # no salary information, should we still consider this relevant ???
-            job_rejected_logger.info(f"No salary information found for {link}")
-            return
-
-        salary = salary.replace("$", "").replace(",", "")
-        try:
-            salary = Decimal(str(salary))
-        except InvalidOperation:
-            job_rejected_logger.info(f"Invalid salary {salary} for {link}")
-            return
-
-        if salary < config.SALARY:
-            job_rejected_logger.info(
-                f"Salary {salary} for {link} is less than {config.SALARY:,}"
-            )
-            return
-
-        return salary
-
-    def validate_recency(self, link: str, posted_on: datetime) -> bool:
-        now = datetime.now(timezone.utc)
-        if (now - posted_on) > timedelta(days=config.JOB_AGE_LIMIT_DAYS):
-            job_rejected_logger.info(f"Removing older job: {link}")
-            return False
-        return True
-
-    def filter_jobs_with_llm(self, job_data) -> list[Job]:
-        if not job_data:
-            return []
-
-        developer_prompt = f"""
-        You are a job extraction and filtering assistant.
-        You will be given raw data containing job listings (HTML, JSON, or XML).
-        First extract and normalise relevant job details from the raw data.
-
-        When extracting, consider the following attributes:
-        - Title
-        - Description(if available)
-        - Tags (if available)
-        - Salary
-            - If a salary range is provided, use the **higher value** for
-              comparison.
-            - All salaries should be **converted within your response to
-              {config.CURRENCY_SALARY} ** (do not assume conversion is
-              done externally). Use the exchange rate as on 1st Jan 2025.
-            - If the salary is mentioned as something like "30$ per hour",
-              convert it to an annual salary, assuming a 40-hour workweek and
-              52 weeks per year.
-        - Location
-        - Posted Date
-            - Convert the posted date to a format in UTC,
-              ISO 8601 date-time string (YYYY-MM-DDTHH:MM:SSZ).
-                - If the provided date is like "1 day ago", "5 days ago",
-                  convert it to the actual date.
-        - Link (Application URL)
-
-        Keep in mind the key names might be different but they will
-        be similar to the above attributes.
-
-        Consider these attributes as equivalent:
-        - Location
-            - region,
-            - candidate_required_location,
-            - location
-
-        - Salary
-            - compensation
-
-        - Posted Date
-            - publication_date
-
-        The above list for considering attributes as equivalent
-        is not exhaustive, and you might need to consider other
-        attributes that may point to the same information as the
-        one to be used for filtering and extracting.
-
-        Filtering parameters:
-        - Minimum Salary: {config.SALARY} {config.CURRENCY_SALARY}
-        - Keywords: {config.KEYWORDS}
-        - Region: {config.REGION}
-        - Posted Date: {config.JOB_AGE_LIMIT_DAYS} days from today.
-
-        Now, filter the jobs based on **all** the following criteria:
-
-        - Job title or description or tags belong to one or more
-          keywords : {config.KEYWORDS}
-
-        - Regarding Region passed in the filtering parameter:
-          - **STRICT MATCHING REQUIRED**: The job’s `location` field **MUST
-            EXACTLY MATCH** "{config.REGION}" or an equivalent.
-
-          - For example: If region is `"remote"`,
-            **only accept** jobs where `location` is one of the following:
-              - `"remote"`
-              - `"fully remote"`
-              - `"worldwide"`
-              - `"work from anywhere"`
-              - `"remote-first"`
-
-          - **STRICTLY REJECT** jobs if `location` contains:
-              - A specific country (e.g., `"USA"`, `"Canada"`, `"Germany"`)
-              - A restricted region (e.g., `"Americas"`, `"EMEA"`, `"LATAM"`,
-                `"APAC"`)
-              - A hybrid/partial remote requirement (e.g., `"Remote USA"`,
-                `"Remote but must be in Europe"`)
-
-          - If region is a specific place (e.g., `"Europe"`):
-              - **ONLY** accept listings where `location == "Europe"` or
-                `"Remote Europe"`.
-              - **STRICTLY REJECT** jobs mentioning **other regions** (e.g.,
-                `"Americas"`, `"APAC"`, `"LATAM"`, `"USA"`).
-
-          - **Final Check:**
-              - **Before returning results**, iterate over all extracted jobs.
-              - **REMOVE** any job where `location` does not exactly match
-                "{config.REGION}".
-              - The final output **MUST NOT** contain any job with an
-                incorrect `location`.
-
-            - **Examples of jobs that must be rejected before output:**
-                ❌ `"USA"`
-                ❌ `"USA only"`
-                ❌ `"Canada"`
-                ❌ `"Remote, USA only"`
-                ❌ `"Remote but must be in Americas"`
-                ❌ `"Americas, EMEA"`
-
-
-        - Regarding salary:
-            - Minimum Salary should be: {config.SALARY} {config.CURRENCY_SALARY}
-            - If no salary is provided as a **valid number**, exclude the job
-              listing.
-            - If the salary is described as **"competitive"**, **"negotiable"**, or
-              **"based on experience"**, assume it's below the minimum salary and
-              **EXCLUDE IT**.
-            - Ensure all salaries are converted to {config.CURRENCY_SALARY}.
-
-        Your response will be a list of matched job listings.
-        """
-        user_prompt = f"""
-        Raw Data format: `{self.api_data_format.upper()}`.
-
-        Raw Data:
-        ```
-        {job_data}
-        ```
-        """
-
-        response = self.openai_client.beta.chat.completions.parse(
-            model=config.OPEN_AI_MODEL,
-            messages=[
-                {"role": "developer", "content": developer_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format=JobsOpenAI,
-        )
-        openai_response = response.choices[0].message.parsed
-
-        logger.debug(f"OpenAI response: {openai_response}")
-        if openai_response:
-            return [
-                # the conversion is required since the OpenAI doesn't accept
-                # datetime format, and we need to convert it to our native
-                # pydantic model, so that the rest of the code works in a
-                # consistent way.
-                Job(**job.model_dump())
-                for job in openai_response.jobs
-            ]
-        else:
-            return []

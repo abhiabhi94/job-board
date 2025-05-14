@@ -16,7 +16,7 @@ class WorkAtAStartup(BasePortal):
     api_data_format = "json"
     portal_name = "work_at_a_startup"
 
-    def get_jobs(self) -> list[Job]:
+    def make_request(self) -> list[Job]:
         template = jinja_env.get_template("work-at-a-startup-request-params.json")
         request_data = json.loads(template.render(hits_per_page=100))
         with httpx_client() as client:
@@ -47,43 +47,48 @@ class WorkAtAStartup(BasePortal):
         ) as client:
             response = client.post(self.url, json={"ids": company_ids})
 
-        return self.filter_jobs(response.json())
+        return response.json()
 
-    def filter_jobs(self, data) -> list[Job]:
-        jobs = []
+    def get_items(self, data) -> list:
+        # data is a list of data from all pages.
+        # we need to extract the job data from each page.
+        items = []
         for company in data["companies"]:
-            for job_data in company["jobs"]:
-                if job := self.filter_job(job_data):
-                    jobs.append(job)
-        return jobs
+            items.extend(company["jobs"])
+        return items
 
-    def filter_job(self, job) -> Job | None:
-        if job["remote"] not in {"yes", "only"}:
-            return
+    def get_link(self, item: dict) -> str:
+        return f"https://www.workatastartup.com/jobs/{item['id']}"
 
-        link = f"https://www.workatastartup.com/jobs/{job['id']}"
-        # no date available regarding the job, so validate_recency
-        # can't be used.
-        title = job["title"]
-        description = job["description"]
-        skills = [s["name"] for s in job["skills"]]
+    def get_title(self, item):
+        return item["title"]
 
-        if not self.validate_keywords_and_region(
-            link=link,
-            title=title,
-            description=description,
-            tags=skills,
-        ):
-            return
+    def get_description(self, item):
+        return item["description"]
 
-        compensation = job["pretty_salary_range"]
-        if salary := self.validate_salary_range(
+    def get_posted_on(self, item):
+        return None
+
+    def get_salary(self, item):
+        compensation = item["pretty_salary_range"]
+        link = self.get_link(item)
+        return self.parse_salary_range(
             link=link,
             compensation=compensation,
             range_separator="-",
-        ):
-            return Job(
-                title=title,
-                salary=salary,
-                link=link,
-            )
+        )
+
+    def is_remote(self, item: dict) -> bool:
+        return item["remote"] in {"yes", "only"}
+
+    def get_tags(self, item):
+        return [s["name"] for s in item["skills"]]
+
+    def get_locations(self, item):
+        locations = item["locations"]
+        if locations:
+            if not isinstance(locations, str):
+                # This API sometimes returns weird data
+                # like {"locations": [[['Remote - UK or Europe']]]}
+                return []
+        return item["locations"]

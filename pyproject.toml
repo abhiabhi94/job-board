@@ -26,6 +26,7 @@ dependencies = [
     "cssselect",
     "Jinja2",
     "tenacity",
+    "Flask",
 ]
 [project.optional-dependencies]
 dev = [

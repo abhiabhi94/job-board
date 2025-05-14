@@ -1,13 +1,10 @@
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
-from decimal import Decimal
 from unittest.mock import patch
 
 import httpx
 import pytest
 
-from job_board import config
 from job_board.base import Job
 from job_board.portals.wellfound import (
     Wellfound,
@@ -37,51 +34,7 @@ def create_job_result(override_data=None):
     return job_data
 
 
-@pytest.mark.parametrize(
-    ("job_data", "config_salary"),
-    [
-        # non-remote job
-        ({"remote": False}, Decimal(str(100_000))),
-        # without compensation
-        ({"compensation": ""}, Decimal(str(100_000))),
-        # below salary threshold
-        ({"compensation": "$100k – $150k • details"}, Decimal(str(200_000))),
-        # invalid salary i.e doesn't match the expected salary format.
-        ({"compensation": "₹10,000 – ₹15,000"}, Decimal(str(200_000))),
-        # no salary info
-        ({"compensation": "No Equity"}, Decimal(str(200_000))),
-        # too old job
-        (
-            {
-                "liveStartAt": (
-                    datetime.now(tz=timezone.utc) - timedelta(days=365)
-                ).timestamp(),
-            },
-            Decimal(str(200_000)),
-        ),
-        # non-matching keywords
-        (
-            {
-                "title": "Typescript Developer",
-                "description": "Job description",
-            },
-            Decimal(str(200_000)),
-        ),
-    ],
-)
-def test_filter_job_invalid(wellfound, job_data, config_salary):
-    job_result = create_job_result(job_data)
-
-    with patch.object(config, "SALARY", config_salary):
-        job = wellfound.filter_job(job_result)
-
-    assert job is None
-
-
-def test_filter_jobs_valid(wellfound, load_response, respx_mock):
-    # so that tests don't fail in future due to the date check.
-    wellfound.validate_recency = lambda **kwargs: True
-
+def test_get_jobs(wellfound, load_response, respx_mock):
     page_1 = load_response("wellfound-page-1.html")
     page_2 = load_response("wellfound-page-2.html")
     respx_mock.get(SCRAPFLY_URL).mock(
@@ -131,16 +84,22 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
 
     mocked_sleep.assert_called_once()
 
-    assert len(jobs) == 2
+    assert len(jobs) == 52
     # just pick any one job from the list
     # each of them will have the same structure
     job = jobs[0]
 
     assert isinstance(job, Job)
-    assert "Python" in job.title
-    assert "python" in job.link
-    assert job.salary >= config.SALARY
-    assert job.posted_on is not None
+    assert job.title == "Python Developer"
+    assert job.description is not None
+    assert job.link == "https://wellfound.com/jobs/2747178-python-developer"
+    assert job.salary is None
+    assert job.posted_on == datetime(
+        year=2023, month=7, day=26, hour=9, minute=46, second=39, tzinfo=timezone.utc
+    )
+    assert job.tags == []
+    assert job.locations == ["India"]
+    assert job.is_remote is True
 
 
 def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):

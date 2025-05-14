@@ -1,0 +1,84 @@
+/* Additional styles beyond what's in the layout template */
+/* You can extend or override styles here */
+
+/* Add any custom animations or transitions */
+.job-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Disclaimer styling enhancements */
+.disclaimer {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.site-footer {
+    background-color: #1f2937; /* Dark gray/blue */
+    color: #f3f4f6;            /* Light text */
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-size: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-top: 1px solid #374151;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.site-footer a {
+    color: #60a5fa; /* Light blue */
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.site-footer a:hover {
+    color: #93c5fd; /* Lighter blue on hover */
+}
+
+.site-footer i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .filter-form {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .job-listings {
+        grid-template-columns: 1fr;
+    }
+
+    .pagination-controls {
+        gap: 0.25rem;
+    }
+
+    .pagination-link {
+        padding: 0.35rem 0.5rem;
+        min-width: 2rem;
+    }
+}
+
+/* Print styles for job listings */
+@media print {
+    .filter-section, .pagination, header p, .disclaimer {
+        display: none;
+    }
+
+    .job-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 1rem;
+    }
+}

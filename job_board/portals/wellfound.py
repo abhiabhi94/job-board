@@ -4,9 +4,7 @@ from datetime import timezone
 
 from lxml import html
 
-from job_board import config
 from job_board.base import Job
-from job_board.logger import job_rejected_logger
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.utils import make_scrapfly_request
@@ -15,23 +13,15 @@ from job_board.utils import retry_on_http_errors
 
 class Wellfound(BasePortal):
     portal_name = "wellfound"
-    # This url actually depends upon the keywords
-    # Wellfound doesn't seem to provide tags that we can
-    # use to filter the jobs
-    # The generic URL is: https://wellfound.com/role/r/software-engineer
-    # but that would require us to scrape a lot more pages and
-    # each of them would have to bypass the detection.
-    # For now, we are just hardcoding the url for python
-    # developers.
-    url = "https://wellfound.com/role/r/python-developer"
+    url = "https://wellfound.com/role/r/software-engineer"
     api_data_format = "html"
 
-    def get_jobs(self) -> list[Job]:
+    def make_request(self) -> list[Job]:
         page_number = 1
         jobs_data = []
         while True:
             url = f"{self.url}?page={page_number}"
-            content = self.make_request(url)
+            content = self._make_request(url)
             element = html.fromstring(content)
             # graphQL data is embeded in this element
             data_element = element.get_element_by_id("__NEXT_DATA__")
@@ -50,78 +40,50 @@ class Wellfound(BasePortal):
             if page_number > total_pages:
                 break
 
-        return self.filter_jobs(jobs_data)
+        return jobs_data
 
     @retry_on_http_errors(additional_status_codes=[403])
-    def make_request(self, url: str) -> str:
+    def _make_request(self, url: str) -> str:
         return make_scrapfly_request(url, asp=True)
 
-    def filter_jobs(self, data) -> list[Job]:
+    def get_items(self, jobs_data) -> list:
         # data is a list of data from all pages.
         # we need to extract the job data from each page.
-        jobs = []
-        for job_data in data:
+        items = []
+        for job_data in jobs_data:
             job_results = [
                 value
                 for key, value in job_data.items()
                 if key.startswith("JobListingSearchResult:")
             ]
-            for job_result in job_results:
-                if job := self.filter_job(job_result):
-                    jobs.append(job)
-        return jobs
+            items.extend(job_results)
+        return items
 
-    def filter_job(self, job_data) -> Job | None:
-        slug = job_data["slug"]
-        job_id = job_data["id"]
-        link = f"https://wellfound.com/jobs/{job_id}-{slug}"
+    def get_link(self, item):
+        slug = item["slug"]
+        job_id = item["id"]
+        return f"https://wellfound.com/jobs/{job_id}-{slug}"
 
-        if not job_data["remote"]:
-            job_rejected_logger.info(f"Job {link} is not remote.")
-            return
+    def is_remote(self, item):
+        return item["remote"]
 
-        allowed_locations = {c.lower() for c in job_data["locationNames"]}
-        preferred_locations = {c.lower() for c in config.PREFERRED_CITIES}
-        preferred_locations.update(
-            [
-                config.NATIVE_COUNTRY.lower(),
-                # some jobs are remote but only available in certain
-                # countries.
-                # TODO: maybe do this based on a config, but we are already
-                # checking for remote jobs.
-                "remote",
-            ]
-        )
-        if preferred_locations.isdisjoint(allowed_locations):
-            job_rejected_logger.info(
-                f"Job {link} is not available in {', '.join(preferred_locations)}. "
-                f"Allowed locations: {', '.join(allowed_locations)}"
-            )
-            return
+    def get_locations(self, item):
+        return item["locationNames"]
 
-        posted_on = self.get_posted_on(job_data)
-        if not self.validate_recency(link=link, posted_on=posted_on):
-            return
+    def get_posted_on(self, item):
+        return datetime.fromtimestamp(item["liveStartAt"]).astimezone(timezone.utc)
 
-        title = job_data["title"]
-        description = job_data["description"]
+    def get_title(self, item):
+        return item["title"]
 
-        if not self.validate_keywords_and_region(
+    def get_description(self, item):
+        return item["description"]
+
+    def get_salary(self, item):
+        link = self.get_link(item)
+        compensation = item["compensation"]
+        return self.parse_salary_range(
             link=link,
-            title=title,
-            description=description,
-        ):
-            return
-
-        if salary := self.validate_salary_range(
-            link=link, compensation=job_data["compensation"], range_separator="–"
-        ):
-            return Job(
-                title=title,
-                salary=salary,
-                link=link,
-                posted_on=posted_on,
-            )
-
-    def get_posted_on(self, job_data):
-        return datetime.fromtimestamp(job_data["liveStartAt"]).astimezone(timezone.utc)
+            compensation=compensation,
+            range_separator="–",
+        )
