@@ -1,6 +1,3 @@
-from datetime import datetime
-from decimal import Decimal
-
 import httpx
 
 from job_board.portals import PythonDotOrg
@@ -19,11 +16,15 @@ def test_get_jobs(respx_mock, load_response):
     )
 
     portal = PythonDotOrg()
-    (result,) = portal.get_jobs()
+    jobs = portal.get_jobs()
+    assert len(jobs) == 20
+    job = jobs[0]
 
-    assert result.title == "Full Stack Engineer (Django), Multi Media LLC"
-    assert result.salary == Decimal(str(120_000))
-    assert result.link == "https://www.python.org/jobs/7827/"
-    assert result.posted_on == datetime.fromisoformat(
-        "2025-02-27T22:42:21.713718+00:00"
-    )
+    assert job.title == "Senior Full-stack Developer (Python, React, Elixir), Lemon.io"
+    assert job.link == "https://www.python.org/jobs/7831/"
+    assert job.description is not None
+    assert job.salary is None
+    assert job.posted_on is None
+    assert job.tags == ["python"]
+    assert job.is_remote is False
+    assert job.locations == ["CLAYMONT, Utah, United States"]

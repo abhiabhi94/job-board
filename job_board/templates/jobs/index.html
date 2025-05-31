@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+
+{% block title %}Tech Job Listings{% endblock %}
+
+{% block content %}
+    <div class="disclaimer">
+        <p><strong>Disclaimer:</strong> These job listings have been aggregated from multiple sources for your convenience. We don't endorse or guarantee any of these positions. Please do your own research before applying.</p>
+    </div>
+
+    <section class="filter-section">
+        <h2>Filter Jobs</h2>
+        <form id="filter-form" class="filter-form" method="get" action="{{ url_for('get_jobs') }}">
+            <div class="filter-group">
+                <label for="min_salary">Minimum Salary ($)</label>
+                <div class="salary-filter">
+                    <input type="number" id="min_salary" name="min_salary" min="0" step="1000" value="{{ current_filters.min_salary }}" placeholder="20,000">
+                    <div class="salary-checkbox">
+                        <input type="checkbox" id="include_no_salary" name="include_no_salary" value="true" {% if current_filters.include_no_salary %}checked{% endif %}>
+                        <label for="include_no_salary">Include jobs without salary</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="is_remote">Work Type</label>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="is_remote" name="is_remote" value="true" {% if current_filters.is_remote %}checked{% endif %}>
+                    <label for="is_remote">Remote only</label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Sort</label>
+                <div class="sort-dropdown">
+                    <button type="button" class="sort-button" id="sort-button">
+                        <span class="sort-text">
+                            {% if current_filters.sort == 'salary_desc' %}
+                                Salary
+                            {% elif current_filters.sort == 'posted_on_desc' %}
+                                Last Posted
+                            {% else %}
+                                Select order
+                            {% endif %}
+                        </span>
+                        <svg class="sort-arrow" width="12" height="12" viewBox="0 0 12 12">
+                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        </svg>
+                    </button>
+                    <div class="sort-options" id="sort-options">
+                        <input type="hidden" name="sort" value="{{ current_filters.sort or '' }}">
+                        <div class="sort-option" data-value="salary_desc">Salary</div>
+                        <div class="sort-option" data-value="posted_on_desc">Last Posted</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="filter-group">
+                <label title="Matches any of the selected tag">Tags</label>
+                <div class="tag-filters">
+                    {% for tag in available_tags %}
+                        <input type="checkbox" class="tag-checkbox" id="tag-{{ tag }}" name="tags" value="{{ tag }}"
+                        {% if tag in current_filters.tags %}checked{% endif %}>
+                        <label for="tag-{{ tag }}" class="tag-label">{{ tag }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="filter-button">Apply Filters</button>
+        </form>
+    </section>
+
+    <section class="job-listings">
+        {% if jobs %}
+            {% for job in jobs %}
+                <article class="job-card">
+                    <div class="job-header">
+                        <a href="{{ job.link }}" class="job-title" target="_blank">{{ job.title }}</a>
+                        <span class="job-posted-date">{{ job.posted_on | naturaltime | capitalize}}</span>
+                    </div>
+                    <p class="job-description">{{ job.description|truncate(140) }}</p>
+
+                    <div class="job-meta">
+                        {% if job.salary %}
+                            <p class="job-salary">${{ '{:,.0f}'.format(job.salary) }}</p>
+                        {% endif %}
+
+                        <div class="job-badges">
+                            {% if job.is_remote %}
+                                <span class="badge remote">Remote</span>
+                            {% endif %}
+
+                            {% for location in job.locations %}
+                                <span class="badge">{{ location }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="job-tags">
+                            {% for tag in job.tags %}
+                                <a href="{{ url_for('get_jobs', tags=tag) }}" class="job-tag">{{ tag }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="no-jobs-message">
+                <p>No jobs match your current filters. Try adjusting your search criteria.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    {% if pagination and pagination.total_pages > 1 %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }}-{{ pagination.page * pagination.per_page if pagination.page * pagination.per_page < pagination.total_jobs else pagination.total_jobs }} of {{ pagination.total_jobs }} jobs
+        </div>
+        <div class="pagination-controls">
+            {% if pagination.has_prev %}
+                <a href="{{ pagination.get_url(pagination.page - 1) }}" class="pagination-link">&laquo; Previous</a>
+            {% else %}
+                <span class="pagination-link disabled">&laquo; Previous</span>
+            {% endif %}
+
+            {% set start_page = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+            {% set end_page = pagination.page + 2 if pagination.page + 2 < pagination.total_pages else pagination.total_pages %}
+
+            {% if start_page > 1 %}
+                <a href="{{ pagination.get_url(1) }}" class="pagination-link">1</a>
+                {% if start_page > 2 %}
+                    <span class="pagination-ellipsis">...</span>
+                {% endif %}
+            {% endif %}
+
+            {% for page_num in range(start_page, end_page + 1) %}
+                {% if page_num == pagination.page %}
+                    <span class="pagination-link current">{{ page_num }}</span>
+                {% else %}
+                    <a href="{{ pagination.get_url(page_num) }}" class="pagination-link">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if end_page < pagination.total_pages %}
+                {% if end_page < pagination.total_pages - 1 %}
+                    <span class="pagination-ellipsis">...</span>
+                {% endif %}
+                <a href="{{ pagination.get_url(pagination.total_pages) }}" class="pagination-link">{{ pagination.total_pages }}</a>
+            {% endif %}
+
+            {% if pagination.has_next %}
+                <a href="{{ pagination.get_url(pagination.page + 1) }}" class="pagination-link">Next &raquo;</a>
+            {% else %}
+                <span class="pagination-link disabled">Next &raquo;</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <footer class="site-footer">
+        <p>❤️ से बनाया गया हैं | गढ़वा, बस्ती से | <a href="https://github.com/abhiabhi94/job-board" target="_blank"><i class="fab fa-github"></i></a></p>
+    </footer>
+{% endblock %}
