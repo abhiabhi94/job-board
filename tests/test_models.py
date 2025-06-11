@@ -5,32 +5,33 @@ from decimal import Decimal
 from unittest import mock
 
 import pytest
-import sqlalchemy
+import sqlalchemy as sa
 
 from job_board import config
-from job_board.base import Job
 from job_board.connection import get_session
 from job_board.models import Job as JobModel
-from job_board.models import notify
+from job_board.models import Payload
 from job_board.models import store_jobs
+from job_board.models import Tag
 from job_board.portals.models import PortalSetting
+from job_board.portals.parser import Job
 
 
 now = datetime.now(timezone.utc)
 
 
 def test_session_can_be_used_only_during_tests(db_session):
-    with mock.patch.object(config, "TEST_ENV", False):
+    with mock.patch.object(config, "ENV", "prod"):
         with pytest.raises(RuntimeError):
             with get_session():
-                pass
+                pass  # pragma: no cover
 
 
 def test_read_only_session(db_setup):
     with get_session(readonly=True) as session:
-        with pytest.raises(sqlalchemy.exc.InternalError) as exc:
+        with pytest.raises(sa.exc.InternalError) as exc:
             session.execute(
-                sqlalchemy.insert(JobModel).values(
+                sa.insert(JobModel).values(
                     link="http://example.com",
                     title="Test Job",
                     salary=Decimal(str(100_000)),
@@ -54,66 +55,90 @@ def test_store_jobs(db_session):
 
     job_listings = [
         Job(
-            link="http://job1.com",
+            link="https://job1.com",
             title="Job 1",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=1),
+            tags=["python", "remote"],
+            is_remote=True,
+            locations=["New York", "Remote"],
+            description="Looking for Django and FastAPI developer",
+            payload="some data",
         ),
         Job(
-            link="http://job2.com",
+            link="https://job2.com",
             title="Job 2",
             salary=Decimal(str(100_000)),
+            tags=["python", "django"],
+            is_remote=False,
+            payload="some data",
+        ),
+        Job(
+            link="https://job3.com",
+            title="Job 3",
+            salary=Decimal(str(100_000)),
+            is_remote=False,
+            payload="some data",
         ),
     ]
 
     store_jobs(job_listings)
 
-    jobs = db_session.execute(sqlalchemy.select(JobModel)).scalars().all()
+    jobs = db_session.execute(sa.select(JobModel)).scalars().all()
 
     assert {j.link for j in jobs} == {
-        "http://job1.com",
-        "http://job2.com",
+        "https://job1.com",
+        "https://job2.com",
+        "https://job3.com",
+    }
+    assert {t.name for j in jobs for t in j.tags} == {
+        "python",
+        "remote",
+        "django",
     }
 
+    tags = db_session.execute(sa.select(Tag)).scalars().all()
+    assert {t.name for t in tags} == {"python", "remote", "django"}
 
-def test_notify(db_session):
-    # No jobs to notify, nothing happens
-    notify()
-    job_1 = JobModel(
-        link="http://job-1.com",
-        title="Job Title",
-        salary=Decimal(str(70_000)),
-        posted_on=now - timedelta(days=1),
+    assert (
+        db_session.execute(
+            sa.select(sa.func.count())
+            .select_from(Payload)
+            .where(Payload.link.in_(j.link for j in job_listings))
+        ).scalar_one()
+        == 3
     )
-    job_2 = JobModel(
-        link="http://job-2.com",
-        title="Job Title",
-        salary=Decimal(str(80_000)),
-        posted_on=now - timedelta(days=1),
+
+    # Check that the method is idempotent
+    store_jobs(job_listings)
+    assert (
+        db_session.execute(
+            sa.select(sa.func.count()).select_from(JobModel)
+        ).scalar_one()
+        == 3
     )
-    db_session.add_all([job_1, job_2])
-
-    with (
-        mock.patch(
-            "job_board.notifier.mail.EmailProvider.create_service"
-        ) as mock_service,
-        mock.patch(
-            "job_board.notifier.mail.EmailProvider.send_email"
-        ) as mock_send_email,
-        mock.patch.object(config, "MAX_JOBS_PER_EMAIL", 1),
-    ):
-        notify()
-
-    mock_service.assert_called_once()
-    assert mock_send_email.call_count == 2
-
-    # Check that the jobs are marked as notified
-    ids = [job_1.id, job_2.id]
-    statement = (
-        sqlalchemy.select(sqlalchemy.func.count())
-        .select_from(JobModel)
-        .where(JobModel.id.in_(ids), JobModel.notified.is_(True))
+    assert (
+        db_session.execute(sa.select(sa.func.count()).select_from(Payload)).scalar_one()
+        == 3
     )
-    count = db_session.execute(statement).scalar_one()
 
-    assert count == len(ids)
+
+def test_store_jobs_with_empty_tags(db_session):
+    job_listings = [
+        Job(
+            link="https://job1.com",
+            title="Job 1",
+            posted_on=now - timedelta(days=1),
+            payload="some data",
+        ),
+    ]
+
+    store_jobs(job_listings)
+
+    jobs = db_session.execute(sa.select(JobModel)).scalars().all()
+
+    assert {j.link for j in jobs} == {"https://job1.com"}
+    assert len(jobs[0].tags) == 0
+
+    tags = db_session.execute(sa.select(Tag)).scalars().all()
+    assert len(tags) == 0

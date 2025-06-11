@@ -1,13 +1,10 @@
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
 from decimal import Decimal
 
 import httpx
 import pytest
-from freezegun import freeze_time
 
-from job_board.base import Job
 from job_board.portals import WeWorkRemotely
 from job_board.utils import SCRAPFLY_URL
 
@@ -42,56 +39,30 @@ def mock_rss_response():
             <item>
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/job-added-just-now</link>
+                <region>Anywhere in the World</region>
+                <link>{JOB_URL}/job-1</link>
+                <pubDate>Mon, 14 Apr 2025 13:12:48 +0000</pubDate>
             </item>
             <item>
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/job-added-45-minutes-ago</link>
+                <region>Anywhere in the World</region>
+                <link>{JOB_URL}/job-2</link>
+                <pubDate>Sun, 16 Jun 2024 17:30:51 +0000</pubDate>
             </item>
             <item>
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/job-with-salary-greater-than-60K</link>
-            </item>
-            <item>
-                <title>Python Developer</title>
-                <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/job-with-salary-greater-than-80K</link>
-            </item>
-            <item>
-                <title>Python Developer</title>
-                <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/job-with-salary-less-than-60K</link>
-            </item>
-            <item>
-                <title>Python Developer</title>
-                <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
+                <region>Anywhere in the World</region>
                 <link>{JOB_URL}/job-without-salary</link>
+                <pubDate>Sun, 16 Jun 2024 17:30:51 +0000</pubDate>
             </item>
             <item>
                 <title>Python Developer</title>
                 <description>Looking for Django and FastAPI developer</description>
-                <region>Anywhere</region>
-                <link>{JOB_URL}/salary-missing</link>
-            </item>
-            <item>
-                <title>React Developer</title>
-                <description>Frontend role</description>
-                <region>Anywhere</region>
-                <link>https://unmocked-url.com</link>
-            </item>
-            <item>
-                <title>React Developer</title>
-                <description>Frontend role</description>
-                <region>Anywhere</region>
-                <link>https://unmocked-url.com</link>
+                <region>Anywhere in the World</region>
+                <link>{JOB_URL}/job-salary-missing</link>
+                <pubDate>Sun, 16 Jun 2024 17:30:51 +0000</pubDate>
             </item>
         </channel>
     </rss>"""
@@ -109,7 +80,19 @@ def mock_job_page():
         <div class="salary-class">
             <div>Salary: ${salary:,}</div>
         </div>
-        """
+        <div class="lis-container__job__sidebar__job-about">
+            <h4 class="lis-container__job__sidebar__job-about__title"> About the job </h4>
+            <ul class="lis-container__job__sidebar__job-about__list">
+                <li class="lis-container__job__sidebar__job-about__list__item"> Posted on <span>20 days ago</span></li>
+                <li class="lis-container__job__sidebar__job-about__list__item"> Apply before <span>Jun 21th, 2025</span></li>
+                <li class="lis-container__job__sidebar__job-about__list__item"> Job type <a target="_blank" href="/categories/remote-full-stack-programming-jobs"><span class="box box--jobType"><i class="fa-regular fa-clock" aria-hidden="true"></i> Full-Time </span></a></li>
+                <li class="lis-container__job__sidebar__job-about__list__item"> Category <a target="_blank" href="/categories/remote-full-stack-programming-jobs"><span class="box box--blue">Full-Stack Programming</span></a></li>
+                <li class="lis-container__job__sidebar__job-about__list__item lis-container__job__sidebar__job-about__list__item--full"> Region <div class="boxes"><a target="_blank" href="/100-percent-remote-jobs"><span class="box box--multi box--region"> Anywhere in the World </span></a></div></li>
+                <li class="lis-container__job__sidebar__job-about__list__item lis-container__job__sidebar__job-about__list__item--full"></li>
+                <li class="lis-container__job__sidebar__job-about__list__item lis-container__job__sidebar__job-about__list__item--full"> Skills <div class="boxes"><a target="_blank" href="/remote-jobs-c"><span class="box box--multi box--blue"> C# </span></a></div></li>
+            </ul>
+        </div>
+        """  # noqa: E501
         return job_page_content
 
     return _mock_job_page
@@ -117,70 +100,42 @@ def mock_job_page():
 
 def test_get_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
     portal = WeWorkRemotely()
-
-    mock_scrapfly_response(url=portal.url, content=mock_rss_response)
+    portal.parser_class.validate_recency = lambda x: True  # bypass recency check
     mock_scrapfly_response(
-        url=f"{JOB_URL}/job-with-salary-greater-than-60K",
-        content=mock_job_page(salary=Decimal(str(80_000))),
-    )
-
-    content = mock_job_page(salary=Decimal(str(90_000))).replace(
-        "5 days ago", "1 hour ago"
-    )
-    mock_scrapfly_response(
-        url=f"{JOB_URL}/job-with-salary-greater-than-80K",
-        content=content,
-    )
-
-    content = mock_job_page(salary=Decimal(str(10_000))).replace(
-        "5 days ago", "a few minutes ago"
-    )
-    mock_scrapfly_response(
-        url=f"{JOB_URL}/job-added-just-now",
-        content=content,
-    )
-    content = mock_job_page(salary=Decimal(str(200_000))).replace(
-        "5 days ago", "45 minutes ago"
-    )
-    mock_scrapfly_response(
-        url=f"{JOB_URL}/job-added-45-minutes-ago",
-        content=content,
+        url=portal.url,
+        content=mock_rss_response,
     )
 
     mock_scrapfly_response(
-        url=f"{JOB_URL}/job-with-salary-less-than-60K",
-        content=mock_job_page(salary=Decimal(str(50_000))),
+        url=f"{JOB_URL}/job-1",
+        content=mock_job_page(),
     )
+    mock_scrapfly_response(
+        url=f"{JOB_URL}/job-2",
+        content=mock_job_page(),
+    )
+
     mock_scrapfly_response(
         url=f"{JOB_URL}/job-without-salary",
         content="<div></div>",
     )
     mock_scrapfly_response(
-        url=f"{JOB_URL}/salary-missing",
+        url=f"{JOB_URL}/job-salary-missing",
         content="<div>salary:</div>",
     )
 
-    now = datetime.now(timezone.utc)
-    with freeze_time(now):
-        job_listings_to_notify = portal.get_jobs()
+    jobs = portal.get_jobs()
 
-    assert job_listings_to_notify == [
-        Job(
-            title="Python Developer",
-            link="https://weworkremotely.com/jobs/job-added-45-minutes-ago",
-            salary=Decimal(str(200_000)),
-            posted_on=now - timedelta(minutes=45),
-        ),
-        Job(
-            title="Python Developer",
-            link="https://weworkremotely.com/jobs/job-with-salary-greater-than-60K",
-            salary=Decimal(str(80_000)),
-            posted_on=now - timedelta(days=5),
-        ),
-        Job(
-            title="Python Developer",
-            link="https://weworkremotely.com/jobs/job-with-salary-greater-than-80K",
-            salary=Decimal(str(90_000)),
-            posted_on=now - timedelta(hours=1),
-        ),
-    ]
+    assert len(jobs) == 4
+    # just pick the first job to check the values
+    job = jobs[0]
+    assert job.title == "Python Developer"
+    assert job.link == "https://weworkremotely.com/jobs/job-1"
+    assert job.description == "Looking for Django and FastAPI developer"
+    assert job.salary is None
+    assert job.posted_on == datetime(
+        year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
+    )
+    assert job.is_remote is True
+    assert job.locations == []
+    assert job.tags == ["C#"]

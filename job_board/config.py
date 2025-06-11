@@ -1,5 +1,4 @@
 import os
-from decimal import Decimal
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,27 +8,11 @@ BASE_DIR = Path(__file__).parent.parent
 
 # Load environment variables
 env_path = ".env"
-TEST_ENV = os.getenv("PYTEST_VERSION")
-if TEST_ENV:
+ENV = os.getenv("ENV")
+if ENV == "test":
     env_path = ".test.env"
 
 load_dotenv(env_path, override=True)
-
-KEYWORDS = [
-    keyword.strip() for keyword in os.getenv("KEYWORDS", "").split(",") if keyword
-]
-REGION = os.getenv("REGION")
-SALARY = Decimal(os.environ.get("SALARY", str(60_000)))
-CURRENCY_SALARY = os.environ.get("CURRENCY_SALARY")
-NATIVE_COUNTRY = os.getenv("NATIVE_COUNTRY", "").strip()
-PREFERRED_CITIES = [
-    city.strip() for city in os.getenv("PREFERRED_CITIES", "").split(",") if city
-]
-RECIPIENTS = [
-    recipient.strip()
-    for recipient in os.getenv("RECIPIENTS", "").split(",")
-    if recipient
-]
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
@@ -38,13 +21,13 @@ LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 SERVICE_ACCOUNT_KEY_FILE_PATH = os.getenv("SERVICE_ACCOUNT_KEY_FILE", "something.json")
 SERVER_EMAIL = os.getenv("SERVER_EMAIL")
 SQL_DEBUG = os.getenv("SQL_DEBUG", "False").lower() == "true"
+LOG_DIR = os.getenv("LOG_DIR", BASE_DIR / "logs")
 # days before which we should ignore jobs
 JOB_AGE_LIMIT_DAYS = int(os.getenv("JOB_AGE_LIMIT_DAYS", 90))
 DEFAULT_HTTP_TIMEOUT = int(os.getenv("DEFAULT_HTTP_TIMEOUT", 30))
-MAX_JOBS_PER_EMAIL = int(os.getenv("MAX_JOBS_PER_EMAIL", 10))
+DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
+DEFAULT_LOCALE = os.getenv("DEFAULT_LOCALE", "en_US")
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPEN_AI_MODEL = os.getenv("OPEN_AI_MODEL", "gpt-4o")
 SCRAPFLY_API_KEY = os.getenv("SCRAPFLY_API_KEY")
 SCRAPFLY_REQUEST_TIMEOUT = int(os.getenv("SCRAPFLY_REQUEST_TIMEOUT", 500))  # seconds
 

@@ -1,41 +1,14 @@
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
-from decimal import Decimal
+import pytest
 
-from job_board.base import Job
+from job_board.portals.base import BasePortal
 
 
-def test_job_str():
-    now = datetime.now(timezone.utc)
+def test_abstract_methods():
+    class Portal(BasePortal):
+        portal_name = "test_portal"
 
-    job = Job(
-        link="https://python.org/jobs/1/",
-        title="Software Engineer",
-        salary=Decimal(str(120_000.75)),
-        posted_on=now - timedelta(days=3, hours=5),
-        notified=False,
-    )
+    with pytest.raises(NotImplementedError):
+        BasePortal().make_request()
 
-    expected_output = """\
-Title      : Software Engineer
-Salary     : 120,000.75
-Link       : https://python.org/jobs/1/
-Posted On  : 3 days ago\
-"""
-    assert str(job) == expected_output
-
-    job = Job(
-        link="https://python.org/jobs/1/",
-        title="Software Engineer",
-        salary=Decimal(str(120_000.75)),
-        posted_on=None,
-    )
-
-    expected_output = """\
-Title      : Software Engineer
-Salary     : 120,000.75
-Link       : https://python.org/jobs/1/
-Posted On  : N/A\
-"""
-    assert str(job) == expected_output
+    with pytest.raises(NotImplementedError):
+        BasePortal().get_items(response={})

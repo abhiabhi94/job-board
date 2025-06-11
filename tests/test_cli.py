@@ -5,6 +5,7 @@ from unittest import mock
 import pytest
 from click.testing import CliRunner
 
+from job_board import config
 from job_board.cli import _fetch
 from job_board.cli import debugger_hook
 from job_board.cli import main
@@ -22,12 +23,10 @@ def test_run_command_default_options(cli_runner):
         result = cli_runner.invoke(main, ["fetch"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=False
-    )
+    mock_run.assert_called_once_with(include_portals=(), exclude_portals=())
 
 
-def test_run_command_with_pdb_flag(cli_runner):
+def test_run_command_exception_hook(cli_runner):
     with (
         mock.patch("job_board.cli._fetch") as mock_run,
         mock.patch("job_board.cli.sys") as mock_sys,
@@ -36,19 +35,17 @@ def test_run_command_with_pdb_flag(cli_runner):
 
     assert result.exit_code == 0
     assert mock_sys.excepthook == debugger_hook
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=False
-    )
+    mock_run.assert_called_once_with(include_portals=(), exclude_portals=())
 
-
-def test_run_command_with_notify_flag(cli_runner):
-    with mock.patch("job_board.cli._fetch") as mock_run:
-        result = cli_runner.invoke(main, ["fetch", "--notify"])
+    with (
+        mock.patch.object(config, "ENV", "dev"),
+        mock.patch("job_board.cli._fetch"),
+        mock.patch("job_board.cli.sys") as mock_sys,
+    ):
+        result = cli_runner.invoke(main, ["fetch"])
 
     assert result.exit_code == 0
-    mock_run.assert_called_once_with(
-        include_portals=(), exclude_portals=(), to_notify=True
-    )
+    assert mock_sys.excepthook == debugger_hook
 
 
 @pytest.fixture
@@ -150,13 +147,11 @@ def test_fetch_function_all_portals(db_session, mock_portals):
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo") as mock_echo,
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch()
 
     mock_init_db.assert_called_once()
     assert mock_store_jobs.call_count == len(PORTALS)
-    mock_notify.assert_not_called()
 
     assert mock_echo.call_count >= 3
 
@@ -168,27 +163,11 @@ def test_fetch_function_specific_portal(db_session, mock_portals):
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo"),
         mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
-        mock.patch("job_board.cli.notify") as mock_notify,
     ):
         _fetch(include_portals=["weworkremotely"])
 
     mock_init_db.assert_called_once()
     mock_store_jobs.assert_called_once()
-    mock_notify.assert_not_called()
-
-
-def test_fetch_function_with_notify(db_session, mock_portals):
-    mock_portals()
-
-    with (
-        mock.patch("job_board.cli.init_db"),
-        mock.patch("job_board.cli.click.echo"),
-        mock.patch("job_board.cli.store_jobs"),
-        mock.patch("job_board.cli.notify") as mock_notify,
-    ):
-        _fetch(to_notify=True)
-
-    mock_notify.assert_called_once()
 
 
 def test_schedule_command(cli_runner):
@@ -277,6 +256,39 @@ def test_cli_group():
     runner = CliRunner()
     result = runner.invoke(main, ["--help"])
     assert result.exit_code == 0
-    assert "fetch" in result.output
-    assert "schedule" in result.output
-    assert "setup-db" in result.output
+    for command in (
+        "fetch",
+        "schedule",
+        "setup-db",
+        "runserver",
+    ):
+        assert command in result.output
+
+
+def test_runserver_command(cli_runner):
+    with (
+        mock.patch("job_board.cli.click.echo") as mock_echo,
+        mock.patch("job_board.views.app.run") as mock_run,
+    ):
+        result = cli_runner.invoke(
+            main, ["runserver", "--host", "0.0.0.0", "--port", "8080", "--debug"]
+        )
+
+    mock_echo.assert_called_once_with("Starting server on 0.0.0.0:8080")
+    mock_run.assert_called_once_with(host="0.0.0.0", port=8080, debug=True)
+    assert result.exit_code == 0
+
+
+def test_runserver_command_dev_mode(cli_runner):
+    with (
+        mock.patch("job_board.config.ENV", "dev"),
+        mock.patch("job_board.cli.click.echo") as mock_echo,
+        mock.patch("job_board.views.app.run") as mock_run,
+        mock.patch("job_board.cli.sys") as mock_sys,
+    ):
+        result = cli_runner.invoke(main, ["runserver"])
+    mock_echo.assert_called_once_with("Starting server on 127.0.0.1:5000")
+    mock_run.assert_called_once_with(host="127.0.0.1", port=5000, debug=False)
+    # Verify that sys.excepthook was set to debugger_hook due to dev mode.
+    assert mock_sys.excepthook == debugger_hook
+    assert result.exit_code == 0

@@ -465,7 +465,7 @@
                     "min_experience": 11,
                     "location": null,
                     "locations": [
-                        ""
+                        [[["Remote - UK or Europe"]]]
                     ],
                     "remote": "yes",
                     "local_only": null,

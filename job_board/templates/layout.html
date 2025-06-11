@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tech Job Board{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>Tech Job Board</h1>
+        <p>Find your job as per your preferences</p>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Cache common elements
+            const filterForm = document.getElementById('filter-form');
+            //  Enable form submission when tags are clicked
+            const tagInputs = document.querySelectorAll('.tag-checkbox');
+            tagInputs.forEach(input => {
+                input.addEventListener('change', function () {
+                    filterForm?.submit();
+                });
+            });
+
+            // Sort dropdown functionality
+            const sortButton = document.getElementById('sort-button');
+            const sortDropdown = sortButton?.parentElement;
+            const sortOptions = document.getElementById('sort-options');
+            const hiddenInput = sortOptions?.querySelector('input[name="sort"]');
+            const sortText = sortButton?.querySelector('.sort-text');
+
+            if (!sortButton || !sortDropdown || !sortOptions) return;
+
+            // Toggle dropdown
+            sortButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sortDropdown.classList.toggle('open');
+            });
+
+            // Handle option selection
+            sortOptions.addEventListener('click', function (e) {
+                const option = e.target.closest('.sort-option');
+                if (!option) return;
+
+                const value = option.dataset.value;
+                const text = option.textContent.trim();
+
+                // Update hidden input
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                }
+
+                // Update button text
+                if (sortText) {
+                    sortText.textContent = text;
+                }
+
+                // Close dropdown
+                sortDropdown.classList.remove('open');
+
+                // Submit form
+                document.getElementById('filter-form')?.submit();
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!sortDropdown.contains(e.target)) {
+                    sortDropdown.classList.remove('open');
+                }
+            });
+
+            // Close dropdown on escape key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    sortDropdown.classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

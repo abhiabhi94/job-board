@@ -1,17 +1,17 @@
+import asyncio
+import re
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
-from decimal import Decimal
 from unittest.mock import patch
 
 import httpx
 import pytest
 
-from job_board import config
-from job_board.base import Job
+from job_board.portals.parser import Job
 from job_board.portals.wellfound import (
     Wellfound,
 )
+from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import SCRAPFLY_URL
 from job_board.utils import ScrapflyError
 
@@ -22,65 +22,21 @@ def wellfound():
     return portal
 
 
-def create_job_result(override_data=None):
-    job_data = {
-        "slug": "test-job",
-        "id": "123",
-        "remote": True,
-        "liveStartAt": datetime.now(tz=timezone.utc).timestamp(),
-        "title": "Python Developer",
-        "description": "Job description",
-        "compensation": "$200K – $300K • details",
-        "locationNames": ["Remote", "India"],
-    }
-    job_data.update(override_data or {})
-    return job_data
-
-
-@pytest.mark.parametrize(
-    ("job_data", "config_salary"),
-    [
-        # non-remote job
-        ({"remote": False}, Decimal(str(100_000))),
-        # without compensation
-        ({"compensation": ""}, Decimal(str(100_000))),
-        # below salary threshold
-        ({"compensation": "$100k – $150k • details"}, Decimal(str(200_000))),
-        # invalid salary i.e doesn't match the expected salary format.
-        ({"compensation": "₹10,000 – ₹15,000"}, Decimal(str(200_000))),
-        # no salary info
-        ({"compensation": "No Equity"}, Decimal(str(200_000))),
-        # too old job
-        (
-            {
-                "liveStartAt": (
-                    datetime.now(tz=timezone.utc) - timedelta(days=365)
-                ).timestamp(),
+def test_get_jobs(wellfound, load_response, respx_mock):
+    exchange_rate_url_pattern = re.compile(
+        EXCHANGE_RATE_API_URL.format(currency="usd", date=r"\d{4}-\d{2}-\d{2}"),
+        flags=re.IGNORECASE,
+    )
+    respx_mock.get(exchange_rate_url_pattern).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "usd": {
+                    "inr": 0.012,
+                }
             },
-            Decimal(str(200_000)),
-        ),
-        # non-matching keywords
-        (
-            {
-                "title": "Typescript Developer",
-                "description": "Job description",
-            },
-            Decimal(str(200_000)),
-        ),
-    ],
-)
-def test_filter_job_invalid(wellfound, job_data, config_salary):
-    job_result = create_job_result(job_data)
-
-    with patch.object(config, "SALARY", config_salary):
-        job = wellfound.filter_job(job_result)
-
-    assert job is None
-
-
-def test_filter_jobs_valid(wellfound, load_response, respx_mock):
-    # so that tests don't fail in future due to the date check.
-    wellfound.validate_recency = lambda **kwargs: True
+        )
+    )
 
     page_1 = load_response("wellfound-page-1.html")
     page_2 = load_response("wellfound-page-2.html")
@@ -126,21 +82,28 @@ def test_filter_jobs_valid(wellfound, load_response, respx_mock):
         ]
     )
 
-    with patch("tenacity.nap.time.sleep") as mocked_sleep:
+    with patch.object(asyncio, "sleep") as mocked_sleep:
+        wellfound.parser_class.validate_recency = lambda x: True  # bypass recency check
         jobs = wellfound.get_jobs()
 
     mocked_sleep.assert_called_once()
 
-    assert len(jobs) == 2
+    assert len(jobs) == 52
     # just pick any one job from the list
     # each of them will have the same structure
     job = jobs[0]
 
     assert isinstance(job, Job)
-    assert "Python" in job.title
-    assert "python" in job.link
-    assert job.salary >= config.SALARY
-    assert job.posted_on is not None
+    assert job.title == "Python Developer"
+    assert job.description is not None
+    assert job.link == "https://wellfound.com/jobs/2747178-python-developer"
+    assert job.salary is None
+    assert job.posted_on == datetime(
+        year=2023, month=7, day=26, hour=9, minute=46, second=39, tzinfo=timezone.utc
+    )
+    assert job.tags == ["developer"]
+    assert job.locations == ["India"]
+    assert job.is_remote is True
 
 
 def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):
@@ -168,12 +131,11 @@ def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):
 
     with (
         pytest.raises(ScrapflyError) as excinfo,
-        patch("tenacity.nap.time.sleep") as mocked_sleep,
+        patch.object(asyncio, "sleep") as async_sleep_mock,
     ):
         wellfound.get_jobs()
 
-    assert mocked_sleep.call_count == 4
-
+    assert async_sleep_mock.call_count == 9
     assert excinfo.value.message == "Forbidden"
     assert excinfo.value.request.method == "GET"
     assert excinfo.value.request.url == "https://wellfound.com/jobs"
