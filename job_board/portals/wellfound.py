@@ -54,14 +54,8 @@ class Wellfound(BasePortal):
     # although the API returns HTML, but the JSON content is embedded in the HTML
     # so we will treat it as JSON for our purposes.
     api_data_format = "json"
-    _REQUEST_BATCH_SIZE = 10  # Number of requests to process concurrently
+    _REQUEST_BATCH_SIZE = 11  # Number of requests to process concurrently
     parser_class = Parser
-
-    def _parse_page_content(self, content: str) -> dict[str, Any]:
-        element = html.fromstring(content)
-        data_element = element.get_element_by_id("__NEXT_DATA__")
-        data = json.loads(data_element.text)
-        return data["props"]["pageProps"]["apolloState"]["data"]
 
     def make_request(self) -> list[dict[str, Any]]:
         return asyncio.run(self._fetch_all_pages())
@@ -71,37 +65,32 @@ class Wellfound(BasePortal):
         first_page_url = f"{self.url}?page=1"
         first_page_content = await self._make_request(first_page_url)
         graph_data = self._parse_page_content(first_page_content)
+        total_pages = self._get_total_pages(graph_data)
+        logger.info(f"[Wellfound]: Fetched page=1, found {total_pages=}")
 
-        # Extract total pages fropm first page
-        talent_data = graph_data["ROOT_QUERY"]["talent"]
-        total_pages = 1  # default fallback
-
-        for key, value in talent_data.items():
-            if key.startswith("seoLandingPageJobSearchResults({"):
-                total_pages = value["pageCount"]
-                break
-
-        logger.info(f"[Wellfound]: Found {total_pages=}")
-
-        # If only one page, return early
-        if total_pages == 1:
-            return [graph_data]
-
-        # Create tasks for remaining pages (2 to total_pages)
-        remaining_pages = list(range(2, total_pages + 1))
-
-        # Process pages in batches of 10
         jobs_data = [graph_data]  # Start with first page data
-        for batch_index in range(0, len(remaining_pages), self._REQUEST_BATCH_SIZE):
-            batch_pages = remaining_pages[
-                batch_index : batch_index + self._REQUEST_BATCH_SIZE
-            ]
+        current_page = (
+            2  # Start from the second page since the first is already fetched
+        )
+        while current_page <= total_pages:
+            # Process remaining pages in batches
+            batch_end = min(
+                # for example: 2nd batch will be 2 + 11 - 1 = 12
+                current_page + self._REQUEST_BATCH_SIZE - 1,
+                total_pages,
+            )
+            batch_pages = list(
+                range(
+                    current_page,
+                    batch_end + 1,  # End is exclusive, so we add 1.
+                )
+            )
             batch_urls = [f"{self.url}?page={page}" for page in batch_pages]
 
             logger.info(
                 (
-                    "[Wellfound]: Fetching batch "
-                    f"{batch_index // self._REQUEST_BATCH_SIZE + 1}, "
+                    "[Wellfound]: Fetching pages in batch, "
+                    f"total pages: {total_pages}, "
                     f"batch info: pages {batch_pages[0]}-{batch_pages[-1]}"
                 )
             )
@@ -111,8 +100,11 @@ class Wellfound(BasePortal):
             task_results = [t.result() for t in tasks]
             for page_num, result in zip(batch_pages, task_results, strict=True):
                 graph_data = self._parse_page_content(result)
+                total_pages = self._get_total_pages(graph_data)
                 jobs_data.append(graph_data)
                 logger.info(f"[Wellfound]: Processed page {page_num}")
+
+            current_page = batch_end + 1  # Move to the next batch
 
         return jobs_data
 
@@ -125,6 +117,19 @@ class Wellfound(BasePortal):
     )
     async def _make_request(self, url: str) -> str:
         return await make_scrapfly_async_request(url, asp=True)
+
+    def _parse_page_content(self, content: str) -> dict[str, Any]:
+        element = html.fromstring(content)
+        data_element = element.get_element_by_id("__NEXT_DATA__")
+        data = json.loads(data_element.text)
+        return data["props"]["pageProps"]["apolloState"]["data"]
+
+    def _get_total_pages(self, graph_data: dict[str, Any]) -> int:
+        talent_data = graph_data["ROOT_QUERY"]["talent"]
+        for key, value in talent_data.items():
+            if key.startswith("seoLandingPageJobSearchResults({"):
+                return value["pageCount"]
+        return 1
 
     def get_items(self, jobs_data) -> list:
         # data is a list of data from all pages.
