@@ -69,6 +69,9 @@ class Wellfound(BasePortal):
         logger.info(f"[Wellfound]: Fetched page=1, found {total_pages=}")
 
         jobs_data = [graph_data]  # Start with first page data
+        if total_pages <= 1:
+            return jobs_data  # No more pages to fetch
+
         current_page = (
             2  # Start from the second page since the first is already fetched
         )
