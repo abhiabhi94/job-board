@@ -126,9 +126,6 @@ class Himalayas(BasePortal):
             f"Remaining: {total_jobs - jobs_fetched}"
         )
 
-        if jobs_fetched >= total_jobs:
-            return jobs_data
-
         # Create batch tasks for remaining jobs
         while jobs_fetched < total_jobs:
             batch_tasks = []
