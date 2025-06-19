@@ -1,4 +1,4 @@
-name: Tests
+name: CI
 on:
   pull_request:
   push:
@@ -25,7 +25,6 @@ jobs:
         ssl: true
       id: postgres
 
-
     - name: Install dependencies
       run: |
         pip install --upgrade pip setuptools wheel
@@ -39,11 +38,26 @@ jobs:
         coverage run -m pytest
         coverage xml
 
-    - name: Upload coverage artifacts
+    - name: Upload coverage artifact
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-${{ github.run_id }}
-        path: |
-          coverage.xml
-          .coverage
-        retention-days: 1
+        name: coverage-data
+        path: coverage.xml
+
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-data
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
