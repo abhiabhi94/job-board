@@ -1,5 +1,4 @@
 from datetime import datetime
-from datetime import timezone
 
 from lxml import html
 
@@ -30,9 +29,7 @@ class Parser(JobParser):
         return html.fromstring(self.item["description"]).text_content()
 
     def get_posted_on(self) -> datetime:
-        return (
-            datetime.strptime(self.item["publication_date"], DATE_FORMAT)
-        ).astimezone(timezone.utc)
+        return datetime.strptime(self.item["publication_date"], DATE_FORMAT)
 
     def get_salary(self):
         return self.parse_salary_range(
