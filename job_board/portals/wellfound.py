@@ -27,7 +27,9 @@ class Parser(JobParser):
         return self.item["locationNames"]
 
     def get_posted_on(self):
-        return datetime.fromtimestamp(self.item["liveStartAt"]).astimezone(timezone.utc)
+        return datetime.fromtimestamp(
+            self.item["liveStartAt"],
+        ).astimezone(timezone.utc)
 
     def get_title(self):
         return self.item["title"]

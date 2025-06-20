@@ -25,7 +25,7 @@ AVAILABLE_TAGS = [
     "developer",
     "backend",
     "frontend",
-    "fullstack",
+    "full stack",
     "infrastructure",
     "data science",
     "typescript",

@@ -13,6 +13,7 @@ from lxml import etree
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
+from requests.structures import CaseInsensitiveDict
 
 from job_board import config
 from job_board.logger import logger
@@ -29,6 +30,22 @@ SALARY_RANGE_REGEX = re.compile(r"salary range.*?\$(\d{2,}(?:,\d{3})+)")
 HOURLY_RATE_REGEX = re.compile(r"(\d+)[–-](\d+)\s*USD\s*per\s*hour")
 
 CURRENCY_CODE_REGEX = re.compile(r"([A-Z]{3})$", re.IGNORECASE)
+
+
+STANDARD_TAGS_MAPPING = CaseInsensitiveDict()
+STANDARD_TAGS_MAPPING.update(
+    {
+        "Back end": "backend",
+        "Back-end": "backend",
+        "front end": "frontend",
+        "Front-end": "frontend",
+        "Fullstack": "full stack",
+        "Full-stack": "full stack",
+        "DataScience": "data science",
+        "Node js": "node.js",
+        "Nodejs": "node.js",
+    }
+)
 
 
 class InvalidSalary(Exception):
@@ -84,10 +101,10 @@ class JobParser:
         self.portal_name = portal_name
 
     @cached_property
-    def extra_info(self) -> dict:
+    def extra_info(self):
         return self.get_extra_info()
 
-    def get_extra_info(self) -> dict:
+    def get_extra_info(self):
         """Extracts extra information from the item."""
         raise NotImplementedError()
 
@@ -105,7 +122,7 @@ class JobParser:
         posted_on = self.get_posted_on()
         title = self.get_title().strip()
         description = self.get_description().strip()
-        tags = self.get_tags()
+        tags = self._normalize_tags(self.get_tags())
         salary = self.get_salary()
         is_remote = self.get_is_remote()
         locations = self.get_locations()
@@ -149,6 +166,14 @@ class JobParser:
     def get_tags(self) -> list[str]:
         """Extracts the tags from the item."""
         raise NotImplementedError()
+
+    def _normalize_tags(self, tags: list[str]) -> list[str]:
+        normalized_tags = []
+        for tag in tags:
+            _tag = tag.strip().lower()
+            _tag = STANDARD_TAGS_MAPPING.get(_tag, _tag)
+            normalized_tags.append(_tag)
+        return normalized_tags
 
     def get_salary(self) -> str | None:
         """Extracts the salary from the item."""
