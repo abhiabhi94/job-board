@@ -1,3 +1,7 @@
+from datetime import datetime
+from datetime import timezone
+
+from lxml import html
 from lxml import objectify
 
 from job_board.portals.base import BasePortal
@@ -32,11 +36,22 @@ class Parser(JobParser):
             or "global" in locations
         )
 
+    def get_extra_info(self) -> html.HtmlElement:
+        link = self.get_link()
+        with httpx_client() as client:
+            response = client.get(link)
+
+        return html.fromstring(response.content)
+
     def get_posted_on(self):
-        # There is no posted date in the rss feed
-        # Can be fetched from the HTML description
-        # on the job page, but too much work for now
-        return
+        detail_page = self.extra_info
+        try:
+            (time_tag,) = detail_page.cssselect("time[datetime]")
+        except ValueError:
+            return None
+        else:
+            date_str = time_tag.get("datetime")
+            return datetime.fromisoformat(date_str).astimezone(timezone.utc)
 
     def get_salary(self):
         # Most of the jobs don't have a salary
@@ -44,7 +59,16 @@ class Parser(JobParser):
         return
 
     def get_tags(self):
-        return ["python"]
+        tags = ["python"]
+        detail_page = self.extra_info
+        try:
+            (tag_element,) = detail_page.cssselect(".job-tags > .listing-job-type")
+        except ValueError:
+            job_tags = []
+        else:
+            job_tags = tag_element.text_content().strip().split(", ")
+
+        return tags + job_tags
 
 
 class PythonDotOrg(BasePortal):

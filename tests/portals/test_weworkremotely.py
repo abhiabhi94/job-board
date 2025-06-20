@@ -138,4 +138,4 @@ def test_get_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
     )
     assert job.is_remote is True
     assert job.locations == []
-    assert job.tags == ["C#"]
+    assert job.tags == ["c#"]

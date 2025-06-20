@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from datetime import timezone
 
 from lxml import html
 from lxml import objectify
@@ -51,7 +52,9 @@ class Parser(JobParser):
 
     def get_posted_on(self):
         date_string = self.item.pubDate.text
-        return datetime.strptime(date_string, "%a, %d %b %Y %H:%M:%S %z")
+        return (datetime.strptime(date_string, "%a, %d %b %Y %H:%M:%S %z")).astimezone(
+            timezone.utc
+        )
 
     def get_is_remote(self):
         region = self.item.region.text
