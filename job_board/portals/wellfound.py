@@ -1,7 +1,6 @@
 import asyncio
 import json
 from datetime import datetime
-from datetime import timezone
 from typing import Any
 
 from lxml import html
@@ -27,7 +26,7 @@ class Parser(JobParser):
         return self.item["locationNames"]
 
     def get_posted_on(self):
-        return datetime.fromtimestamp(self.item["liveStartAt"]).astimezone(timezone.utc)
+        return datetime.fromtimestamp(self.item["liveStartAt"])
 
     def get_title(self):
         return self.item["title"]
