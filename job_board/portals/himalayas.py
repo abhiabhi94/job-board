@@ -87,7 +87,6 @@ class Himalayas(BasePortal):
     url = "https://himalayas.app/jobs/api"
     api_data_format = "json"
     portal_name = "himalayas"
-    _REQUEST_BATCH_SIZE = 10  # Number of requests to process concurrently
     parser_class = Parser
 
     def make_request(self) -> list[dict[str, Any]]:
@@ -130,7 +129,7 @@ class Himalayas(BasePortal):
         while jobs_fetched < total_jobs:
             batch_tasks = []
             # Create batch of requests
-            for batch_index in range(self._REQUEST_BATCH_SIZE):
+            for batch_index in range(config.HIMALAYAS_REQUESTS_BATCH_SIZE):
                 batch_offset = jobs_fetched + (batch_index * 20)
                 if batch_offset >= total_jobs:
                     break

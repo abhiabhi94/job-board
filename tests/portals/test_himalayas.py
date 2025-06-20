@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import httpx
 
+from job_board import config
 from job_board.portals import Himalayas
 from job_board.portals.parser import Job
 from job_board.utils import EXCHANGE_RATE_API_URL
@@ -46,7 +47,7 @@ def test_get_jobs(respx_mock, load_response):
 
     with (
         patch.object(asyncio, "sleep") as mocked_sleep,
-        patch.object(Himalayas, "_REQUEST_BATCH_SIZE", 1),
+        patch.object(config, "HIMALAYAS_REQUESTS_BATCH_SIZE", 1),
     ):
         jobs = portal.get_jobs()
 
