@@ -6,6 +6,7 @@ from typing import Any
 
 from lxml import html
 
+from job_board import config
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
@@ -54,7 +55,6 @@ class Wellfound(BasePortal):
     # although the API returns HTML, but the JSON content is embedded in the HTML
     # so we will treat it as JSON for our purposes.
     api_data_format = "json"
-    _REQUEST_BATCH_SIZE = 11  # Number of requests to process concurrently
     parser_class = Parser
 
     def make_request(self) -> list[dict[str, Any]]:
@@ -79,7 +79,7 @@ class Wellfound(BasePortal):
             # Process remaining pages in batches
             batch_end = min(
                 # for example: 2nd batch will be 2 + 11 - 1 = 12
-                current_page + self._REQUEST_BATCH_SIZE - 1,
+                current_page + config.WELLFOUND_REQUESTS_BATCH_SIZE - 1,
                 total_pages,
             )
             batch_pages = list(
