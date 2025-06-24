@@ -27,7 +27,7 @@ class PortalSetting(BaseModel):
         with get_session(readonly=False) as session:
             setting = (
                 session.query(PortalSetting)
-                .filter(PortalSetting.portal_name == portal_name)
+                .filter(sa.func.lower(PortalSetting.portal_name) == portal_name)
                 .one_or_none()
             )
             if setting is None:
