@@ -7,6 +7,7 @@ from lxml import objectify
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
 from job_board.utils import make_scrapfly_request
+from job_board.utils import retry_on_http_errors
 
 # matches "60,000" or "60,000,000"
 SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
@@ -23,8 +24,12 @@ class Parser(JobParser):
         return self.item.description.text
 
     def get_extra_info(self):
+        return html.fromstring(self._get_extra_info())
+
+    @retry_on_http_errors()
+    def _get_extra_info(self):
         link = self.get_link()
-        return html.fromstring(make_scrapfly_request(link, timeout=100))
+        return make_scrapfly_request(link, timeout=100)
 
     def get_salary(self):
         root = self.extra_info
@@ -66,6 +71,7 @@ class WeWorkRemotely(BasePortal):
     api_data_format = "xml"
     parser_class = Parser
 
+    @retry_on_http_errors()
     def make_request(self) -> str:
         return make_scrapfly_request(self.url, timeout=100)
 

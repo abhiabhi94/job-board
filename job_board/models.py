@@ -94,7 +94,7 @@ class Job(BaseModel):
         index=True,
     )
     link = sa.Column(sa.String, nullable=False)
-    title = sa.Column(sa.String, nullable=False, index=True)
+    title = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
     salary = sa.Column(sa.Numeric, nullable=True, index=True)
     posted_on = sa.Column(
