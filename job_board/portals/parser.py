@@ -141,7 +141,9 @@ class JobParser:
         )
 
     def validate_recency(self) -> bool:
-        cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=365)
+        cutoff_date = datetime.now(tz=timezone.utc) - timedelta(
+            days=config.JOB_AGE_LIMIT_DAYS
+        )
         posted_on = self.get_posted_on()
         if posted_on and posted_on < cutoff_date:
             return False
