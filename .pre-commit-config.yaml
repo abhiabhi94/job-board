@@ -22,3 +22,12 @@ repos:
     rev: v3.15.0
     hooks:
     -   id: reorder-python-imports
+
+-   repo: local
+    hooks:
+    -   id: encrypt-app-secrets
+        name: Encrypt app secrets with Ansible Vault
+        entry: bash ./infra/encrypt_secrets.sh
+        language: system
+        pass_filenames: false
+        always_run: true
