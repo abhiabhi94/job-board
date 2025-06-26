@@ -28,6 +28,7 @@ dependencies = [
     "Flask",
     "pycountry",
     "babel",
+    "gunicorn",
 ]
 [project.optional-dependencies]
 dev = [

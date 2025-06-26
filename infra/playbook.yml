@@ -1,0 +1,167 @@
+- name: Deploy Job Board Application
+  hosts: production
+  become: yes
+  vars_files:
+    - vault.yml
+  handlers:
+    - name: restart jobboard
+      systemd:
+        name: "{{ service_name }}"
+        state: restarted
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+  tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        cache_valid_time: 3600
+    - name: Install system dependencies
+      apt:
+        name:
+          - "python{{ python_version }}"
+          - "python{{ python_version }}-venv"
+          - python3-pip
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+          - git
+        state: present
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        shell: /bin/false
+        home: "{{ app_dir }}"
+        create_home: no
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+    - name: Copy application code from runner
+      synchronize:
+        src: "{{ playbook_dir }}/../{{ item}}"
+        dest: "{{ app_dir }}/"
+        delete: yes
+        rsync_opts:
+          - "--exclude=__pycache__"
+          - "--exclude=*.pyc"
+      loop:
+        - job_board
+        - README.md
+        - pyproject.toml
+      become_user: root
+      notify: restart jobboard
+    - name: Fix ownership of application files
+      file:
+        path: "{{ app_dir }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: yes
+    - name: Create virtual environment directory
+      file:
+        path: "{{ app_dir }}/venv"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+    - name: Create virtual environment
+      command: "python{{ python_version }} -m venv {{ app_dir }}/venv"
+      args:
+        creates: "{{ app_dir }}/venv/pyvenv.cfg"
+      become_user: "{{ app_user }}"
+    - name: Upgrade pip in virtual environment
+      pip:
+        name: pip
+        state: latest
+        virtualenv: "{{ app_dir }}/venv"
+      become_user: "{{ app_user }}"
+    - name: Install application package
+      pip:
+        name: "."
+        virtualenv: "{{ app_dir }}/venv"
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
+      notify: restart jobboard
+    # Load encrypted app secrets
+    - name: Load app secrets
+      include_vars: vault.yml
+    - name: Create environment file
+      template:
+        src: env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ app_user }}"
+        mode: '0600'
+      notify: restart jobboard
+    - name: Create secrets directory
+      file:
+        path: "/etc/secrets/{{ service_name }}"
+        state: directory
+        mode: '0755'
+    - name: Deploy environment file
+      template:
+        src: env.j2
+        dest: "/etc/secrets/{{ service_name }}/.env"
+        mode: '0600'
+      notify: restart jobboard
+    - name: Deploy systemd service
+      template:
+        src: jobboard.service.j2
+        dest: "/etc/systemd/system/{{ service_name }}.service"
+        mode: '0644'
+      notify:
+        - reload systemd
+        - restart jobboard
+    - name: Deploy nginx configuration
+      template:
+        src: nginx.conf.j2
+        dest: "/etc/nginx/sites-available/{{ service_name }}"
+        mode: '0644'
+      notify: reload nginx
+    - name: Enable nginx site
+      file:
+        src: "/etc/nginx/sites-available/{{ service_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ service_name }}"
+        state: link
+      notify: reload nginx
+    - name: Start and enable services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+        daemon_reload: yes
+      loop:
+        - "{{ service_name }}"
+        - nginx
+    - name: Check if SSL certificate exists
+      stat:
+        path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+      register: ssl_cert_file
+    - name: Check certificate expiry if it exists
+      command: >
+        openssl x509 -noout -checkend 2592000 -in /etc/letsencrypt/live/{{ domain }}/fullchain.pem
+
+      register: cert_valid
+      failed_when: false
+      when: ssl_cert_file.stat.exists
+    - name: Obtain or renew SSL certificate
+      command: >
+        certbot --nginx -d {{ domain }} -d www.{{ domain }} --agree-tos --redirect -m {{ admin_email }} --non-interactive --keep-until-expiring
+
+      register: certbot_result
+      notify: reload nginx
+    - name: Test deployment
+      uri:
+        url: "https://{{ domain }}"
+        method: GET
+        status_code: 200
+      retries: 3
+      delay: 10
