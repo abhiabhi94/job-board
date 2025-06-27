@@ -46,16 +46,28 @@ job-board fetch -I weworkremotely -I python_dot_org
 job-board fetch -E wellfound -E work_at_a_startup
 ```
 
-- Run it as a schedule, that runs once per day
+- Start the job scheduler (runs jobs according to their cron schedules)
 
 ```sh
-job-board schedule
+job-board scheduler start
 ```
 
-- Run the schedule immediately, usually useful in checking stuff
+- List all registered scheduled jobs
 
 ```sh
-job-board schedule -I
+job-board scheduler list-jobs
+```
+
+- Run a specific job manually
+
+```sh
+job-board scheduler run-job fetch_jobs_daily
+```
+
+- Remove all scheduled jobs (useful before deployment)
+
+```sh
+job-board scheduler remove-jobs
 ```
 
 ### Tests

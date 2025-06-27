@@ -18,7 +18,7 @@ dependencies = [
     "sqlalchemy",
     "psycopg2-binary",
     "python-dotenv",
-    "schedule",
+    "apscheduler",
     "click",
     "humanize",
     "pydantic",

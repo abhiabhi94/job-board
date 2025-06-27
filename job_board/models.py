@@ -1,4 +1,5 @@
 import itertools
+from datetime import timedelta
 
 import sqlalchemy as sa
 from requests.structures import CaseInsensitiveDict
@@ -9,6 +10,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import expression
 
+from job_board import config
 from job_board.connection import get_session
 from job_board.logger import logger
 from job_board.portals.parser import Job as JobListing
@@ -288,3 +290,23 @@ def _store_payloads(session, jobs: JobListing) -> None:
         .all()
     )
     logger.info(f"Stored {len(payload_ids)} new payloads")
+
+
+def purge_old_jobs():
+    with get_session(readonly=False) as session:
+        deleted_jobs = session.execute(
+            sa.delete(Job).where(
+                Job.posted_on
+                < (utcnow_naive() - timedelta(days=config.JOB_AGE_LIMIT_DAYS))
+            )
+        )
+
+        deleted_payloads = session.execute(
+            sa.delete(Payload).where(
+                ~sa.exists(sa.select(Job.id).where(Job.link == Payload.link))
+            )
+        )
+        logger.info(
+            f"Purged {deleted_jobs.rowcount} old jobs and "
+            f"{deleted_payloads.rowcount} old payloads."
+        )
