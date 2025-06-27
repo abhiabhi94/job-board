@@ -95,10 +95,9 @@ class Job(BaseModel):
 
 
 class JobParser:
-    def __init__(self, *, item: object, portal_name, api_data_format):
+    def __init__(self, *, item: object, api_data_format):
         self.item = item
         self.api_data_format = api_data_format
-        self.portal_name = portal_name
 
     @cached_property
     def extra_info(self):
@@ -237,9 +236,9 @@ class JobParser:
             exchange_date=posted_on,
         )
         if not exchange_rate:
+            link = self.get_link()
             logger.warning(
-                f"[{self.portal_name}]: No exchange rate found for "
-                f"{currency=}, {posted_on=}"
+                f"{link=}: No exchange rate found for {currency=}, {posted_on=}"
             )
             exchange_rate = Decimal("1")
 

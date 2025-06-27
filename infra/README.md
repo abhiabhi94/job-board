@@ -66,9 +66,18 @@ The playbook sets up a complete production environment:
 2. **Application user** - Dedicated system user for security
 3. **Python environment** - Virtual environment with dependencies
 4. **Application service** - Systemd service for the Flask app
-5. **Reverse proxy** - Nginx with security headers and compression
-6. **SSL certificate** - Automatic Let's Encrypt certificate
-7. **Environment config** - Secure environment variables from vault
+5. **Job scheduler** - Background scheduler for automated job fetching
+6. **Reverse proxy** - Nginx with security headers and compression
+7. **SSL certificate** - Automatic Let's Encrypt certificate
+8. **Environment config** - Secure environment variables from vault
+
+### Scheduler Management
+
+The deployment automatically manages the job scheduler:
+
+- **Before deployment**: Removes old scheduled jobs to prevent duplicates
+- **After deployment**: Starts the scheduler with updated job definitions
+- **Jobs run automatically** according to their cron schedules
 
 ## Secret Management
 

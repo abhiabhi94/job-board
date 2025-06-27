@@ -1,14 +1,14 @@
 import pdb
 import subprocess
 import sys
-import time
 import traceback
 from datetime import timedelta
 from datetime import timezone
 
 import click
-import schedule
 
+# Import scheduled jobs to register them globally  # noreorder
+import job_board.scheduled_jobs  # noqa: F401
 from job_board import config
 from job_board.connection import get_session
 from job_board.init_db import init_db
@@ -16,6 +16,7 @@ from job_board.logger import logger
 from job_board.models import store_jobs
 from job_board.portals import PORTALS
 from job_board.portals.models import PortalSetting
+from job_board.scheduler import scheduler
 from job_board.utils import utcnow_naive
 
 
@@ -67,13 +68,13 @@ def fetch(pdb_flag, include_portals, exclude_portals):
             "Cannot use --include-portals and --exclude-portals at the same time."
         )
 
-    _fetch(
+    fetch_jobs(
         include_portals=include_portals,
         exclude_portals=exclude_portals,
     )
 
 
-def _fetch(
+def fetch_jobs(
     *,
     include_portals: list[str] | None = None,
     exclude_portals: list[str] | None = None,
@@ -115,19 +116,43 @@ def _fetch(
     click.echo("********Fetched jobs**********")
 
 
-@main.command("schedule", help="Schedule the notifier")
-@click.option("--immediate", "-I", is_flag=True, help="Run the scheduler immediately")
-def schedule_notifier(immediate):
-    click.echo("********Scheduling Notifier**********")
-    schedule.every().day.at("10:30").do(_fetch)
-    if immediate:
-        schedule.run_all(delay_seconds=5)
-        click.echo("All schedules executed")
-        return
+@main.group("scheduler", help="Job scheduler commands")
+def scheduler_group():
+    pass
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+
+@scheduler_group.command("start", help="Start the job scheduler")
+def start_scheduler():
+    scheduler.start()
+
+
+@scheduler_group.command("remove-jobs", help="Remove all scheduled jobs")
+def remove_jobs():
+    scheduler.clear_jobs()
+
+
+@scheduler_group.command("stop", help="Stop the job scheduler")
+def stop_scheduler():
+    scheduler.clear_jobs()
+    scheduler.stop()
+
+
+@scheduler_group.command("list-jobs", help="List all registered jobs")
+def list_jobs():
+    jobs = scheduler.list_jobs()
+    if jobs:
+        click.echo("Registered jobs:")
+        for job_name in jobs:
+            click.echo(f"  - {job_name}")
+    else:
+        click.echo("No jobs registered")
+
+
+@scheduler_group.command("run-job", help="Run a specific job")
+@click.argument("job-name")
+def run_job(job_name):
+    scheduler.run_job(job_name)
+    click.echo(f"Job '{job_name}' executed successfully")
 
 
 @main.command("setup-db", help="Setup the PostgreSQL database")

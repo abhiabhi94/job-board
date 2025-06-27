@@ -46,6 +46,13 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: '0755'
+    - name: Create log directory
+      file:
+        path: "{{ log_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
     - name: Copy application code from runner
       synchronize:
         src: "{{ playbook_dir }}/../{{ item}}"
@@ -132,6 +139,9 @@
         dest: "/etc/nginx/sites-enabled/{{ service_name }}"
         state: link
       notify: reload nginx
+    - name: Stop scheduler before deployment
+      command: "{{ app_dir }}/venv/bin/job-board scheduler stop"
+      become_user: "{{ app_user }}"
     - name: Start and enable services
       systemd:
         name: "{{ item }}"
@@ -141,6 +151,9 @@
       loop:
         - "{{ service_name }}"
         - nginx
+    - name: Start job scheduler
+      command: "{{ app_dir }}/venv/bin/job-board scheduler start"
+      become_user: "{{ app_user }}"
     - name: Check if SSL certificate exists
       stat:
         path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"

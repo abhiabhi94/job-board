@@ -4,9 +4,6 @@ from job_board.portals.base import BasePortal
 
 
 def test_abstract_methods():
-    class Portal(BasePortal):
-        portal_name = "test_portal"
-
     with pytest.raises(NotImplementedError):
         BasePortal().make_request()
 

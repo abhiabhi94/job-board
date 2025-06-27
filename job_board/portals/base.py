@@ -29,7 +29,6 @@ class BasePortal:
             parser = self.parser_class(
                 item=item,
                 api_data_format=self.api_data_format,
-                portal_name=self.portal_name,
             )
             if job := parser.get_job():
                 jobs.append(job)

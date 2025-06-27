@@ -44,7 +44,7 @@ now = datetime.now(timezone.utc)
 
 @pytest.fixture
 def parser():
-    return JobParser(portal_name="test_portal", api_data_format="json", item={})
+    return JobParser(api_data_format="json", item={})
 
 
 @pytest.mark.parametrize(
@@ -160,7 +160,6 @@ def test_very_old_jobs_are_skipped(parser):
     portal = BasePortal()
     portal.parser_class = TestParser
     portal.api_data_format = "json"
-    portal.portal_name = "test_portal"
 
     outdated_job = {
         "link": "https://example.com/job/1",

@@ -6,11 +6,13 @@ from unittest import mock
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy import func
 
 from job_board import config
 from job_board.connection import get_session
 from job_board.models import Job as JobModel
 from job_board.models import Payload
+from job_board.models import purge_old_jobs
 from job_board.models import store_jobs
 from job_board.models import Tag
 from job_board.portals.models import PortalSetting
@@ -142,3 +144,30 @@ def test_store_jobs_with_empty_tags(db_session):
 
     tags = db_session.execute(sa.select(Tag)).scalars().all()
     assert len(tags) == 0
+
+
+def test_purge_old_jobs(db_session):
+    job_listings = [
+        Job(
+            link="https://example.com/new-job",
+            title="Job 1",
+            posted_on=now - timedelta(days=1),
+            payload="some data",
+        ),
+        Job(
+            link="https://example.com/old-job",
+            title="Job 2",
+            posted_on=now - timedelta(days=365),
+            payload="some data",
+        ),
+    ]
+
+    store_jobs(job_listings)
+
+    assert (db_session.execute(sa.select(func.count(JobModel.id))).scalars().one()) == 2
+    assert (db_session.execute(sa.select(func.count(Payload.id))).scalars().one()) == 2
+
+    purge_old_jobs()
+
+    assert "new-job" in db_session.execute(sa.select((JobModel.link))).scalars().one()
+    assert "new-job" in db_session.execute(sa.select(Payload.link)).scalars().one()
