@@ -140,7 +140,10 @@
         state: link
       notify: reload nginx
     - name: Stop scheduler before deployment
-      command: "{{ app_dir }}/venv/bin/job-board scheduler stop"
+      shell: "source venv/bin/activate && job-board scheduler stop"
+      args:
+        chdir: "{{ app_dir }}"
+        executable: /bin/bash
       become_user: "{{ app_user }}"
     - name: Start and enable services
       systemd:
@@ -152,7 +155,10 @@
         - "{{ service_name }}"
         - nginx
     - name: Start job scheduler
-      command: "{{ app_dir }}/venv/bin/job-board scheduler start"
+      shell: "source venv/bin/activate && job-board scheduler start"
+      args:
+        chdir: "{{ app_dir }}"
+        executable: /bin/bash
       become_user: "{{ app_user }}"
     - name: Check if SSL certificate exists
       stat:
