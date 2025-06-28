@@ -127,6 +127,13 @@
       notify:
         - reload systemd
         - restart jobboard
+    - name: Deploy scheduler systemd service
+      template:
+        src: jobboard-scheduler.service.j2
+        dest: "/etc/systemd/system/{{ service_name }}-scheduler.service"
+        mode: '0644'
+      notify:
+        - reload systemd
     - name: Deploy nginx configuration
       template:
         src: nginx.conf.j2
@@ -139,12 +146,6 @@
         dest: "/etc/nginx/sites-enabled/{{ service_name }}"
         state: link
       notify: reload nginx
-    - name: Stop scheduler before deployment
-      shell: "source venv/bin/activate && job-board scheduler stop"
-      args:
-        chdir: "{{ app_dir }}"
-        executable: /bin/bash
-      become_user: "{{ app_user }}"
     - name: Start and enable services
       systemd:
         name: "{{ item }}"
@@ -153,13 +154,8 @@
         daemon_reload: yes
       loop:
         - "{{ service_name }}"
+        - "{{ service_name }}-scheduler"
         - nginx
-    - name: Start job scheduler
-      shell: "source venv/bin/activate && job-board scheduler start"
-      args:
-        chdir: "{{ app_dir }}"
-        executable: /bin/bash
-      become_user: "{{ app_user }}"
     - name: Check if SSL certificate exists
       stat:
         path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
