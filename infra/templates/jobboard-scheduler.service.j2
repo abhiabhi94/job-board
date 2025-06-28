@@ -1,0 +1,19 @@
+[Unit]
+Description=Job Scheduler for {{ service_name | title }}
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_dir }}
+Environment="PATH={{ app_dir }}/venv/bin"
+EnvironmentFile=/etc/secrets/{{ service_name }}/.env
+ExecStart={{ app_dir }}/venv/bin/job-board scheduler start
+ExecStop={{ app_dir }}/venv/bin/job-board scheduler stop
+Restart=always
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

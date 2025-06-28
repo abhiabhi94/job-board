@@ -174,11 +174,6 @@ def test_scheduler_command(cli_runner):
     with (
         mock.patch("job_board.cli.scheduler") as mock_scheduler,
     ):
-        result = cli_runner.invoke(main, ["scheduler", "start"])
-
-        assert result.exit_code == 0
-        mock_scheduler.start.assert_called_once()
-
         result = cli_runner.invoke(main, ["scheduler", "list-jobs"])
 
         assert result.exit_code == 0
@@ -197,6 +192,21 @@ def test_scheduler_command(cli_runner):
         # 1 call from remove-jobs above, 1 from stop
         assert mock_scheduler.clear_jobs.call_count == 2
         mock_scheduler.stop.assert_called_once()
+
+
+def test_scheduler_start_command(cli_runner):
+    with (
+        mock.patch("job_board.cli.scheduler") as mock_scheduler,
+        mock.patch(
+            "job_board.cli.time.sleep", side_effect=[None, None, KeyboardInterrupt()]
+        ) as mock_sleep,
+    ):
+        result = cli_runner.invoke(main, ["scheduler", "start"])
+
+    assert result.exit_code == 0
+    mock_scheduler.start.assert_called_once()
+    assert mock_sleep.call_count == 3
+    mock_scheduler.stop.assert_called_once()
 
 
 def test_setup_db_command(cli_runner):

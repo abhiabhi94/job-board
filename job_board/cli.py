@@ -1,6 +1,7 @@
 import pdb
 import subprocess
 import sys
+import time
 import traceback
 from datetime import timedelta
 from datetime import timezone
@@ -124,6 +125,15 @@ def scheduler_group():
 @scheduler_group.command("start", help="Start the job scheduler")
 def start_scheduler():
     scheduler.start()
+    click.echo("Scheduler started.\nPress Ctrl+C to stop...")
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        click.echo("Stopping scheduler...")
+        scheduler.stop()
+        click.echo("Scheduler stopped.")
 
 
 @scheduler_group.command("remove-jobs", help="Remove all scheduled jobs")
