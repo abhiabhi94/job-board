@@ -6,6 +6,25 @@ on:
       - main
 
 jobs:
+  tailwind-css-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Tailwind CSS
+        run: bash scripts/build-tailwind.sh
+
+      - name: Check if CSS is up to date
+        run: |
+          if ! git diff --exit-code job_board/static/css/output.css; then
+            echo "❌ Tailwind CSS output.css is not up to date!"
+            echo "Please run 'bash ./build-tailwind.sh' and commit the changes."
+            echo "Or ensure your pre-commit hooks are installed: 'pre-commit install'"
+            exit 1
+          else
+            echo "✅ Tailwind CSS output.css is up to date!"
+          fi
+
   tests:
     runs-on: ubuntu-latest
 
