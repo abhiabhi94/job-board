@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@source "../../templates";
+
+/* Configure dark mode - class-based strategy */
+@variant dark (&:where(.dark, .dark *));
+
+/* Custom colors */
+@theme {
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-primary-light: #dbeafe;
+  --color-accent: #f59e0b;
+  --color-accent-light: #fef3c7;
+}

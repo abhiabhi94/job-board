@@ -6,86 +6,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tech Job Board{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% if ENV == 'dev' %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#dbeafe',
+                            DEFAULT: '#3b82f6',
+                            dark: '#1d4ed8'
+                        },
+                        secondary: {
+                            DEFAULT: '#10b981',
+                            dark: '#059669'
+                        },
+                        accent: {
+                            DEFAULT: '#f59e0b',
+                            light: '#fef3c7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    {% else %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+    {% endif %}
+    <script>
+        // Dark mode initialization - MUST run immediately to prevent flash
+        (function() {
+            const storedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
 </head>
 
-<body>
-    <header>
-        <h1>Tech Job Board</h1>
-        <p>Find your job as per your preferences</p>
-    </header>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="py-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1"></div>
+                <button id="theme-toggle"
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        aria-label="Toggle dark mode">
+                    <svg id="theme-toggle-light" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <svg id="theme-toggle-dark" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-primary mb-2">Tech Job Board</h1>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">Find your job as per your preferences</p>
+            </div>
+        </header>
+        <main class="pb-12">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Cache common elements
-            const filterForm = document.getElementById('filter-form');
-            //  Enable form submission when tags are clicked
-            const tagInputs = document.querySelectorAll('.tag-checkbox');
-            tagInputs.forEach(input => {
-                input.addEventListener('change', function () {
-                    filterForm?.submit();
-                });
-            });
-
-            // Sort dropdown functionality
-            const sortButton = document.getElementById('sort-button');
-            const sortDropdown = sortButton?.parentElement;
-            const sortOptions = document.getElementById('sort-options');
-            const hiddenInput = sortOptions?.querySelector('input[name="sort"]');
-            const sortText = sortButton?.querySelector('.sort-text');
-
-            if (!sortButton || !sortDropdown || !sortOptions) return;
-
-            // Toggle dropdown
-            sortButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                sortDropdown.classList.toggle('open');
-            });
-
-            // Handle option selection
-            sortOptions.addEventListener('click', function (e) {
-                const option = e.target.closest('.sort-option');
-                if (!option) return;
-
-                const value = option.dataset.value;
-                const text = option.textContent.trim();
-
-                // Update hidden input
-                if (hiddenInput) {
-                    hiddenInput.value = value;
-                }
-
-                // Update button text
-                if (sortText) {
-                    sortText.textContent = text;
-                }
-
-                // Close dropdown
-                sortDropdown.classList.remove('open');
-
-                // Submit form
-                document.getElementById('filter-form')?.submit();
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!sortDropdown.contains(e.target)) {
-                    sortDropdown.classList.remove('open');
-                }
-            });
-
-            // Close dropdown on escape key
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    sortDropdown.classList.remove('open');
-                }
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>
