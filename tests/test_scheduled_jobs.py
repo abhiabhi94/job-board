@@ -3,13 +3,16 @@ from unittest import mock
 import pytest
 
 from job_board import models
+from job_board.cli import fetch_jobs
 from job_board.portals import PORTALS
 from job_board.scheduler import scheduler
 
 
 @pytest.fixture
 def mock_fetch():
-    with mock.patch("job_board.scheduled_jobs.cli.fetch_jobs") as mock_fetch:
+    with mock.patch(
+        "job_board.scheduled_jobs.cli.fetch_jobs", spec_set=fetch_jobs
+    ) as mock_fetch:
         yield mock_fetch
 
 
@@ -23,7 +26,7 @@ def test_scheduled_jobs_creates_job_per_portal():
 def test_wellfound_job_function(mock_fetch):
     scheduler.run_job("fetch_wellfound_jobs")
 
-    mock_fetch.assert_called_once_with(portal_name="wellfound")
+    mock_fetch.assert_called_once_with(include_portals=["wellfound"])
 
 
 def test_non_wellfound_job_function(mock_fetch):

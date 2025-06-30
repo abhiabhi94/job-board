@@ -23,7 +23,7 @@ for portal_name in PORTALS:
 
 @scheduler.schedule("0 12 * * *")
 def fetch_wellfound_jobs():
-    cli.fetch_jobs(portal_name="wellfound")
+    cli.fetch_jobs(include_portals=["wellfound"])
 
 
 @scheduler.schedule("0 0 * * *")
