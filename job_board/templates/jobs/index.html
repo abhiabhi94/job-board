@@ -42,10 +42,10 @@
                 <div class="sort-dropdown relative">
                     <button type="button" class="sort-button w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-primary" id="sort-button">
                         <span class="sort-text text-gray-700 dark:text-gray-300">
-                            {% if current_filters.sort == 'salary_desc' %}
-                                Salary
-                            {% elif current_filters.sort == 'posted_on_desc' %}
+                            {% if current_filters.sort == SortOption.POSTED_ON_DESC %}
                                 Last Posted
+                            {% elif current_filters.sort == SortOption.SALARY_DESC %}
+                                Salary
                             {% else %}
                                 Select order
                             {% endif %}
@@ -202,10 +202,10 @@
     </div>
     {% endif %}
 
-    <footer class="mt-16 bg-gray-900 text-white text-center py-8 -mx-4 sm:-mx-6 lg:-mx-8">
-        <p class="text-gray-300">
+    <footer class="mt-16 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-white text-center py-8 -mx-4 sm:-mx-6 lg:-mx-8">
+        <p class="text-gray-600 dark:text-gray-300">
             ❤️ से बनाया गया हैं | गढ़वा, बस्ती से |
-            <a href="https://github.com/abhiabhi94/job-board" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors ml-2">
+            <a href="https://github.com/abhiabhi94/job-board" target="_blank" class="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors ml-2">
                 <i class="fab fa-github text-lg"></i>
             </a>
         </p>

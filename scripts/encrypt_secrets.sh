@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euxo pipefail
 
 # Script to encrypt application secrets with Ansible Vault
 # Used by pre-commit hooks and can be run manually

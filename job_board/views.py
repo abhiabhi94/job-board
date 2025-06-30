@@ -2,6 +2,7 @@ import math
 from datetime import datetime
 from datetime import timedelta
 from decimal import Decimal
+from enum import StrEnum
 
 import humanize
 from flask import abort
@@ -37,6 +38,11 @@ AVAILABLE_TAGS = [
 ]
 
 
+class SortOption(StrEnum):
+    SALARY_DESC = "salary_desc"
+    POSTED_ON_DESC = "posted_on_desc"
+
+
 @app.route("/")
 def get_jobs():
     min_salary = request.args.get("min_salary", type=Decimal, default=Decimal("20000"))
@@ -47,11 +53,11 @@ def get_jobs():
     tags = request.args.getlist("tags", type=str)
     is_remote = request.args.get("is_remote", type=bool, default=True)
 
-    sort = request.args.get("sort", type=str, default="posted_on_desc")
+    sort = request.args.get("sort", type=str, default=SortOption.POSTED_ON_DESC)
     match sort:
-        case "salary_desc":
+        case SortOption.SALARY_DESC:
             order_by = Job.salary.desc()
-        case "posted_on_desc":
+        case SortOption.POSTED_ON_DESC:
             order_by = Job.posted_on.desc()
         case _:
             abort(400, "Invalid sort parameter")
@@ -103,6 +109,7 @@ def get_jobs():
         available_tags=AVAILABLE_TAGS,
         page=page,
         per_page=PER_PAGE,
+        SortOption=SortOption,
         current_filters={
             "min_salary": max(min_salary, Decimal("0")),
             "include_no_salary": include_no_salary,
