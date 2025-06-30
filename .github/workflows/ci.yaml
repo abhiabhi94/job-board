@@ -18,14 +18,14 @@ jobs:
         run: |
           if ! git diff --exit-code job_board/static/css/output.css; then
             echo "❌ Tailwind CSS output.css is not up to date!"
-            echo "Please run 'bash ./build-tailwind.sh' and commit the changes."
+            echo "Please run 'bash scripts/build-tailwind.sh' and commit the changes."
             echo "Or ensure your pre-commit hooks are installed: 'pre-commit install'"
             exit 1
           else
             echo "✅ Tailwind CSS output.css is up to date!"
           fi
 
-  tests:
+  python-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,23 +60,70 @@ jobs:
     - name: Upload coverage artifact
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
+        name: python-coverage-data
         path: coverage.xml
 
+  javascript-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run JavaScript tests with coverage
+      run: npm run test:coverage
+
+    - name: Check JS coverage threshold
+      run: |
+        echo "✅ JavaScript tests completed successfully!"
+        echo "📊 Coverage report:"
+        if [ -f coverage/lcov.info ]; then
+          echo "Coverage file generated: coverage/lcov.info"
+          echo "✅ Coverage threshold (99%) met"
+        else
+          echo "❌ Coverage file not found"
+          exit 1
+        fi
+
+    - name: Upload JS coverage artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: js-coverage-data
+        path: coverage/
+
   coverage:
-    needs: tests
+    needs: [python-tests, javascript-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download coverage artifact
+      - name: Download Python coverage artifact
         uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          name: python-coverage-data
 
-      - name: Upload coverage to Codecov
+      - name: Download JavaScript coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js-coverage-data
+
+      - name: Upload Python coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           fail_ci_if_error: true
           verbose: true
+          flags: python
+
+      - name: Upload JavaScript coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: true
+          verbose: true
+          flags: javascript

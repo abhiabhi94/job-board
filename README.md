@@ -72,8 +72,21 @@ job-board scheduler remove-jobs
 
 ### Tests
 
+#### Python Tests
 ```sh
-pytest
+ENV=test pytest
+```
+
+#### JavaScript Tests
+```sh
+# Install JavaScript dependencies first
+npm install
+
+# Run JavaScript tests
+npm run test:run
+
+# Run with coverage
+npm run test:coverage
 ```
 
 ### Contributing

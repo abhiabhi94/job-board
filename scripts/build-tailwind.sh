@@ -1,19 +1,19 @@
 #!/bin/bash
+set -euxo pipefail
 
 # Smart Tailwind CSS build - only updates if output would change
 echo "Checking if Tailwind CSS needs rebuilding..."
 
-# Set paths (relative to scripts directory)
-TAILWIND_CLI="../tailwindcss"
-INPUT_CSS="../job_board/static/css/input.css"
-OUTPUT_CSS="../job_board/static/css/output.css"
-TEMP_CSS="../job_board/static/css/output.tmp.css"
+TAILWIND_CLI="./tailwindcss"
+INPUT_CSS="job_board/static/css/input.css"
+OUTPUT_CSS="job_board/static/css/output.css"
+TEMP_CSS="job_board/static/css/output.tmp.css"
 
 # Download standalone CLI if it doesn't exist
 if [ ! -f "$TAILWIND_CLI" ]; then
     echo "Downloading Tailwind CSS standalone CLI..."
-    curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 -o ../tailwindcss
-    chmod +x ../tailwindcss
+    curl -L https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 --output tailwindcss
+    chmod +x tailwindcss
 fi
 
 # Build CSS to temporary file

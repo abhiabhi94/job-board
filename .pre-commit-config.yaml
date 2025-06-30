@@ -1,5 +1,10 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+ci:
+  # skip these hooks in pre-commit CI since it doesn't have access to network.
+  skip: ["encrypt-app-secrets", "build-tailwind-css", "generate-js-test-module"]
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -43,4 +48,10 @@ repos:
           entry: bash scripts/build-tailwind.sh
           language: system
           files: ^(job_board/templates/.*\.html|job_board/static/css/input\.css)$
+          pass_filenames: false
+        - id: generate-js-test-module
+          name: Generate JavaScript test module from main.js
+          entry: bash scripts/generate-test-module.sh
+          language: system
+          files: ^job_board/static/js/main\.js$
           pass_filenames: false
