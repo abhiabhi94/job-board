@@ -3,37 +3,45 @@
 {% block title %}Tech Job Listings{% endblock %}
 
 {% block content %}
-    <div class="disclaimer">
-        <p><strong>Disclaimer:</strong> These job listings have been aggregated from multiple sources for your convenience. We don't endorse or guarantee any of these positions. Please do your own research before applying.</p>
+    <div class="bg-accent-light dark:bg-yellow-900/20 border-l-4 border-accent dark:border-yellow-500 p-4 mb-8 rounded-r-lg">
+        <p class="text-amber-800 dark:text-yellow-200 text-sm leading-relaxed">
+            <strong class="font-semibold">Disclaimer:</strong> These job listings have been aggregated from multiple sources for your convenience. We don't endorse or guarantee any of these positions. Please do your own research before applying.
+        </p>
     </div>
 
-    <section class="filter-section">
-        <h2>Filter Jobs</h2>
-        <form id="filter-form" class="filter-form" method="get" action="{{ url_for('get_jobs') }}">
-            <div class="filter-group">
-                <label for="min_salary">Minimum Salary ($)</label>
-                <div class="salary-filter">
-                    <input type="number" id="min_salary" name="min_salary" min="0" step="1000" value="{{ current_filters.min_salary }}" placeholder="20,000">
-                    <div class="salary-checkbox">
-                        <input type="checkbox" id="include_no_salary" name="include_no_salary" value="true" {% if current_filters.include_no_salary %}checked{% endif %}>
-                        <label for="include_no_salary">Include jobs without salary</label>
+    <section class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8" role="search" aria-label="Job filters">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Filter Jobs</h2>
+        <form id="filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" method="get" action="{{ url_for('get_jobs') }}" role="form" aria-label="Job search filters">
+            <div class="space-y-2">
+                <label for="min_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Minimum Salary ($)</label>
+                <div class="space-y-3">
+                    <input type="number" id="min_salary" name="min_salary" min="0" step="1000" value="{{ current_filters.min_salary }}" placeholder="20,000"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                           aria-describedby="salary-help">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="include_no_salary" name="include_no_salary" value="true" {% if current_filters.include_no_salary %}checked{% endif %}
+                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded">
+                        <label for="include_no_salary" class="ml-2 text-sm text-gray-600 dark:text-gray-400">Include jobs without salary</label>
                     </div>
                 </div>
             </div>
 
-            <div class="filter-group">
-                <label for="is_remote">Work Type</label>
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="is_remote" name="is_remote" value="true" {% if current_filters.is_remote %}checked{% endif %}>
-                    <label for="is_remote">Remote only</label>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Work Type</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_remote" name="is_remote" value="true" {% if current_filters.is_remote %}checked{% endif %}
+                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded">
+                        <label for="is_remote" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Remote only</label>
+                    </div>
                 </div>
             </div>
 
-            <div class="filter-group">
-                <label>Sort</label>
-                <div class="sort-dropdown">
-                    <button type="button" class="sort-button" id="sort-button">
-                        <span class="sort-text">
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sort</label>
+                <div class="sort-dropdown relative">
+                    <button type="button" class="sort-button w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-primary" id="sort-button">
+                        <span class="sort-text text-gray-700 dark:text-gray-300">
                             {% if current_filters.sort == 'salary_desc' %}
                                 Salary
                             {% elif current_filters.sort == 'posted_on_desc' %}
@@ -42,121 +50,164 @@
                                 Select order
                             {% endif %}
                         </span>
-                        <svg class="sort-arrow" width="12" height="12" viewBox="0 0 12 12">
+                        <svg class="sort-arrow w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform" viewBox="0 0 12 12">
                             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         </svg>
                     </button>
-                    <div class="sort-options" id="sort-options">
+                    <div class="sort-options absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10 hidden" id="sort-options">
                         <input type="hidden" name="sort" value="{{ current_filters.sort or '' }}">
-                        <div class="sort-option" data-value="salary_desc">Salary</div>
-                        <div class="sort-option" data-value="posted_on_desc">Last Posted</div>
+                        <div class="sort-option px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-700 dark:text-gray-300" data-value="salary_desc">Salary</div>
+                        <div class="sort-option px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-600" data-value="posted_on_desc">Last Posted</div>
                     </div>
                 </div>
             </div>
 
 
-            <div class="filter-group">
-                <label title="Matches any of the selected tag">Tags</label>
-                <div class="tag-filters">
+            <fieldset class="space-y-2 md:col-span-2 lg:col-span-4">
+                <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags</legend>
+                <div class="flex flex-wrap gap-2" role="group" aria-label="Job category tags">
                     {% for tag in available_tags %}
-                        <input type="checkbox" class="tag-checkbox" id="tag-{{ tag }}" name="tags" value="{{ tag }}"
-                        {% if tag in current_filters.tags %}checked{% endif %}>
-                        <label for="tag-{{ tag }}" class="tag-label">{{ tag }}</label>
+                        <input type="checkbox" class="sr-only tag-checkbox" id="tag-{{ tag }}" name="tags" value="{{ tag }}"
+                        {% if tag in current_filters.tags %}checked{% endif %}
+                        aria-describedby="tag-help">
+                        <label for="tag-{{ tag }}" class="tag-label inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 hover:scale-105 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2
+                            {% if tag in current_filters.tags %}bg-primary text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}"
+                            role="button"
+                            tabindex="0">
+                            {{ tag }}
+                        </label>
                     {% endfor %}
                 </div>
-            </div>
+                <div id="tag-help" class="text-xs text-gray-500">Select one or more tags to filter jobs</div>
+            </fieldset>
 
-            <button type="submit" class="filter-button">Apply Filters</button>
+            <div class="md:col-span-2 lg:col-span-4 flex justify-end">
+                <button type="submit"
+                        class="group relative px-6 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+                        onclick="this.classList.add('loading')"
+                        id="filter-submit-btn">
+                    <span class="group-[.loading]:opacity-0 transition-opacity duration-200">Apply Filters</span>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-[.loading]:opacity-100 transition-opacity duration-200">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
         </form>
     </section>
 
-    <section class="job-listings">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% if jobs %}
             {% for job in jobs %}
-                <article class="job-card">
-                    <div class="job-header">
-                        <a href="{{ job.link }}" class="job-title" target="_blank">{{ job.title }}</a>
-                        <span class="job-posted-date">{{ job.posted_on | naturaltime | capitalize}}</span>
+                <article class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl hover:shadow-primary/5 dark:hover:shadow-primary/10 hover:-translate-y-2 hover:border-primary/20 dark:hover:border-primary/30 transition-all duration-300 ease-out flex flex-col relative overflow-hidden"
+                         onmouseenter="this.style.transform = 'translateY(-8px) scale(1.02)'"
+                         onmouseleave="this.style.transform = 'translateY(0) scale(1)'"
+                         style="transition: transform 0.3s ease-out, box-shadow 0.3s ease-out"
+                         role="button"
+                         data-job-id="{{ job.link }}">
+                    <!-- Subtle gradient overlay on hover -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/1 group-hover:to-primary/3 transition-all duration-300 rounded-xl pointer-events-none"></div>
+                    <!-- Header Section -->
+                    <div class="mb-4 relative z-10">
+                        <div class="flex justify-between mb-2">
+                            <a href="{{ job.link }}" class="job-title text-lg font-semibold text-primary group-hover:text-primary-dark line-clamp-2 min-h-[3.5rem] flex items-start flex-1 mr-3 transition-colors duration-200 cursor-pointer" target="_blank">
+                                {{ job.title }}
+                            </a>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 whitespace-nowrap self-start mt-2 transition-colors duration-200">{{ job.posted_on | naturaltime | capitalize}}</span>
+                        </div>
+                        {% if job.is_remote %}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700 cursor-default">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                Remote
+                            </span>
+                        {% endif %}
                     </div>
-                    <p class="job-description">{{ job.description|truncate(300) }}</p>
 
-                    <div class="job-meta">
+                    <!-- Description Section - Flexible Height -->
+                    <div class="block mb-4 relative z-10">
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-200 min-h-[4rem] cursor-pointer" onclick="window.open('{{ job.link }}', '_blank')">{{ job.description|truncate(300) }}</p>
+                    </div>
+
+                    <!-- Footer Section - Always at Bottom -->
+                    <div class="mt-auto space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700 relative z-10">
                         {% if job.salary %}
-                            <p class="job-salary">${{ '{:,.0f}'.format(job.salary) }}</p>
+                            <p class="text-lg font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors duration-200">${{ '{:,.0f}'.format(job.salary) }}</p>
                         {% endif %}
 
-                        <div class="job-badges">
-                            {% if job.is_remote %}
-                                <span class="badge remote">Remote</span>
-                            {% endif %}
-
+                        {% if job.locations %}
+                        <div class="flex flex-wrap gap-2">
                             {% for location in job.locations %}
-                                <span class="badge">{{ location }}</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ location }}</span>
                             {% endfor %}
                         </div>
+                        {% endif %}
 
-                        <div class="job-tags">
+                        <div class="flex flex-wrap gap-2">
                             {% for tag in job.tags %}
-                                <a href="{{ url_for('get_jobs', tags=tag) }}" class="job-tag">{{ tag }}</a>
+                                <a href="{{ url_for('get_jobs', tags=tag) }}"
+                                   class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 hover:scale-105 transition-all duration-200 relative z-10"
+                                   onclick="event.stopPropagation()">{{ tag }}</a>
                             {% endfor %}
                         </div>
                     </div>
                 </article>
             {% endfor %}
         {% else %}
-            <div class="no-jobs-message">
-                <p>No jobs match your current filters. Try adjusting your search criteria.</p>
+            <div class="col-span-full text-center py-16">
+                <div class="max-w-md mx-auto">
+                    <div class="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                        <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">No jobs found</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">We couldn't find any jobs matching your current filters. Try broadening your search criteria or check back later for new opportunities.</p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button onclick="clearAllFilters()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                            Clear All Filters
+                        </button>
+                        <button onclick="window.location.reload()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">
+                            Refresh Page
+                        </button>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </section>
 
     {% if pagination and pagination.total_pages > 1 %}
-    <div class="pagination">
-        <div class="pagination-info">
-            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }}-{{ pagination.page * pagination.per_page if pagination.page * pagination.per_page < pagination.total_jobs else pagination.total_jobs }} of {{ pagination.total_jobs }} jobs
-        </div>
-        <div class="pagination-controls">
-            {% if pagination.has_prev %}
-                <a href="{{ pagination.get_url(pagination.page - 1) }}" class="pagination-link">&laquo; Previous</a>
-            {% else %}
-                <span class="pagination-link disabled">&laquo; Previous</span>
-            {% endif %}
+    <div class="mt-12 flex justify-center">
 
-            {% set start_page = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
-            {% set end_page = pagination.page + 2 if pagination.page + 2 < pagination.total_pages else pagination.total_pages %}
+        <!-- Load More Button (for better UX) -->
+        {% if pagination.has_next %}
+        <button id="load-more-btn"
+                data-next-page="{{ pagination.page + 1 }}"
+                onclick="loadMoreJobs(this.getAttribute('data-next-page'))"
+                class="group relative px-8 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+            <span class="group-[.loading]:opacity-0 transition-opacity duration-200">Load More Jobs</span>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-[.loading]:opacity-100 transition-opacity duration-200">
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </button>
+        {% endif %}
 
-            {% if start_page > 1 %}
-                <a href="{{ pagination.get_url(1) }}" class="pagination-link">1</a>
-                {% if start_page > 2 %}
-                    <span class="pagination-ellipsis">...</span>
-                {% endif %}
-            {% endif %}
+        <!-- Hidden data for pagination state -->
+        <div data-has-next="{{ pagination.has_next|lower }}" data-current-page="{{ pagination.page if pagination else 1 }}" style="display: none;"></div>
 
-            {% for page_num in range(start_page, end_page + 1) %}
-                {% if page_num == pagination.page %}
-                    <span class="pagination-link current">{{ page_num }}</span>
-                {% else %}
-                    <a href="{{ pagination.get_url(page_num) }}" class="pagination-link">{{ page_num }}</a>
-                {% endif %}
-            {% endfor %}
-
-            {% if end_page < pagination.total_pages %}
-                {% if end_page < pagination.total_pages - 1 %}
-                    <span class="pagination-ellipsis">...</span>
-                {% endif %}
-                <a href="{{ pagination.get_url(pagination.total_pages) }}" class="pagination-link">{{ pagination.total_pages }}</a>
-            {% endif %}
-
-            {% if pagination.has_next %}
-                <a href="{{ pagination.get_url(pagination.page + 1) }}" class="pagination-link">Next &raquo;</a>
-            {% else %}
-                <span class="pagination-link disabled">Next &raquo;</span>
-            {% endif %}
-        </div>
     </div>
     {% endif %}
 
-    <footer class="site-footer">
-        <p>❤️ से बनाया गया हैं | गढ़वा, बस्ती से | <a href="https://github.com/abhiabhi94/job-board" target="_blank"><i class="fab fa-github"></i></a></p>
+    <footer class="mt-16 bg-gray-900 text-white text-center py-8 -mx-4 sm:-mx-6 lg:-mx-8">
+        <p class="text-gray-300">
+            ❤️ से बनाया गया हैं | गढ़वा, बस्ती से |
+            <a href="https://github.com/abhiabhi94/job-board" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors ml-2">
+                <i class="fab fa-github text-lg"></i>
+            </a>
+        </p>
     </footer>
 {% endblock %}

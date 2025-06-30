@@ -34,7 +34,13 @@ repos:
     hooks:
         - id: encrypt-app-secrets
           name: Encrypt app secrets with Ansible Vault
-          entry: bash ./infra/encrypt_secrets.sh
+          entry: bash scripts/encrypt_secrets.sh
           language: system
           pass_filenames: false
           always_run: true
+        - id: build-tailwind-css
+          name: Build Tailwind CSS
+          entry: bash scripts/build-tailwind.sh
+          language: system
+          files: ^(job_board/templates/.*\.html|job_board/static/css/input\.css)$
+          pass_filenames: false

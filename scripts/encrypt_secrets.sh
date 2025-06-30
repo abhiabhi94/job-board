@@ -42,14 +42,11 @@ fi
 if [[ ! -f "$VAULT_FILE" ]] || [[ "$SECRETS_FILE" -nt "$VAULT_FILE" ]]; then
     echo_info "Secrets changed, encrypting..."
 
-    # Change to infra directory for ansible-vault
-    cd infra
+    ansible-vault encrypt $SECRETS_FILE \
+        --output $VAULT_FILE \
+        --vault-password-file $VAULT_PASSWORD_FILE
 
-    ansible-vault encrypt .secrets.yml \
-        --output vault.yml \
-        --vault-password-file .vault-password
-
-    git add vault.yml
+    git add "$VAULT_FILE"
     echo_success "App secrets encrypted and staged for commit"
 else
     echo_warning "Secrets unchanged, skipping encryption"

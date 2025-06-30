@@ -87,6 +87,12 @@ pip install -e ".[dev]"
 pre-commit install
 ```
 
+#### CSS Development
+- **Development**: Uses Tailwind CDN (set `ENV=dev`)
+- **Production**: Uses optimized local CSS
+- Pre-commit hooks auto-build CSS when templates change
+- Manual build: `bash scripts/build-tailwind.sh`
+
 #### Integrations Per Portal
 
 The below text is mostly written as a note to future me.
