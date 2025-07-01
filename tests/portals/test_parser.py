@@ -174,6 +174,6 @@ def test_very_old_jobs_are_skipped(parser):
         patch.object(portal, "make_request"),
         patch.object(portal, "get_items", return_value=jobs),
     ):
-        (fetched_job,) = portal.get_jobs()
+        (fetched_job,) = portal.fetch_jobs()
 
     assert fetched_job["link"] == recent_job["link"]

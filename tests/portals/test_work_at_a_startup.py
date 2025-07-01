@@ -9,7 +9,7 @@ from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import utcnow_naive
 
 
-def test_get_jobs(respx_mock, load_response):
+def test_fetch_jobs(respx_mock, load_response):
     portal = WorkAtAStartup()
 
     respx_mock.post(ALGOLIA_URL).mock(
@@ -40,7 +40,7 @@ def test_get_jobs(respx_mock, load_response):
         )
     )
 
-    jobs = portal.get_jobs()
+    jobs = portal.fetch_jobs()
 
     assert len(jobs) == 45
     # just pick one, each of them will have the same structure

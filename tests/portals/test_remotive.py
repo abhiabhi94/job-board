@@ -83,7 +83,7 @@ def sample_jobs_response(sample_job, frozen_time):
     }
 
 
-def test_get_jobs(
+def test_fetch_jobs(
     respx_mock,
     sample_jobs_response,
     frozen_time,
@@ -94,7 +94,7 @@ def test_get_jobs(
 
     portal = Remotive()
 
-    jobs = portal.get_jobs()
+    jobs = portal.fetch_jobs()
 
     assert len(jobs) == 5
     job = jobs[0]

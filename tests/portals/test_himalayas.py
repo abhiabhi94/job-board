@@ -13,7 +13,7 @@ from job_board.portals.parser import Job
 from job_board.utils import EXCHANGE_RATE_API_URL
 
 
-def test_get_jobs(respx_mock, load_response):
+def test_fetch_jobs(respx_mock, load_response):
     portal = Himalayas()
     # so that tests don't fail in future due to the date check.
     portal.validate_recency = lambda x: True
@@ -49,7 +49,7 @@ def test_get_jobs(respx_mock, load_response):
         patch.object(asyncio, "sleep") as mocked_sleep,
         patch.object(config, "HIMALAYAS_REQUESTS_BATCH_SIZE", 1),
     ):
-        jobs = portal.get_jobs()
+        jobs = portal.fetch_jobs()
 
     mocked_sleep.assert_called_once()
 
@@ -82,6 +82,6 @@ def test_get_jobs(respx_mock, load_response):
 
     # this should return just the results from the first page
     # since the last_run_at is set to a future date
-    jobs = portal.get_jobs()
+    jobs = portal.fetch_jobs()
 
     assert len(jobs) == 20

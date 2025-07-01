@@ -98,7 +98,7 @@ def mock_job_page():
     return _mock_job_page
 
 
-def test_get_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
+def test_fetch_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
     portal = WeWorkRemotely()
     portal.parser_class.validate_recency = lambda x: True  # bypass recency check
     mock_scrapfly_response(
@@ -124,7 +124,7 @@ def test_get_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
         content="<div>salary:</div>",
     )
 
-    jobs = portal.get_jobs()
+    jobs = portal.fetch_jobs()
 
     assert len(jobs) == 4
     # just pick the first job to check the values

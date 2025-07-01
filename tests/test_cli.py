@@ -63,7 +63,7 @@ def mock_portals(monkeypatch):
             mock_method = mock.MagicMock(return_value=[f"job-{portal_name}"])
             monkeypatch.setattr(
                 portal_class,
-                "get_jobs",
+                "fetch_jobs",
                 value=mock_method,
             )
             mock_methods.append(mock_method)

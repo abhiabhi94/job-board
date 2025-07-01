@@ -106,7 +106,7 @@ def fetch_jobs(
                 last_run_at -= timedelta(minutes=5)
 
             portal = portal_class(last_run_at=last_run_at)
-            jobs = portal.get_jobs()
+            jobs = portal.fetch_jobs()
             logger.debug(f"Jobs from {portal_name}:\n\n{jobs}")
             store_jobs(jobs)
 

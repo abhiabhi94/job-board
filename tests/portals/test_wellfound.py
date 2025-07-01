@@ -22,7 +22,7 @@ def wellfound():
     return portal
 
 
-def test_get_jobs(wellfound, load_response, respx_mock):
+def test_fetch_jobs(wellfound, load_response, respx_mock):
     exchange_rate_url_pattern = re.compile(
         EXCHANGE_RATE_API_URL.format(currency="usd", date=r"\d{4}-\d{2}-\d{2}"),
         flags=re.IGNORECASE,
@@ -84,7 +84,7 @@ def test_get_jobs(wellfound, load_response, respx_mock):
 
     with patch.object(asyncio, "sleep") as mocked_sleep:
         wellfound.parser_class.validate_recency = lambda x: True  # bypass recency check
-        jobs = wellfound.get_jobs()
+        jobs = wellfound.fetch_jobs()
 
     mocked_sleep.assert_called_once()
 
@@ -133,7 +133,7 @@ def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):
         pytest.raises(ScrapflyError) as excinfo,
         patch.object(asyncio, "sleep") as async_sleep_mock,
     ):
-        wellfound.get_jobs()
+        wellfound.fetch_jobs()
 
     assert async_sleep_mock.call_count == 9
     assert excinfo.value.message == "Forbidden"
