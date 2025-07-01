@@ -659,9 +659,9 @@ describe('Main.js Tests', () => {
 
       window.loadMoreJobs(2);
 
-      // Should use window.location.pathname when form has no action
+      // Should use the form action (which defaults to current URL when no action attribute)
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/current-path'),
+        expect.stringContaining('page=2'),
         expect.any(Object)
       );
     });
