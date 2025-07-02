@@ -14,7 +14,8 @@ from job_board import config
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
-from job_board.utils import get_exchange_rate
+from job_board.portals.parser import Money
+from job_board.portals.parser import SalaryRange
 from job_board.utils import httpx_async_client
 from job_board.utils import retry_on_http_errors
 
@@ -54,28 +55,36 @@ class Parser(JobParser):
         tags.extend(self.item["parentCategories"] or [])
         return tags
 
-    def get_salary(self) -> Decimal | None:
-        link = self.get_link()
-        max_salary = self.item["maxSalary"]
-        if not max_salary:
-            return
+    def get_currency(self) -> str:
+        # the API returns the currency code
+        return self.item["currency"]
 
-        max_salary = Decimal(str(max_salary))
-        currency = self.item["currency"]
-        exchange_rate = get_exchange_rate(
-            from_currency=currency,
-            to_currency=config.DEFAULT_CURRENCY,
-            exchange_date=self.get_posted_on(),
-        )
-        if not exchange_rate:
-            logger.warning(
-                f"[Himalayas]: No exchange rate found for {currency=}, {link=}"
+    def get_salary_range(self) -> SalaryRange:
+        currency = self.get_currency()
+        max_amount = self.item["maxSalary"]
+        if max_amount:
+            max_amount = self.get_amount_in_default_currency(
+                Decimal(str(max_amount)),
+                currency=currency,
             )
-            exchange_rate = Decimal("1")
 
-        max_salary = (max_salary / exchange_rate).quantize(Decimal("0.01"))
+        min_amount = self.item["minSalary"]
+        if min_amount:
+            min_amount = self.get_amount_in_default_currency(
+                Decimal(str(min_amount)),
+                currency=currency,
+            )
 
-        return self.parse_salary(salary_str=str(max_salary))
+        return SalaryRange(
+            min_salary=Money(
+                currency=config.DEFAULT_CURRENCY,
+                amount=min_amount,
+            ),
+            max_salary=Money(
+                currency=config.DEFAULT_CURRENCY,
+                amount=max_amount,
+            ),
+        )
 
 
 MAX_JOBS_PER_REQUEST = 20  # Maximum jobs per request for the API

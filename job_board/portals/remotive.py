@@ -34,10 +34,8 @@ class Parser(JobParser):
             datetime.strptime(self.item["publication_date"], DATE_FORMAT)
         ).astimezone(timezone.utc)
 
-    def get_salary(self):
-        return self.parse_salary_range(
-            compensation=self.item.get("salary"),
-        )
+    def get_salary_range(self):
+        return self.parse_salary_range(compensation=self.item.get("salary"))
 
     def get_tags(self):
         return self.item["tags"]

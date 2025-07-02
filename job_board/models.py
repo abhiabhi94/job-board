@@ -98,7 +98,8 @@ class Job(BaseModel):
     link = sa.Column(sa.String, nullable=False)
     title = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
-    salary = sa.Column(sa.Numeric, nullable=True, index=True)
+    min_salary = sa.Column(sa.Numeric, nullable=True, index=True)
+    max_salary = sa.Column(sa.Numeric, nullable=True, index=True)
     posted_on = sa.Column(
         sa.DateTime,
         default=utcnow_naive,
@@ -130,6 +131,18 @@ class Job(BaseModel):
         sa.Index(
             "ix_job_title_lower",
             sa.func.lower(title),
+        ),
+        sa.CheckConstraint(
+            "min_salary IS NULL OR min_salary >= 0",
+            name="check_min_salary_non_negative",
+        ),
+        sa.CheckConstraint(
+            "max_salary IS NULL OR max_salary >= 0",
+            name="check_max_salary_non_negative",
+        ),
+        sa.CheckConstraint(
+            "min_salary IS NULL OR max_salary IS NULL OR max_salary >= min_salary",
+            name="check_salary_range",
         ),
     )
 
@@ -196,7 +209,8 @@ def _store_jobs(session, jobs: JobListing):
         value = {
             "link": job.link,
             "title": job.title,
-            "salary": job.salary,
+            "min_salary": job.min_salary,
+            "max_salary": job.max_salary,
             "description": job.description,
             "is_remote": job.is_remote,
             # FIXME: find a way to make this more uniform.

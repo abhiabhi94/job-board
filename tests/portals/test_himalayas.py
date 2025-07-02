@@ -63,7 +63,8 @@ def test_fetch_jobs(respx_mock, load_response):
         job.link
         == "https://himalayas.app/companies/peroptyx/jobs/data-analyst-punjabi-speaker"
     )
-    assert job.salary is None
+    assert job.max_salary is None
+    assert job.min_salary is None
     assert job.posted_on == datetime(
         year=2025, month=6, day=10, hour=8, minute=30, second=27, tzinfo=timezone.utc
     )

@@ -22,12 +22,9 @@ class Parser(JobParser):
     def get_posted_on(self):
         return None
 
-    def get_salary(self):
+    def get_salary_range(self):
         compensation = self.item["pretty_salary_range"]
-        return self.parse_salary_range(
-            compensation=compensation,
-            range_separator="-",
-        )
+        return self.parse_salary_range(compensation=compensation)
 
     def get_is_remote(self) -> bool:
         return self.item["remote"].lower() in {"yes", "only"}

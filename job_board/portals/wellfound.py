@@ -37,12 +37,9 @@ class Parser(JobParser):
     def get_description(self):
         return self.item["description"]
 
-    def get_salary(self):
+    def get_salary_range(self):
         compensation = self.item["compensation"]
-        return self.parse_salary_range(
-            compensation=compensation,
-            range_separator="–",
-        )
+        return self.parse_salary_range(compensation=compensation)
 
     def get_tags(self):
         # Tags are not directly available in the job data.

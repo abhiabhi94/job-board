@@ -4,11 +4,11 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from decimal import Decimal
-from decimal import InvalidOperation
 from functools import cached_property
+from typing import NamedTuple
 
-import humanize
 import pycountry
+from babel.numbers import format_compact_currency
 from lxml import etree
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -20,17 +20,28 @@ from job_board.logger import logger
 from job_board.utils import get_currency_from_symbol
 from job_board.utils import get_exchange_rate
 
-# matches "60,000" or "60,000,000"
-SALARY_REGEX = re.compile(r"\b\d{2,}(?:,\d{3})+\b")
-# matches "Rate: up to $80" or "Rate: $80"
-RATE_REGEX = re.compile(r"Rate:\s*(?:up to\s*)?\$(\d+)")
-# matches "salary range for this position is $120,000 - $165,000"
-SALARY_RANGE_REGEX = re.compile(r"salary range.*?\$(\d{2,}(?:,\d{3})+)")
-# matches "45–70 USD per hour" or "45-70 USD per hour"
-HOURLY_RATE_REGEX = re.compile(r"(\d+)[–-](\d+)\s*USD\s*per\s*hour")
-
-CURRENCY_CODE_REGEX = re.compile(r"([A-Z]{3})$", re.IGNORECASE)
-
+SALARY_AMOUNT_REGEX = re.compile(
+    r"""
+    (?P<currency_symbol>[^\w\s\d,.-]*)           # Currency symbol(s)
+    (?P<amount>\d+(?:,\d{3})*(?:\.\d+)?)  # Salary number with optional decimal
+    (?P<multiplier>[klmb]?)               # Suffix (k/l/m/b)
+    (?:\s+(?P<currency_code>[a-z]{2,4}))?        # Currency code at end
+    """,
+    re.VERBOSE | re.IGNORECASE,
+)
+SALARY_RANGE_REGEX = re.compile(
+    r"""
+    (?P<currency_symbol>[^\w\s\d,.-]*)           # Currency symbol(s)
+    (?P<min_amount>\d+(?:,\d{3})*(?:\.\d+)?)     # First number with optional decimal
+    (?P<min_amount_multiplier>[klmb]?)           # First suffix
+    \s*[–\-]\s*                                  # Required range separator
+    (?P<currency_symbol2>[^\w\s\d,.-]*)          # Second currency symbol
+    (?P<max_amount>\d+(?:,\d{3})*(?:\.\d+)?)     # Second number with optional decimal
+    (?P<max_amount_multiplier>[klmb]?)           # Second suffix
+    (?:\s+(?P<currency_code>[a-z]{2,4}))?        # Currency code at end
+    """,
+    re.VERBOSE | re.IGNORECASE,
+)
 
 STANDARD_TAGS_MAPPING = CaseInsensitiveDict()
 STANDARD_TAGS_MAPPING.update(
@@ -52,11 +63,22 @@ class InvalidSalary(Exception):
     pass
 
 
+class Money(NamedTuple):
+    currency: str | None
+    amount: Decimal | None
+
+
+class SalaryRange(NamedTuple):
+    min_salary: Money
+    max_salary: Money
+
+
 class Job(BaseModel):
     title: str
     description: str | None = None
     link: str
-    salary: Decimal | None = None
+    min_salary: Decimal | None = None
+    max_salary: Decimal | None = None
     posted_on: datetime | None = None
     tags: list[str] | None = Field(default_factory=list)
     is_remote: bool = False
@@ -65,33 +87,31 @@ class Job(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    def __str__(self):
-        model_dump = self.model_dump()
-        max_key_length = (
-            max(len(key) for key in model_dump) + 2  # Padding for alignment
+    @property
+    def salary_range(self) -> str:
+        min_formatted = self.min_salary and format_compact_currency(
+            self.min_salary,
+            currency=config.DEFAULT_CURRENCY,
+            locale=config.DEFAULT_LOCALE,
         )
+        max_formatted = self.max_salary and format_compact_currency(
+            self.max_salary,
+            currency=config.DEFAULT_CURRENCY,
+            locale=config.DEFAULT_LOCALE,
+            fraction_digits=config.DEFAULT_CURRENCY_FRACTION_DIGITS,
+        )
+        if not min_formatted and not max_formatted:
+            return ""
 
-        formatted_values = []
-        for key, value in model_dump.items():
-            if key == "payload":
-                continue
-            if value is None:
-                value = "N/A"
+        if min_formatted == max_formatted:
+            return min_formatted
 
-            # Convert snake_case to Title Case
-            key_repr = key.replace("_", " ").title()
-            if isinstance(value, datetime):
-                value = (humanize.naturaltime(value)).capitalize()
-            elif isinstance(value, bool):
-                value = "Yes" if value else "No"
-            elif isinstance(value, (Decimal, int, float)):
-                value = f"{value:,.2f}"
-            elif isinstance(value, list):
-                value = ", ".join(value)
+        if min_formatted and max_formatted:
+            return f"{min_formatted} - {max_formatted}"
+        elif min_formatted:
+            return f"{min_formatted} and above"
 
-            formatted_values.append(f"{key_repr.ljust(max_key_length)}: {value}")
-
-        return "\n".join(formatted_values)
+        return f"Up to {max_formatted}"
 
 
 class JobParser:
@@ -122,7 +142,9 @@ class JobParser:
         title = self.get_title().strip()
         description = self.get_description().strip()
         tags = self._normalize_tags(self.get_tags())
-        salary = self.get_salary()
+        salary_range = self.get_salary_range()
+        min_salary = salary_range.min_salary
+        max_salary = salary_range.max_salary
         is_remote = self.get_is_remote()
         locations = self.get_locations()
         payload = self.get_payload()
@@ -133,7 +155,8 @@ class JobParser:
             description=description,
             tags=tags,
             posted_on=posted_on,
-            salary=salary,
+            min_salary=min_salary.amount,
+            max_salary=max_salary.amount,
             is_remote=is_remote,
             locations=locations,
             payload=payload,
@@ -176,8 +199,8 @@ class JobParser:
             normalized_tags.append(_tag)
         return normalized_tags
 
-    def get_salary(self) -> str | None:
-        """Extracts the salary from the item."""
+    def get_salary_range(self) -> SalaryRange:
+        """Extracts the salary range from the item."""
         raise NotImplementedError()
 
     def get_is_remote(self) -> bool:
@@ -196,111 +219,170 @@ class JobParser:
             case _:
                 raise ValueError(f"Unsupported data format: {self.api_data_format}")
 
-    def parse_salary(self, *, salary_str: str) -> Decimal | None:
+    def parse_salary(self, salary_str: str) -> Money:
         link = self.get_link()
         logger.debug(f"Getting salary information in {link}, {salary_str=}")
 
-        if salary_str is None:
-            return
+        currency = None
+        amount = None
+        if salary_str:
+            try:
+                salary = self.extract_salary(salary_str.strip())
+            except InvalidSalary as exc:
+                logger.exception(exc, stack_info=True)
+            else:
+                currency = salary.currency
+                amount = salary.amount
 
-        salary_str = salary_str.replace("$", "").replace(",", "")
+        return Money(
+            currency=currency,
+            amount=amount,
+        )
+
+    def parse_salary_range(self, compensation: str | None) -> SalaryRange:
         try:
-            salary = Decimal(str(salary_str))
-        except InvalidOperation:
-            logger.info(f"Invalid salary {salary_str} for {link}")
-            return
+            salary_range = self.extract_salary_range(compensation)
+        except InvalidSalary:
+            min_salary = Money(currency=None, amount=None)
+            max_salary = Money(currency=None, amount=None)
+        else:
+            min_salary = salary_range.min_salary
+            max_salary = salary_range.max_salary
 
-        return salary
+        return SalaryRange(
+            min_salary=Money(
+                currency=config.DEFAULT_CURRENCY,
+                amount=self.get_amount_in_default_currency(
+                    min_salary.amount, min_salary.currency
+                ),
+            ),
+            max_salary=Money(
+                currency=config.DEFAULT_CURRENCY,
+                amount=self.get_amount_in_default_currency(
+                    max_salary.amount, max_salary.currency
+                ),
+            ),
+        )
 
-    def parse_salary_range(
-        self,
-        compensation: str | None,
-        range_separator: str = "-",
-    ):
-        if not compensation:
-            return
+    def extract_salary_range(self, compensation: str | None) -> SalaryRange:
+        compensation = compensation or ""
+        salary_info, _, _ = compensation.partition("•")
+        salary_info = salary_info.strip()
+        link = self.get_link()
+        if not salary_info:
+            raise InvalidSalary(f"{link=} has no salary info.")
 
-        try:
-            currency, salary = self.get_currency_and_salary(
-                compensation=compensation,
-                range_separator=range_separator,
+        matches = SALARY_RANGE_REGEX.search(salary_info)
+        if not matches:
+            raise InvalidSalary(f"{link=} has unsupported salary format: {salary_info}")
+
+        groups = matches.groupdict()
+        currency_symbol = groups["currency_symbol"]
+        min_amount = groups["min_amount"]
+        min_amount_multiplier = groups["min_amount_multiplier"]
+        max_amount = groups["max_amount"]
+        max_amount_multiplier = groups["max_amount_multiplier"]
+        currency_code = groups["currency_code"]
+
+        currency = None
+        if not currency_code and not currency_symbol:
+            if min_amount.isnumeric() and max_amount.isnumeric():
+                currency = config.DEFAULT_CURRENCY
+        else:
+            currency = self.get_currency(currency_code, currency_symbol)
+
+        if not currency:
+            link = self.get_link()
+            raise InvalidSalary(
+                f"{link=} has unsupported {currency_code=} or {currency_symbol=}."
             )
-        except InvalidSalary as exc:
-            logger.exception(str(exc), stack_info=True)
-            return
 
-        posted_on = self.get_posted_on()
+        min_salary_amount = self.convert_num(
+            amount=min_amount, multiplier=min_amount_multiplier
+        )
+        max_salary_amount = self.convert_num(
+            amount=max_amount, multiplier=max_amount_multiplier
+        )
+
+        return SalaryRange(
+            min_salary=Money(currency=currency, amount=min_salary_amount),
+            max_salary=Money(currency=currency, amount=max_salary_amount),
+        )
+
+    def extract_salary(self, salary_info: str) -> Money:
+        link = self.get_link()
+        if not salary_info:
+            raise InvalidSalary(f"{link=} has no salary info.")
+
+        matches = SALARY_AMOUNT_REGEX.search(salary_info.strip())
+        if not matches:
+            raise InvalidSalary(f"{link=} has unsupported salary format: {salary_info}")
+
+        groups = matches.groupdict()
+        currency_symbol = groups["currency_symbol"]
+        amount = groups["amount"]
+        multiplier = groups["multiplier"]
+        currency_code = groups["currency_code"]
+        currency = self.get_currency(currency_code, currency_symbol)
+        if not currency:
+            if amount.isnumeric():
+                currency = config.DEFAULT_CURRENCY
+            else:
+                raise InvalidSalary(
+                    f"{link=} has unsupported {currency_code=} or {currency_symbol=}."
+                )
+
+        amount = self.convert_num(amount=amount, multiplier=multiplier)
+        return Money(currency=currency, amount=amount)
+
+    @staticmethod
+    def convert_num(amount: str | Decimal, multiplier: str | None) -> Decimal:
+        amount = amount.replace(",", "")
+        amount = Decimal(str(amount))
+        if not multiplier:
+            multiplier = ""
+
+        match multiplier.lower():
+            case "k":
+                amount *= 1_000
+            case "m":
+                amount *= 1_000_000
+            case "b":
+                amount *= 1_000_000_000
+            case "l":
+                amount *= 100_000
+            case "":
+                pass
+        return amount
+
+    @staticmethod
+    def get_currency(code: str | None, symbol: str | None) -> str | None:
+        currency = None
+        if code:
+            currency_obj = pycountry.currencies.get(alpha_3=code)
+            if currency_obj:
+                currency = currency_obj.alpha_3
+        elif symbol:
+            currency = get_currency_from_symbol(symbol)
+        return currency
+
+    def get_amount_in_default_currency(
+        self, amount: Decimal | None, currency=None
+    ) -> Decimal:
+        if not amount:
+            return None
+
+        currency = currency or self.get_currency()
         exchange_rate = get_exchange_rate(
             from_currency=currency,
             to_currency=config.DEFAULT_CURRENCY,
-            exchange_date=posted_on,
+            exchange_date=self.get_posted_on(),
         )
+        link = self.get_link()
         if not exchange_rate:
-            link = self.get_link()
-            logger.warning(
-                f"{link=}: No exchange rate found for {currency=}, {posted_on=}"
-            )
+            logger.warning(f"No exchange rate found for {currency=}, {link=}")
             exchange_rate = Decimal("1")
 
-        return (salary / exchange_rate).quantize(Decimal("0.01"))
+        amount = (amount / exchange_rate).quantize(Decimal("0.01"))
 
-    def get_currency_and_salary(
-        self,
-        compensation: str,
-        range_separator: str = "-",
-    ) -> tuple[str, Decimal]:
-        link = self.get_link()
-        # compensation is in the format of:
-        # - "$100,000 – $150,000 • 1.0% – 2.0%"
-        # - "₹15L – ₹25L"
-        # - "90000-120000"  -> remotive has this format
-        _, _, salary_and_equity_info = compensation.partition(range_separator)
-        salary_info, _, _ = salary_and_equity_info.partition("•")
-        salary_info = salary_info.strip()
-        if not salary_info:
-            raise InvalidSalary(f"Job {link} has no salary info.")
-
-        if salary_info.isnumeric():
-            # this is probably salary without currency symbol
-            # e.g. "100000 - 150000"
-            # assume the currency is USD
-            currency = config.DEFAULT_CURRENCY
-            amount = Decimal(salary_info)
-            return currency, amount
-
-        # Extract possible currency code at the end
-        if currency_match := CURRENCY_CODE_REGEX.search(salary_info):
-            code = currency_match.group(1)
-            salary_info = salary_info[: -len(code)].strip()
-            currency = pycountry.currencies.get(alpha_3=code)
-            if not currency:
-                raise InvalidSalary(f"Job {link} has unsupported currency code {code}.")
-            currency = currency.alpha_3
-        else:
-            # fallback to the symbol if no code is found
-            symbol = salary_info[0].lower()
-            currency = get_currency_from_symbol(symbol)
-            if not currency:
-                raise InvalidSalary(
-                    f"Job {link} has unsupported currency symbol {symbol}."
-                )
-
-        last_char = salary_info[-1].lower()
-        # remove symbol and last character.
-        amount = salary_info[1:-1].replace(",", "")
-
-        match last_char:
-            case "k":
-                salary = Decimal(amount) * 1_000
-            case "m":
-                salary = Decimal(amount) * 1_000_000
-            case "b":
-                salary = Decimal(amount) * 1_000_000_000
-            case "l":
-                salary = Decimal(amount) * 100_000
-            case _:
-                # this is probably an intern kind of job
-                # where the salary is too less.
-                raise InvalidSalary(f"Invalid salary info {salary_info} for {link}")
-
-        return currency, salary
+        return amount

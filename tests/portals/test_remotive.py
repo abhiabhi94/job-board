@@ -102,7 +102,8 @@ def test_fetch_jobs(
     assert job.title == "Python Developer"
     assert job.link == "https://remotive.com/jobs/123"
     assert job.description is not None
-    assert job.salary == Decimal("120000.00")
+    assert job.min_salary == Decimal("90000.00")
+    assert job.max_salary == Decimal("120000.00")
     assert job.posted_on == datetime.strptime(frozen_time, DATE_FORMAT).astimezone(
         timezone.utc
     )

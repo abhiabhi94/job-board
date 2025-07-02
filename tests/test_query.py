@@ -16,7 +16,7 @@ def test_count_jobs(db_session):
         count_jobs(
             tags=["python", "remote"],
             min_salary=20000,
-            include_no_salary=False,
+            include_without_salary=False,
             posted_on=now - timedelta(days=30),
             is_remote=True,
         )
@@ -28,7 +28,7 @@ def test_count_jobs(db_session):
             JobListing(
                 link="https://example.com/job1",
                 title="Job 1",
-                salary=30000,
+                min_salary=30000,
                 is_remote=True,
                 posted_on=now - timedelta(days=10),
                 tags=["python", "remote"],
@@ -37,7 +37,7 @@ def test_count_jobs(db_session):
             JobListing(
                 link="https://example.com/job2",
                 title="Job 2",
-                salary=25000,
+                min_salary=25000,
                 is_remote=True,
                 posted_on=now - timedelta(days=20),
                 tags=["python"],
@@ -46,7 +46,7 @@ def test_count_jobs(db_session):
             JobListing(
                 link="https://example.com/job3",
                 title="Job 3",
-                salary=None,
+                min_salary=None,
                 is_remote=False,
                 posted_on=now - timedelta(days=5),
                 tags=["developer"],
@@ -60,7 +60,7 @@ def test_count_jobs(db_session):
         count_jobs(
             tags=[],
             min_salary=20000,
-            include_no_salary=True,
+            include_without_salary=True,
             posted_on=now - timedelta(days=30),
             is_remote=False,
         )
@@ -72,7 +72,7 @@ def test_count_jobs(db_session):
         count_jobs(
             tags=["python", "remote"],
             min_salary=20000,
-            include_no_salary=False,
+            include_without_salary=False,
             posted_on=now - timedelta(days=30),
             is_remote=True,
         )
@@ -84,7 +84,7 @@ def test_count_jobs(db_session):
         count_jobs(
             tags=["python"],
             min_salary=20000,
-            include_no_salary=False,
+            include_without_salary=False,
             posted_on=now - timedelta(days=30),
             is_remote=True,
         )
@@ -96,7 +96,7 @@ def test_count_jobs(db_session):
         count_jobs(
             tags=[],
             min_salary=0,
-            include_no_salary=True,
+            include_without_salary=True,
             posted_on=now - timedelta(days=30),
             is_remote=None,
         )
@@ -109,7 +109,7 @@ def test_filter_jobs(db_session):
         filter_jobs(
             tags=[],
             min_salary=0,
-            include_no_salary=False,
+            include_without_salary=False,
             is_remote=True,
             posted_on=now - timedelta(days=30),
             order_by=None,
@@ -124,7 +124,7 @@ def test_filter_jobs(db_session):
             JobListing(
                 link="https://example.com/job1",
                 title="Job 1",
-                salary=30000,
+                min_salary=30000,
                 is_remote=True,
                 posted_on=now - timedelta(days=10),
                 tags=["python", "remote"],
@@ -133,7 +133,7 @@ def test_filter_jobs(db_session):
             JobListing(
                 link="https://example.com/job2",
                 title="Job 2",
-                salary=25000,
+                min_salary=25000,
                 is_remote=True,
                 posted_on=now - timedelta(days=20),
                 tags=["python"],
@@ -142,7 +142,7 @@ def test_filter_jobs(db_session):
             JobListing(
                 link="https://example.com/job3",
                 title="Job 3",
-                salary=None,
+                min_salary=None,
                 is_remote=False,
                 posted_on=now - timedelta(days=5),
                 tags=["developer"],
@@ -154,7 +154,7 @@ def test_filter_jobs(db_session):
     jobs = filter_jobs(
         tags=["python", "remote"],
         min_salary=20000,
-        include_no_salary=False,
+        include_without_salary=False,
         is_remote=True,
         posted_on=now - timedelta(days=30),
         order_by=None,
@@ -165,7 +165,7 @@ def test_filter_jobs(db_session):
     jobs = filter_jobs(
         tags=["python", "remote"],
         min_salary=20000,
-        include_no_salary=False,
+        include_without_salary=False,
         is_remote=True,
         posted_on=now - timedelta(days=30),
         order_by=None,

@@ -97,7 +97,8 @@ def test_fetch_jobs(wellfound, load_response, respx_mock):
     assert job.title == "Python Developer"
     assert job.description is not None
     assert job.link == "https://wellfound.com/jobs/2747178-python-developer"
-    assert job.salary is None
+    assert job.min_salary is None
+    assert job.max_salary is None
     assert job.posted_on == datetime(
         year=2023, month=7, day=26, hour=9, minute=46, second=39, tzinfo=timezone.utc
     )

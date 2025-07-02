@@ -1,11 +1,15 @@
+import re
 from datetime import datetime
 from datetime import timezone
 from decimal import Decimal
 
 import httpx
 import pytest
+from lxml import html
 
 from job_board.portals import WeWorkRemotely
+from job_board.portals.weworkremotely import Parser
+from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import SCRAPFLY_URL
 
 
@@ -132,10 +136,52 @@ def test_fetch_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
     assert job.title == "Python Developer"
     assert job.link == "https://weworkremotely.com/jobs/job-1"
     assert job.description == "Looking for Django and FastAPI developer"
-    assert job.salary is None
+    assert job.min_salary == Decimal("80000")
+    assert job.max_salary is None
     assert job.posted_on == datetime(
         year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
     )
     assert job.is_remote is True
     assert job.locations == []
     assert job.tags == ["c#"]
+
+
+@pytest.mark.parametrize(
+    ("salary_info, min_salary, max_salary"),
+    [
+        ("$80,000", Decimal("80000"), None),
+        ("$80,000 - $100,000", Decimal("80000"), Decimal("100000")),
+        ("$100K or more USD", Decimal("100000"), None),
+        ("$100,000 or more CAD", Decimal("73529.41"), None),
+        ("", None, None),  # No salary info
+    ],
+)
+def test_get_salary_range(salary_info, min_salary, max_salary, respx_mock):
+    parser = Parser(api_data_format="xml", item={})
+    parser.get_posted_on = lambda: datetime.now(timezone.utc)
+    parser.get_link = lambda: "https://weworkremotely.com/jobs/job-1"
+    parser.extra_info = html.fromstring(
+        f"""
+        <li class="lis-container__job__sidebar__job-about__list__item"> Salary <a target="_blank" href="/remote-100k-or-more-salary-jobs"><span class="box box--blue">{salary_info}</span></a></li>
+        """  # noqa: E501
+    )
+    exchange_rate_url_pattern = re.compile(
+        EXCHANGE_RATE_API_URL.format(currency="usd", date=r"\d{4}-\d{2}-\d{2}"),
+        flags=re.IGNORECASE,
+    )
+    respx_mock.get(exchange_rate_url_pattern).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "usd": {
+                    "cad": 1.36,
+                }
+            },
+        )
+    )
+
+    salary_range = parser.get_salary_range()
+    assert salary_range.min_salary.amount == min_salary
+    if salary_range.min_salary.amount is not None:
+        assert salary_range.min_salary.currency == "USD"
+    assert salary_range.max_salary.amount == max_salary

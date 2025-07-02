@@ -48,7 +48,8 @@ def test_fetch_jobs(respx_mock, load_response):
     assert isinstance(job, Job)
     assert job.title == "CTO- Cyber Security"
     assert job.link == "https://www.workatastartup.com/jobs/63387"
-    assert job.salary == Decimal(str(250_000))
+    assert job.min_salary == Decimal(str(200_000))
+    assert job.max_salary == Decimal(str(250_000))
     assert job.posted_on is None
     assert job.description is not None
     assert job.tags == []

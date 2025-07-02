@@ -46,7 +46,9 @@ class SortOption(StrEnum):
 @app.route("/")
 def get_jobs():
     min_salary = request.args.get("min_salary", type=Decimal, default=Decimal("20000"))
-    include_no_salary = request.args.get("include_no_salary", type=bool, default=False)
+    include_without_salary = request.args.get(
+        "include_without_salary", type=bool, default=False
+    )
     posted_on = request.args.get("posted_on", type=datetime)
     if not posted_on:
         posted_on = utcnow_naive() - timedelta(days=config.JOB_AGE_LIMIT_DAYS)
@@ -56,7 +58,7 @@ def get_jobs():
     sort = request.args.get("sort", type=str, default=SortOption.POSTED_ON_DESC)
     match sort:
         case SortOption.SALARY_DESC:
-            order_by = Job.salary.desc()
+            order_by = Job.max_salary.desc()
         case SortOption.POSTED_ON_DESC:
             order_by = Job.posted_on.desc()
         case _:
@@ -70,7 +72,7 @@ def get_jobs():
 
     jobs = filter_jobs(
         min_salary=min_salary,
-        include_no_salary=include_no_salary,
+        include_without_salary=include_without_salary,
         posted_on=posted_on,
         tags=tags,
         is_remote=is_remote,
@@ -80,7 +82,7 @@ def get_jobs():
     )
     total_jobs = count_jobs(
         min_salary=min_salary,
-        include_no_salary=include_no_salary,
+        include_without_salary=include_without_salary,
         posted_on=posted_on,
         tags=tags,
         is_remote=is_remote,
@@ -95,7 +97,7 @@ def get_jobs():
             "is_remote": request.args.get("is_remote"),
             "sort": request.args.get("sort"),
             "posted_on": request.args.get("posted_on"),
-            "include_no_salary": request.args.get("include_no_salary"),
+            "include_without_salary": request.args.get("include_without_salary"),
         }
 
         if tags := request.args.getlist("tags"):
@@ -112,7 +114,7 @@ def get_jobs():
         SortOption=SortOption,
         current_filters={
             "min_salary": max(min_salary, Decimal("0")),
-            "include_no_salary": include_no_salary,
+            "include_without_salary": include_without_salary,
             "tags": tags,
             "is_remote": is_remote,
             "posted_on": posted_on,
