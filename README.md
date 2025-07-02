@@ -1,6 +1,6 @@
 ### Introduction
 
-A remote job board, this was initially built out of boring job hunting.
+A job board, this was initially built out of boring job hunting.
 This basically scans through different portals and based upon the
 preferences like keywords, salary, etc., and brings the jobs that match
 your preference.

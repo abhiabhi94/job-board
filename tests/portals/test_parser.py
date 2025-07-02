@@ -7,36 +7,9 @@ from unittest.mock import patch
 import pytest
 
 from job_board.portals.base import BasePortal
+from job_board.portals.parser import InvalidSalary
 from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
-
-
-def test_job_str():
-    now = datetime.now(timezone.utc)
-
-    job = Job(
-        link="https://python.org/jobs/1/",
-        title="Software Engineer",
-        salary=Decimal(str(120_000.75)),
-        posted_on=now - timedelta(days=3, hours=5),
-        description=None,
-        tags=["python"],
-        is_remote=True,
-        locations=["New York", "Remote"],
-        payload="some data",
-    )
-
-    expected_output = """\
-Title        : Software Engineer
-Description  : N/A
-Link         : https://python.org/jobs/1/
-Salary       : 120,000.75
-Posted On    : 3 days ago
-Tags         : python
-Is Remote    : Yes
-Locations    : New York, Remote\
-"""
-    assert str(job) == expected_output
 
 
 now = datetime.now(timezone.utc)
@@ -55,7 +28,7 @@ def parser():
         "get_title",
         "get_description",
         "get_posted_on",
-        "get_salary",
+        "get_salary_range",
         "get_is_remote",
         "get_extra_info",
     ],
@@ -103,41 +76,85 @@ def test_abstract_methods(method_name, parser):
         ),
     ],
 )
-def test_parse_salary(parser, test_case):
+def test_parse_salary_info(parser, test_case):
     parser.get_link = lambda: "https://example.com"
-    result = parser.parse_salary(salary_str=test_case["salary_value"])
+    amount_currency = parser.parse_salary(test_case["salary_value"])
 
-    assert result == test_case["expected_result"]
+    assert amount_currency.amount == test_case["expected_result"]
 
 
 @pytest.mark.parametrize(
-    ("compensation", "expected_currency", "expected_salary"),
+    ("salary", "expected_error"),
     [
-        # Format: "<ignored part> – <salary_info> • <equity info>"
-        ("$100k – $150k • details", "USD", 150_000),
-        ("$100k – $150k CAD • details", "CAD", 150_000),
-        ("$100k – $150k • 1.0% – 2.0%", "USD", 150_000),
-        ("$100m – $150m • details", "USD", 150_000_000),
-        ("$100b – $150b • details", "USD", 150_000_000_000),
-        ("90000 – 120000", "USD", 120_000),
+        ("", "no salary info"),
+        ("negotiable", "unsupported salary format"),
+    ],
+)
+def test_parse_salary_info_invalid(parser, salary, expected_error):
+    parser.get_link = lambda: "https://example.com"
+    with pytest.raises(InvalidSalary, match=expected_error):
+        parser.extract_salary(salary)
+
+
+@pytest.mark.parametrize(
+    (
+        "compensation",
+        "expected_currency",
+        "expected_min_salary",
+        "expected_max_salary",
+    ),
+    [
+        # Format: "<min_salary> – <max_salary> • <equity info>"
+        ("$100k – $150k • details", "USD", 100_000, 150_000),
+        ("$100k – $150k CAD • details", "CAD", 100_000, 150_000),
+        ("$100k – $150k • 1.0% – 2.0%", "USD", 100_000, 150_000),
+        ("$100m – $150m • details", "USD", 100_000_000, 150_000_000),
+        ("$100b – $150b • details", "USD", 100_000_000_000, 150_000_000_000),
+        ("90000 – 120000", "USD", 90_000, 120_000),
+        ("$2.5K – $3K", "USD", 2500, 3000),
         (
             "₹15L – ₹25L • details",
             "INR",
+            1_500_000,
             2_500_000,
         ),
     ],
 )
-def test_get_currency_and_salary(
-    parser, compensation, expected_currency, expected_salary
+def test_get_currency_and_salary_range_valid(
+    parser,
+    compensation,
+    expected_currency,
+    expected_min_salary,
+    expected_max_salary,
 ):
     parser.get_link = lambda: "https://example.com"
+    parser.get_posted_on = lambda: now.date()
 
-    currency, salary = parser.get_currency_and_salary(
-        compensation=compensation, range_separator="–"
-    )
+    salary_range = parser.extract_salary_range(compensation=compensation)
+    min_salary = salary_range.min_salary
+    max_salary = salary_range.max_salary
 
-    assert currency == expected_currency
-    assert salary == expected_salary
+    assert min_salary.currency == expected_currency == max_salary.currency
+    assert min_salary.amount == Decimal(str(expected_min_salary))
+    assert max_salary.amount == Decimal(str(expected_max_salary))
+
+
+@pytest.mark.parametrize(
+    (
+        "compensation",
+        "error_message",
+    ),
+    [
+        ("₨35k – ₨60k", "unsupported .* currency_symbol='₨'"),
+        ("negotiable", "unsupported salary format"),
+    ],
+)
+def test_get_currency_and_salary_range_invalid(parser, compensation, error_message):
+    parser.get_link = lambda: "https://example.com"
+    parser.get_posted_on = lambda: now.date()
+
+    with pytest.raises(InvalidSalary, match=error_message):
+        parser.extract_salary_range(compensation=compensation)
 
 
 def test_get_payload_for_unsupported_format(parser):
@@ -146,7 +163,7 @@ def test_get_payload_for_unsupported_format(parser):
         parser.get_payload()
 
 
-def test_very_old_jobs_are_skipped(parser):
+def test_very_old_jobs_are_skipped():
     class TestParser(JobParser):
         def get_link(self):
             return self.item["link"]
@@ -177,3 +194,35 @@ def test_very_old_jobs_are_skipped(parser):
         (fetched_job,) = portal.fetch_jobs()
 
     assert fetched_job["link"] == recent_job["link"]
+
+
+@pytest.mark.parametrize(
+    "min_salary,max_salary,expected_output",
+    [
+        # Both min and max salary are present and equal
+        (Decimal("100000"), Decimal("100000"), "$100K"),
+        # Both min and max salary are present and different
+        (Decimal("80000"), Decimal("120000"), "$80K - $120K"),
+        # Only min salary is present
+        (Decimal("75000"), None, "$75K and above"),
+        # Only max salary is present
+        (None, Decimal("150000"), "Up to $150K"),
+        # Neither min nor max salary is present
+        (None, None, ""),
+        # Large amounts with proper formatting
+        (Decimal("1000000"), Decimal("2000000"), "$1M - $2M"),
+        # Small amounts
+        (Decimal("50000"), Decimal("60000"), "$50K - $60K"),
+        # Decimal amounts that round to same value
+        (Decimal("99999.99"), Decimal("100000.01"), "$100K"),
+    ],
+)
+def test_salary_range_property(min_salary, max_salary, expected_output):
+    job = Job(
+        title="Test Job",
+        link="https://example.com/job",
+        min_salary=min_salary,
+        max_salary=max_salary,
+    )
+
+    assert job.salary_range == expected_output

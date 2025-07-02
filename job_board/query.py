@@ -13,14 +13,14 @@ from job_board.portals.parser import Job as JobListing
 def count_jobs(
     tags: list[str],
     min_salary: Decimal,
-    include_no_salary: bool,
+    include_without_salary: bool,
     posted_on: datetime,
     is_remote: bool | None,
 ):
     filters = _get_filters(
         tags=tags,
         min_salary=min_salary,
-        include_no_salary=include_no_salary,
+        include_without_salary=include_without_salary,
         is_remote=is_remote,
         posted_on=posted_on,
     )
@@ -44,7 +44,7 @@ def count_jobs(
 def filter_jobs(
     tags: list[str],
     min_salary: Decimal,
-    include_no_salary: bool,
+    include_without_salary: bool,
     is_remote: bool | None,
     posted_on: datetime,
     order_by: sa.UnaryExpression,
@@ -54,7 +54,7 @@ def filter_jobs(
     filters = _get_filters(
         tags=tags,
         min_salary=min_salary,
-        include_no_salary=include_no_salary,
+        include_without_salary=include_without_salary,
         is_remote=is_remote,
         posted_on=posted_on,
     )
@@ -80,7 +80,8 @@ def filter_jobs(
                 title=job.title,
                 description=job.description,
                 link=job.link,
-                salary=job.salary,
+                min_salary=job.min_salary,
+                max_salary=job.max_salary,
                 posted_on=job.posted_on,
                 tags=[tag.name for tag in job.tags],
                 is_remote=job.is_remote,
@@ -95,7 +96,7 @@ def filter_jobs(
 def _get_filters(
     tags: list[str],
     min_salary: Decimal,
-    include_no_salary: bool,
+    include_without_salary: bool,
     is_remote: bool,
     posted_on: datetime,
 ):
@@ -106,10 +107,25 @@ def _get_filters(
     if is_remote is not None:  # allow filtering for both remote and non-remote jobs
         filters.append(Job.is_remote == is_remote)
 
-    if include_no_salary:
-        filters.append(sa.or_(Job.salary >= min_salary, Job.salary.is_(None)))
+    if include_without_salary:
+        filters.append(
+            sa.or_(
+                Job.max_salary >= min_salary,
+                Job.min_salary >= min_salary,
+                sa.and_(
+                    Job.max_salary.is_(None),
+                    Job.min_salary.is_(None),
+                ),
+            )
+        )
     else:
-        filters.append(Job.salary >= min_salary)
+        filters.append(
+            sa.or_(
+                Job.max_salary >= min_salary,
+                # this is for the case where max_salary is None
+                Job.min_salary >= min_salary,
+            )
+        )
 
     if tags:
         # not using any_ directly because it doesn't work with ilike

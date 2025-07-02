@@ -36,7 +36,6 @@ def test_read_only_session(db_setup):
                 sa.insert(JobModel).values(
                     link="http://example.com",
                     title="Test Job",
-                    salary=Decimal(str(100_000)),
                     posted_on=now,
                 )
             )

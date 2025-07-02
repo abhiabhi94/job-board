@@ -68,7 +68,7 @@ def test_get_jobs(db_session, client, captured_templates):
     assert context["per_page"] == PER_PAGE
     assert context["current_filters"] == {
         "min_salary": Decimal("20000"),
-        "include_no_salary": False,
+        "include_without_salary": False,
         "tags": [],
         "is_remote": True,
         "posted_on": now - timedelta(days=config.JOB_AGE_LIMIT_DAYS),
@@ -95,7 +95,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
             JobListing(
                 link="https://example.com/job1",
                 title="Job 1",
-                salary=30000,
+                min_salary=30000,
                 is_remote=True,
                 posted_on=now - timedelta(days=10),
                 description="A job description",
@@ -105,7 +105,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
             JobListing(
                 link="https://example.com/job2",
                 title="Job 2",
-                salary=25000,
+                min_salary=25000,
                 is_remote=True,
                 posted_on=now - timedelta(days=20),
                 description="Another job description",
@@ -115,7 +115,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
             JobListing(
                 link="https://example.com/job3",
                 title="Job 3",
-                salary=None,
+                min_salary=None,
                 is_remote=True,
                 posted_on=now - timedelta(days=5),
                 description="A third job description",
@@ -130,7 +130,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
         "/",
         query_string={
             "min_salary": 20000,
-            "include_no_salary": True,
+            "include_without_salary": True,
         },
     )
 
@@ -145,7 +145,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
         "/",
         query_string={
             "min_salary": 20000,
-            "include_no_salary": False,
+            "include_without_salary": False,
             "tags": ["python", "remote"],
             "is_remote": True,
         },
@@ -182,7 +182,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
     assert pagination["page"] == 2
     filters = context["current_filters"]
     assert filters["min_salary"] == 20000
-    assert filters["include_no_salary"] is False
+    assert filters["include_without_salary"] is False
     assert filters["tags"] == ["python", "remote"]
     assert filters["is_remote"] is True
     assert filters["sort"] == "posted_on_desc"
@@ -197,7 +197,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
     job_1 = JobListing(
         link=link_1,
         title="Job 1",
-        salary=30000,
+        min_salary=30000,
         is_remote=True,
         tags=["python", "remote"],
         description="A job description",
@@ -206,7 +206,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
     job_2 = JobListing(
         link=link_2,
         title="Job 2",
-        salary=25000,
+        min_salary=25000,
         is_remote=True,
         description="Another job description",
         tags=["python"],

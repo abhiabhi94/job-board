@@ -32,7 +32,8 @@ def test_fetch_jobs(respx_mock, load_response):
     assert job.title == "Senior Full-stack Developer (Python, React, Elixir), Lemon.io"
     assert job.link == "https://www.python.org/jobs/7831/"
     assert job.description is not None
-    assert job.salary is None
+    assert job.min_salary is None
+    assert job.max_salary is None
     assert job.posted_on.date() == date(day=19, month=6, year=2025)
     assert job.tags == ["python", "cloud"]
     assert job.is_remote is False

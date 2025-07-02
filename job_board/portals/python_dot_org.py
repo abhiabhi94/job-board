@@ -7,6 +7,8 @@ from lxml import objectify
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
+from job_board.portals.parser import Money
+from job_board.portals.parser import SalaryRange
 from job_board.utils import httpx_client
 
 
@@ -53,10 +55,13 @@ class Parser(JobParser):
             date_str = time_tag.get("datetime")
             return datetime.fromisoformat(date_str).astimezone(timezone.utc)
 
-    def get_salary(self):
+    def get_salary_range(self):
         # Most of the jobs don't have a salary
         # No direct way to get the salary from the rss feed
-        return
+        return SalaryRange(
+            min_salary=Money(currency=None, amount=None),
+            max_salary=Money(currency=None, amount=None),
+        )
 
     def get_tags(self):
         tags = ["python"]

@@ -21,7 +21,7 @@ class BasePortal:
         self.last_run_at = last_run_at
 
     def fetch_jobs(self) -> list[Job]:
-        """Fetch filtered jobs from the portal."""
+        """Fetch jobs from the portal."""
         response = self.make_request()
         items = self.get_items(response)
         jobs = []
