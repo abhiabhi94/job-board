@@ -76,14 +76,11 @@ def mock_rss_response():
 
 @pytest.fixture
 def mock_job_page():
-    def _mock_job_page(salary=Decimal(str(80_000))):
-        job_page_content = f"""
+    def _mock_job_page():
+        job_page_content = """
         <title>Python Developer</title>
         <p> Something happened 6 days ago, this is not the date of posting </p>
         <span> Posted 5 days ago </span>
-        <div class="salary-class">
-            <div>Salary: ${salary:,}</div>
-        </div>
         <div class="lis-container__job__sidebar__job-about">
             <h4 class="lis-container__job__sidebar__job-about__title"> About the job </h4>
             <ul class="lis-container__job__sidebar__job-about__list">
@@ -136,7 +133,7 @@ def test_fetch_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
     assert job.title == "Python Developer"
     assert job.link == "https://weworkremotely.com/jobs/job-1"
     assert job.description == "Looking for Django and FastAPI developer"
-    assert job.min_salary == Decimal("80000")
+    assert job.min_salary is None
     assert job.max_salary is None
     assert job.posted_on == datetime(
         year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
@@ -156,15 +153,14 @@ def test_fetch_jobs(mock_job_page, mock_rss_response, mock_scrapfly_response):
         ("", None, None),  # No salary info
     ],
 )
-def test_get_salary_range(salary_info, min_salary, max_salary, respx_mock):
+def test_get_salary_range(
+    salary_info, min_salary, max_salary, respx_mock, load_response
+):
     parser = Parser(api_data_format="xml", item={})
     parser.get_posted_on = lambda: datetime.now(timezone.utc)
     parser.get_link = lambda: "https://weworkremotely.com/jobs/job-1"
-    parser.extra_info = html.fromstring(
-        f"""
-        <li class="lis-container__job__sidebar__job-about__list__item"> Salary <a target="_blank" href="/remote-100k-or-more-salary-jobs"><span class="box box--blue">{salary_info}</span></a></li>
-        """  # noqa: E501
-    )
+    response = load_response("weworkremotely.html").replace("$SALARY_INFO", salary_info)
+    parser.extra_info = html.fromstring(response)
     exchange_rate_url_pattern = re.compile(
         EXCHANGE_RATE_API_URL.format(currency="usd", date=r"\d{4}-\d{2}-\d{2}"),
         flags=re.IGNORECASE,
