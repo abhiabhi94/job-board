@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import sentry_sdk
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.parent
@@ -37,3 +38,12 @@ WORK_AT_A_STARTUP_CSRF_TOKEN = os.getenv("WORK_AT_A_STARTUP_CSRF_TOKEN")
 # the current scrapfly plan allows only 5 concurrent requests.
 WELLFOUND_REQUESTS_BATCH_SIZE = int(os.getenv("WELLFOUND_REQUESTS_BATCH_SIZE", 5))
 HIMALAYAS_REQUESTS_BATCH_SIZE = int(os.getenv("HIMALAYAS_REQUESTS_BATCH_SIZE", 10))
+
+# Sentry configuration
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if ENV != "dev":
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=ENV,
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+    )

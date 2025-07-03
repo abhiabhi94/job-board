@@ -63,7 +63,6 @@ class Parser(JobParser):
 
             min_salary = Money(currency=None, amount=None)
             max_salary = Money(currency=None, amount=None)
-
             if salary_range_match:
                 salary_range = self.parse_salary_range(
                     salary_range_match.group(),
@@ -89,7 +88,7 @@ class Parser(JobParser):
                 salary_info = salary_matches.group()
                 min_salary = self.parse_salary(salary_info)
 
-            if not min_salary and not max_salary:
+            if min_salary.amount is None and max_salary.amount is None:
                 continue
 
             min_amount_in_default_currency = self.get_amount_in_default_currency(

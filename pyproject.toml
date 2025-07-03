@@ -29,6 +29,7 @@ dependencies = [
     "pycountry",
     "babel",
     "gunicorn",
+    "sentry-sdk[flask]",
 ]
 [project.optional-dependencies]
 dev = [

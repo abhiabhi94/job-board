@@ -8,6 +8,7 @@ from typing import Callable
 
 import httpx
 import pycountry
+import sentry_sdk
 from babel.numbers import get_currency_symbol
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -321,3 +322,21 @@ def get_exchange_rate(
     rate = data[to_currency].get(from_currency)
     if rate:
         return Decimal(str(rate))
+
+
+def log_to_sentry(exception: Exception, service_name: str, tags=None) -> str | None:
+    if tags is None:
+        tags = {}
+
+    tags.update({"service": service_name})
+
+    if config.ENV == "dev":
+        return None
+
+    scope = sentry_sdk.get_current_scope()
+    for tag_name, tag_value in tags.items():
+        scope.set_tag(tag_name, tag_value)
+    event_id = sentry_sdk.capture_exception(exception)
+
+    logger.error(f"Exception captured in Sentry: {exception!r}, event_id: {event_id}")
+    return event_id
