@@ -52,7 +52,7 @@ class Parser(JobParser):
     def get_salary_range(self) -> SalaryRange:
         root = self.extra_info
         salary_elements = root.xpath(
-            "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'salary')]"  # noqa: E501
+            "//li[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'salary')]//span[@class='box box--blue']"  # noqa: E501
         )
 
         for element in salary_elements:
@@ -127,7 +127,7 @@ class Parser(JobParser):
     def get_tags(self) -> list[str]:
         root = self.extra_info
         skill_elements = root.xpath(
-            '//li[contains(text(), "Skills")]//span[@class="box box--multi box--blue"]'
+            '//li[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "skills")]//span[@class="box box--multi box--blue"]'  # noqa: E501
         )
         return [element.text_content().strip() for element in skill_elements]
 
