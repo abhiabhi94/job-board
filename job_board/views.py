@@ -21,6 +21,7 @@ from job_board.utils import utcnow_naive
 app = Flask(__name__)
 app.jinja_env.filters["naturaltime"] = humanize.naturaltime
 
+
 PER_PAGE = 12
 AVAILABLE_TAGS = [
     "developer",

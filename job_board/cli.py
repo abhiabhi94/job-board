@@ -18,6 +18,7 @@ from job_board.models import store_jobs
 from job_board.portals import PORTALS
 from job_board.portals.models import PortalSetting
 from job_board.scheduler import scheduler
+from job_board.utils import log_to_sentry
 from job_board.utils import utcnow_naive
 
 
@@ -124,9 +125,16 @@ def scheduler_group():
 
 @scheduler_group.command("start", help="Start the job scheduler")
 def start_scheduler():
+    try:
+        _start_scheduler()
+    except Exception as e:
+        log_to_sentry(e, "scheduler")
+        raise
+
+
+def _start_scheduler():
     scheduler.start()
     click.echo("Scheduler started.\nPress Ctrl+C to stop...")
-
     try:
         while True:
             time.sleep(1)

@@ -6,9 +6,11 @@ import httpx
 import pytest
 from freezegun import freeze_time
 
+from job_board import config
 from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import EXCHANGE_RATE_FALLBACK_API_URL
 from job_board.utils import get_exchange_rate
+from job_board.utils import log_to_sentry
 from job_board.utils import make_scrapfly_request
 from job_board.utils import retry_on_http_errors
 
@@ -127,3 +129,26 @@ def test_make_scrapfly_request_timeout():
 
     mock_client.assert_called_once()
     assert mock_client.call_args.kwargs["timeout"] == 100
+
+
+def test_log_to_sentry():
+    with mock.patch("job_board.utils.sentry_sdk") as mock_sentry_sdk:
+        log_to_sentry(
+            Exception("Test exception"),
+            "webserver",
+            tags={"key": "value"},
+        )
+
+    mock_sentry_sdk.capture_exception.assert_called_once()
+
+    with (
+        mock.patch.object(config, "ENV", "dev"),
+        mock.patch("job_board.utils.sentry_sdk") as mock_sentry_sdk,
+    ):
+        log_to_sentry(
+            Exception("Test exception"),
+            "scheduler",
+            tags={"key": "value"},
+        )
+
+    mock_sentry_sdk.capture_exception.assert_not_called()

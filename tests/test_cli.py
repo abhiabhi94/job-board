@@ -208,6 +208,20 @@ def test_scheduler_start_command(cli_runner):
     assert mock_sleep.call_count == 3
     mock_scheduler.stop.assert_called_once()
 
+    with (
+        mock.patch(
+            "job_board.cli.scheduler.start", side_effect=ValueError()
+        ) as mock_scheduler,
+        mock.patch(
+            "job_board.utils.sentry_sdk.capture_exception", return_value="mock-event-id"
+        ) as mock_sentry,
+    ):
+        result = cli_runner.invoke(main, ["scheduler", "start"])
+
+    assert result.exit_code != 0
+    mock_scheduler.assert_called_once()
+    mock_sentry.assert_called_once()
+
 
 def test_setup_db_command(cli_runner):
     with mock.patch("job_board.cli.subprocess.run") as mock_run:
