@@ -48,7 +48,7 @@ ALGOLIA_URL = "https://45bwzj1sgc-3.algolianet.com/1/indexes/*/queries"
 class WorkAtAStartup(BasePortal):
     url = "https://www.workatastartup.com/companies/fetch"
     api_data_format = "json"
-    portal_name = "work_at_a_startup"
+    portal_name = "workatastartup"
     parser_class = Parser
 
     def make_request(self) -> list[Job]:

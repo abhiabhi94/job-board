@@ -9,7 +9,7 @@ from datetime import timezone
 import click
 
 # Import scheduled jobs to register them globally  # noreorder
-import job_board.scheduled_jobs  # noqa: F401
+import job_board.schedules  # noqa: F401
 from job_board import config
 from job_board.connection import get_session
 from job_board.init_db import init_db
