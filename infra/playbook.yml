@@ -79,6 +79,10 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         recurse: yes
+    - name: Remove existing virtual environment
+      file:
+        path: "{{ app_dir }}/venv"
+        state: absent
     - name: Create virtual environment directory
       file:
         path: "{{ app_dir }}/venv"
@@ -88,12 +92,13 @@
         mode: '0755'
     - name: Create virtual environment
       command: "python{{ python_version }} -m venv {{ app_dir }}/venv"
-      args:
-        creates: "{{ app_dir }}/venv/pyvenv.cfg"
       become_user: "{{ app_user }}"
     - name: Upgrade pip in virtual environment
       pip:
-        name: pip
+        name:
+          - pip
+          - setuptools
+          - wheel
         state: latest
         virtualenv: "{{ app_dir }}/venv"
       become_user: "{{ app_user }}"
