@@ -11,7 +11,7 @@ from job_board.scheduler import scheduler
 @pytest.fixture
 def mock_fetch():
     with mock.patch(
-        "job_board.scheduled_jobs.cli.fetch_jobs", spec_set=fetch_jobs
+        "job_board.schedules.cli.fetch_jobs", spec_set=fetch_jobs
     ) as mock_fetch:
         yield mock_fetch
 
