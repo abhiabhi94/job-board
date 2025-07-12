@@ -6,7 +6,11 @@ import httpx
 from job_board.portals import PythonDotOrg
 
 
-def test_fetch_jobs(respx_mock, load_response):
+def test_fetch_jobs(
+    respx_mock,
+    load_response,
+    db_session,
+):
     sample_rss_feed = load_response("python_dot_org.rss")
     sample_jobs_html = load_response("python_sample_job.html")
 

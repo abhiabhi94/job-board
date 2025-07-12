@@ -15,7 +15,7 @@ from job_board.models import Payload
 from job_board.models import purge_old_jobs
 from job_board.models import store_jobs
 from job_board.models import Tag
-from job_board.portals.models import PortalSetting
+from job_board.portals.models import Portal
 from job_board.portals.parser import Job
 
 
@@ -45,7 +45,7 @@ def test_read_only_session(db_setup):
 
 def test_portal_setting_get_or_create_with_invalid_portal_name():
     with pytest.raises(ValueError) as exception:
-        PortalSetting.get_or_create(portal_name="invalid_portal")
+        Portal.get_or_create(name="invalid_portal")
 
     assert "invalid_portal" in str(exception)
 

@@ -163,7 +163,7 @@ def test_get_payload_for_unsupported_format(parser):
         parser.get_payload()
 
 
-def test_very_old_jobs_are_skipped():
+def test_very_old_jobs_are_skipped(db_session):
     class TestParser(JobParser):
         def get_link(self):
             return self.item["link"]
@@ -171,7 +171,7 @@ def test_very_old_jobs_are_skipped():
         def get_posted_on(self):
             return self.item["posted_on"]
 
-        def _get_job(self):
+        def get_job(self):
             return self.item
 
     portal = BasePortal()

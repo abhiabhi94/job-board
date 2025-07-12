@@ -9,7 +9,11 @@ from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import utcnow_naive
 
 
-def test_fetch_jobs(respx_mock, load_response):
+def test_fetch_jobs(
+    respx_mock,
+    load_response,
+    db_session,
+):
     portal = WorkAtAStartup()
 
     respx_mock.post(ALGOLIA_URL).mock(

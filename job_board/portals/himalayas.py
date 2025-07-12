@@ -7,7 +7,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-import httpx
 from lxml import html
 
 from job_board import config
@@ -16,7 +15,7 @@ from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
 from job_board.portals.parser import Money
 from job_board.portals.parser import SalaryRange
-from job_board.utils import httpx_async_client
+from job_board.utils import get_async_http_client
 from job_board.utils import retry_on_http_errors
 
 
@@ -112,17 +111,14 @@ class Himalayas(BasePortal):
         """
         Fetch all pages of job listings concurrently with proper error handling
         """
-        async with httpx_async_client() as client:
-            return await self._fetch_all_pages(client, cutoff_date)
+        return await self._fetch_all_pages(cutoff_date)
 
-    async def _fetch_all_pages(
-        self, client: httpx.AsyncClient, cutoff_date: datetime
-    ) -> List[Dict[str, Any]]:
+    async def _fetch_all_pages(self, cutoff_date: datetime) -> List[Dict[str, Any]]:
         jobs_data = []
         jobs_fetched = 0
         # First request to get total count
         response = await self._make_async_request(
-            client, params={"offset": 0, "limit": MAX_JOBS_PER_REQUEST}
+            params={"offset": 0, "limit": MAX_JOBS_PER_REQUEST}
         )
         total_jobs = response["totalCount"]
         job_data = response["jobs"]
@@ -145,7 +141,6 @@ class Himalayas(BasePortal):
 
                 batch_tasks.append(
                     self._make_async_request(
-                        client,
                         params={"offset": batch_offset, "limit": 20},
                     )
                 )
@@ -186,9 +181,8 @@ class Himalayas(BasePortal):
         return jobs_data
 
     @retry_on_http_errors(max_attempts=10, min_wait=1.5, max_wait=20)
-    async def _make_async_request(
-        self, client: httpx.AsyncClient, params: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def _make_async_request(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        client = get_async_http_client()
         response = await client.get(self.url, params=params)
         response.raise_for_status()
         return response.json()

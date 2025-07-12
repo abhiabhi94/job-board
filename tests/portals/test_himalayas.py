@@ -13,7 +13,11 @@ from job_board.portals.parser import Job
 from job_board.utils import EXCHANGE_RATE_API_URL
 
 
-def test_fetch_jobs(respx_mock, load_response):
+def test_fetch_jobs(
+    respx_mock,
+    load_response,
+    db_session,
+):
     portal = Himalayas()
     # so that tests don't fail in future due to the date check.
     portal.validate_recency = lambda x: True

@@ -10,7 +10,7 @@ from job_board.cli import debugger_hook
 from job_board.cli import fetch_jobs
 from job_board.cli import main
 from job_board.portals import PORTALS
-from job_board.portals.models import PortalSetting
+from job_board.portals.models import Portal
 
 
 @pytest.fixture
@@ -78,28 +78,28 @@ def mock_portals(monkeypatch):
 
 def test_run_command_with_include_portal_option(cli_runner, mock_portals, db_session):
     portal_name = "weworkremotely"
-    setting = PortalSetting.get_or_create(portal_name=portal_name)
-    assert setting.last_run_at is None
+    portal = Portal.get_or_create(name=portal_name)
+    assert portal.last_run_at is None
 
     mock_portals(portals=[portal_name])
-    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
+    with mock.patch("job_board.portals.models.store_jobs") as mock_store_jobs:
         result = cli_runner.invoke(main, ["fetch", "--include-portals", portal_name])
 
     assert result.exit_code == 0
     mock_store_jobs.assert_called_once()
 
     db_session.flush()
-    assert db_session.get(PortalSetting, setting.id).last_run_at is not None
+    assert db_session.get(Portal, portal.id).last_run_at is not None
 
 
 def test_run_command_with_last_run_at(cli_runner, mock_portals, db_session):
     now = datetime.now(timezone.utc)
-    setting = PortalSetting.get_or_create(portal_name="weworkremotely")
-    setting.last_run_at = now
-    db_session.add(setting)
+    portal = Portal.get_or_create(name="weworkremotely")
+    portal.last_run_at = now
+    db_session.add(portal)
 
     mock_portals(portals=["weworkremotely"])
-    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
+    with mock.patch("job_board.portals.models.store_jobs") as mock_store_jobs:
         result = cli_runner.invoke(
             main, ["fetch", "--include-portals", "weworkremotely"]
         )
@@ -110,7 +110,7 @@ def test_run_command_with_last_run_at(cli_runner, mock_portals, db_session):
 def test_run_command_with_exclude_portals_option(cli_runner, db_session, mock_portals):
     portals = list(set(PORTALS.keys()) - set(["weworkremotely", "remotive"]))
     mock_portals(portals=portals)
-    with mock.patch("job_board.cli.store_jobs") as mock_store_jobs:
+    with mock.patch("job_board.portals.models.store_jobs") as mock_store_jobs:
         result = cli_runner.invoke(
             main,
             [
@@ -146,7 +146,7 @@ def test_fetch_jobs_function_all_portals(db_session, mock_portals):
     with (
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo") as mock_echo,
-        mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
+        mock.patch("job_board.portals.models.store_jobs") as mock_store_jobs,
     ):
         fetch_jobs()
 
@@ -162,7 +162,7 @@ def test_fetch_jobs_function_specific_portal(db_session, mock_portals):
     with (
         mock.patch("job_board.cli.init_db") as mock_init_db,
         mock.patch("job_board.cli.click.echo"),
-        mock.patch("job_board.cli.store_jobs") as mock_store_jobs,
+        mock.patch("job_board.portals.models.store_jobs") as mock_store_jobs,
     ):
         fetch_jobs(include_portals=["weworkremotely"])
 
