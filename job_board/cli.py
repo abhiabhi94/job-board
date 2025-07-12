@@ -3,23 +3,17 @@ import subprocess
 import sys
 import time
 import traceback
-from datetime import timedelta
-from datetime import timezone
 
 import click
 
 # Import scheduled jobs to register them globally  # noreorder
 import job_board.schedules  # noqa: F401
 from job_board import config
-from job_board.connection import get_session
 from job_board.init_db import init_db
-from job_board.logger import logger
-from job_board.models import store_jobs
 from job_board.portals import PORTALS
-from job_board.portals.models import PortalSetting
+from job_board.portals.models import Portal
 from job_board.scheduler import scheduler
 from job_board.utils import log_to_sentry
-from job_board.utils import utcnow_naive
 
 
 def debugger_hook(exception_type, value, tb):
@@ -95,25 +89,10 @@ def fetch_jobs(
 
     portals = list(map(str.lower, portals))
 
-    for portal_name, portal_class in PORTALS.items():
-        if portal_name.lower() in portals:
-            click.echo(f"Fetching jobs from {portal_name.title()}")
-            setting = PortalSetting.get_or_create(portal_name=portal_name)
-            setting_id = setting.id
-            last_run_at = None
-            if setting.last_run_at:
-                last_run_at = setting.last_run_at.astimezone(timezone.utc)
-                # just to have a buffer.
-                last_run_at -= timedelta(minutes=5)
-
-            portal = portal_class(last_run_at=last_run_at)
-            jobs = portal.fetch_jobs()
-            logger.debug(f"Jobs from {portal_name}:\n\n{jobs}")
-            store_jobs(jobs)
-
-            with get_session(readonly=False) as session:
-                setting = session.get(PortalSetting, setting_id)
-                setting.last_run_at = utcnow_naive()
+    for portal in portals:
+        click.echo(f"Fetching jobs from {portal.title()}")
+        Portal.fetch_jobs(portal)
+        click.echo(f"Jobs fetched from {portal.title()}")
 
     click.echo("********Fetched jobs**********")
 

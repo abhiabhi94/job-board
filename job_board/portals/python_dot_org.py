@@ -9,7 +9,7 @@ from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
 from job_board.portals.parser import Money
 from job_board.portals.parser import SalaryRange
-from job_board.utils import httpx_client
+from job_board.utils import get_http_client
 
 
 class Parser(JobParser):
@@ -40,8 +40,8 @@ class Parser(JobParser):
 
     def get_extra_info(self) -> html.HtmlElement:
         link = self.get_link()
-        with httpx_client() as client:
-            response = client.get(link)
+        client = get_http_client()
+        response = client.get(link)
 
         return html.fromstring(response.content)
 
@@ -85,8 +85,8 @@ class PythonDotOrg(BasePortal):
     parser_class = Parser
 
     def make_request(self):
-        with httpx_client() as client:
-            response = client.get(self.url)
+        client = get_http_client()
+        response = client.get(self.url)
 
         return objectify.fromstring(response.content)
 

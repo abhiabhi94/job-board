@@ -55,6 +55,9 @@ STANDARD_TAGS_MAPPING.update(
         "DataScience": "data science",
         "Node js": "node.js",
         "Nodejs": "node.js",
+        "React.js": "react",
+        "ReactJS": "react",
+        "React JS": "react",
     }
 )
 
@@ -127,16 +130,7 @@ class JobParser:
         """Extracts extra information from the item."""
         raise NotImplementedError()
 
-    def get_job(self) -> Job | None:
-        if not self.validate_recency():
-            link = self.get_link()
-            posted_on = self.get_posted_on()
-            logger.info(f"{link=} {posted_on=} is too old, skipping.")
-            return None
-
-        return self._get_job()
-
-    def _get_job(self) -> Job:
+    def get_job(self) -> Job:
         link = self.get_link()
         posted_on = self.get_posted_on()
         title = self.get_title().strip()

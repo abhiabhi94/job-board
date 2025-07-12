@@ -5,7 +5,7 @@ from lxml import html
 
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
-from job_board.utils import httpx_client
+from job_board.utils import get_http_client
 
 RELEVANT_KEYS = {
     "title",
@@ -56,8 +56,8 @@ class Remotive(BasePortal):
     parser_class = Parser
 
     def make_request(self):
-        with httpx_client() as client:
-            response = client.get(self.url)
+        client = get_http_client()
+        response = client.get(self.url)
 
         return response.json()
 

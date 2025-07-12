@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import itertools
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from requests.structures import CaseInsensitiveDict
@@ -13,7 +16,9 @@ from sqlalchemy.sql import expression
 from job_board import config
 from job_board.connection import get_session
 from job_board.logger import logger
-from job_board.portals.parser import Job as JobListing
+
+if TYPE_CHECKING:  # pragma: no cover
+    from job_board.portals.parser import Job as JobListing
 from job_board.utils import utcnow_naive
 
 

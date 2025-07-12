@@ -87,6 +87,7 @@ def test_fetch_jobs(
     respx_mock,
     sample_jobs_response,
     frozen_time,
+    db_session,
 ):
     respx_mock.get(Remotive.url).mock(
         return_value=httpx.Response(json=sample_jobs_response, status_code=200)

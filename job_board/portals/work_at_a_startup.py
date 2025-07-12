@@ -5,7 +5,7 @@ from job_board import config
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
-from job_board.utils import httpx_client
+from job_board.utils import get_http_client
 from job_board.utils import jinja_env
 
 
@@ -54,21 +54,21 @@ class WorkAtAStartup(BasePortal):
     def make_request(self) -> list[Job]:
         template = jinja_env.get_template("work-at-a-startup-request-params.json")
         request_data = json.loads(template.render(hits_per_page=100))
-        with httpx_client() as client:
-            response = client.post(
-                ALGOLIA_URL,
-                params=request_data["query_params"],
-                json={
-                    "requests": [
-                        {
-                            "indexName": (
-                                "WaaSPublicCompanyJob_created_at_desc_production"
-                            ),
-                            "params": urllib.parse.urlencode(request_data["params"]),
-                        }
-                    ]
-                },
-            )
+        client = get_http_client()
+        response = client.post(
+            ALGOLIA_URL,
+            params=request_data["query_params"],
+            json={
+                "requests": [
+                    {
+                        "indexName": (
+                            "WaaSPublicCompanyJob_created_at_desc_production"
+                        ),
+                        "params": urllib.parse.urlencode(request_data["params"]),
+                    }
+                ]
+            },
+        )
 
         company_ids = [
             hit["company_id"]
@@ -76,11 +76,17 @@ class WorkAtAStartup(BasePortal):
             for hit in result["hits"]
         ]
 
-        with httpx_client(
-            cookies={"_bf_session_key": config.WORK_AT_A_STARTUP_COOKIE},
-            headers={"x-csrf-token": config.WORK_AT_A_STARTUP_CSRF_TOKEN},
-        ) as client:
-            response = client.post(self.url, json={"ids": company_ids})
+        cookies = {
+            "_bf_session_key": config.WORK_AT_A_STARTUP_COOKIE,
+        }
+        headers = {
+            "x-csrf-token": config.WORK_AT_A_STARTUP_CSRF_TOKEN,
+        }
+        client = get_http_client(
+            cookies=tuple(cookies.items()),
+            headers=tuple(headers.items()),
+        )
+        response = client.post(self.url, json={"ids": company_ids})
 
         return response.json()
 

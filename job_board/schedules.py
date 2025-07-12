@@ -6,6 +6,11 @@ from job_board.scheduler import scheduler
 
 # Schedule individual portal jobs to isolate failures
 for portal_name in PORTALS:
+    if portal_name == "wellfound":
+        # wellfound is scheduled separately so that
+        # since it consumes a lot of scrapfly credits.
+        # This is to avoid running it multiple times a day.
+        continue
 
     def create_portal_job(name):
         def fetch_jobs_func():
@@ -19,6 +24,11 @@ for portal_name in PORTALS:
         return scheduler.schedule("0 1,13 * * *")(fetch_jobs_func)
 
     create_portal_job(portal_name)
+
+
+@scheduler.schedule("0 12 * * *")
+def fetch_wellfound_jobs():
+    cli.fetch_jobs(include_portals=["wellfound"])
 
 
 @scheduler.schedule("0 0 * * *")

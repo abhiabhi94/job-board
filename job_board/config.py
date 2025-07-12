@@ -41,9 +41,11 @@ HIMALAYAS_REQUESTS_BATCH_SIZE = int(os.getenv("HIMALAYAS_REQUESTS_BATCH_SIZE", 1
 
 # Sentry configuration
 SENTRY_DSN = os.getenv("SENTRY_DSN")
+SENTRY_TRACES_SAMPLE_RATE = os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")
+
 if ENV != "dev":
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         environment=ENV,
-        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+        traces_sample_rate=float(SENTRY_TRACES_SAMPLE_RATE),
     )

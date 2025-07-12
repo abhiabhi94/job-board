@@ -44,7 +44,9 @@ class Parser(JobParser):
     def get_extra_info(self):
         return html.fromstring(self._get_extra_info())
 
-    @retry_on_http_errors()
+    @retry_on_http_errors(
+        additional_status_codes=[403, 422],
+    )
     def _get_extra_info(self):
         link = self.get_link()
         return make_scrapfly_request(link, timeout=100)
