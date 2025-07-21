@@ -10,6 +10,7 @@ from typing import NamedTuple
 import pycountry
 from babel.numbers import format_compact_currency
 from lxml import etree
+from lxml import html
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
@@ -87,6 +88,7 @@ class Job(BaseModel):
     is_remote: bool = False
     locations: list[str] | None = Field(default_factory=list)
     payload: str | None = None
+    extra_info: str | None = None
 
     model_config = ConfigDict(frozen=True)
 
@@ -123,10 +125,10 @@ class JobParser:
         self.api_data_format = api_data_format
 
     @cached_property
-    def extra_info(self):
+    def extra_info(self) -> html.HtmlElement | None:
         return self.get_extra_info()
 
-    def get_extra_info(self):
+    def get_extra_info(self) -> html.HtmlElement | None:
         """Extracts extra information from the item."""
         raise NotImplementedError()
 
@@ -142,6 +144,13 @@ class JobParser:
         is_remote = self.get_is_remote()
         locations = self.get_locations()
         payload = self.get_payload()
+        try:
+            extra_info = self.extra_info
+        except NotImplementedError:
+            extra_info = None
+        else:
+            if extra_info is not None:
+                extra_info = html.tostring(extra_info, encoding="unicode")
 
         return Job(
             link=link,
@@ -154,6 +163,7 @@ class JobParser:
             is_remote=is_remote,
             locations=locations,
             payload=payload,
+            extra_info=extra_info,
         )
 
     def validate_recency(self) -> bool:

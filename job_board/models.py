@@ -157,6 +157,7 @@ class Payload(BaseModel):
 
     link = sa.Column(sa.String, nullable=False)
     payload = sa.Column(sa.String, nullable=False)
+    extra_info = sa.Column(sa.String, nullable=True)
 
     __table_args__ = (
         sa.Index(
@@ -291,6 +292,7 @@ def _store_payloads(session, jobs: JobListing) -> None:
         value = {
             "link": job.link,
             "payload": job.payload,
+            "extra_info": job.extra_info,
         }
         values.append(value)
 
