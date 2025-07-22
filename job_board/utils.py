@@ -2,11 +2,9 @@ import pathlib
 from datetime import datetime
 from datetime import timezone
 from decimal import Decimal
-from functools import lru_cache
 from functools import partial
 from typing import Any
 from typing import Callable
-from typing import Optional
 
 import httpx
 import pycountry
@@ -34,26 +32,11 @@ def utcnow_naive():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-@lru_cache(maxsize=10)
-def get_http_client(
-    *args,
-    # headers and cookies are taken as tuples to allow for immutability
-    # for the lru_cache to work properly.
-    headers: Optional[tuple] = None,
-    cookies: Optional[tuple] = None,
-    **kwargs,
-) -> httpx.Client:
-    headers = dict(headers or {})
-    cookies = dict(cookies or {})
-    kwargs.update({"headers": headers, "cookies": cookies})
-    return _http_client(*args, **kwargs)
-
-
 def response_hook(response: httpx.Response) -> None:
     response.raise_for_status()
 
 
-_http_client = partial(
+http_client = partial(
     httpx.Client,
     timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
     http2=True,
@@ -61,12 +44,7 @@ _http_client = partial(
 )
 
 
-@lru_cache(maxsize=10)
-def get_async_http_client(*args, **kwargs) -> httpx.AsyncClient:
-    return _http_async_client(*args, **kwargs)
-
-
-async def response_hook_async(response: httpx.Response) -> None:
+async def async_response_hook(response: httpx.Response) -> None:
     """
     Asynchronous response hook to raise for status.
     This is used with httpx.AsyncClient.
@@ -74,11 +52,11 @@ async def response_hook_async(response: httpx.Response) -> None:
     response.raise_for_status()
 
 
-_http_async_client = partial(
+async_http_client = partial(
     httpx.AsyncClient,
     timeout=httpx.Timeout(config.DEFAULT_HTTP_TIMEOUT),
     http2=True,
-    event_hooks={"response": [response_hook_async]},
+    event_hooks={"response": [async_response_hook]},
 )
 
 
@@ -194,12 +172,12 @@ def make_scrapfly_request(
     else:
         _timeout = config.DEFAULT_HTTP_TIMEOUT
 
-    client = get_http_client(timeout=_timeout)
-    # https://scrapfly.io/docs/scrape-api/getting-started#spec
-    response = client.get(
-        SCRAPFLY_URL,
-        params=params,
-    )
+    with http_client(timeout=_timeout) as client:
+        # https://scrapfly.io/docs/scrape-api/getting-started#spec
+        response = client.get(
+            SCRAPFLY_URL,
+            params=params,
+        )
     _raise_for_status(response)
 
     return response.json()["result"]["content"]
@@ -218,13 +196,14 @@ async def make_async_scrapfly_request(
     else:
         timeout = config.DEFAULT_HTTP_TIMEOUT
 
-    client = get_async_http_client(timeout=timeout)
-    # https://scrapfly.io/docs/scrape-api/getting-started#spec
-    response = await client.get(
-        SCRAPFLY_URL,
-        timeout=timeout,
-        params=params,
-    )
+    async with async_http_client(timeout=timeout) as client:
+        # https://scrapfly.io/docs/scrape-api/getting-started#spec
+        response = await client.get(
+            SCRAPFLY_URL,
+            timeout=timeout,
+            params=params,
+        )
+
     _raise_for_status(response)
 
     return response.json()["result"]["content"]
@@ -338,18 +317,19 @@ def get_exchange_rate(
     from_currency = from_currency.lower()
     to_currency = to_currency.lower()
     url = EXCHANGE_RATE_API_URL.format(date=exchange_date_str, currency=to_currency)
-    client = get_http_client()
-    try:
-        response = client.get(url)
-    except (
-        httpx.RequestError,
-        httpx.HTTPStatusError,
-    ) as exc:
-        logger.warning(f"Failed to fetch exchange rate from {url}: {exc}")
-        fallback_url = EXCHANGE_RATE_FALLBACK_API_URL.format(
-            date=exchange_date_str, currency=to_currency
-        )
-        response = client.get(fallback_url)
+
+    with http_client() as client:
+        try:
+            response = client.get(url)
+        except (
+            httpx.RequestError,
+            httpx.HTTPStatusError,
+        ) as exc:
+            logger.warning(f"Failed to fetch exchange rate from {url}: {exc}")
+            fallback_url = EXCHANGE_RATE_FALLBACK_API_URL.format(
+                date=exchange_date_str, currency=to_currency
+            )
+            response = client.get(fallback_url)
 
     data = response.json()
     rate = data[to_currency].get(from_currency)

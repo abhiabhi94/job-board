@@ -123,7 +123,7 @@ def test_get_exchange_rate(respx_mock):
 
 def test_make_scrapfly_request_timeout():
     with (
-        mock.patch("job_board.utils.get_http_client") as mock_client,
+        mock.patch("job_board.utils.http_client") as mock_client,
     ):
         make_scrapfly_request("https://example.com", timeout=100)
 

@@ -15,7 +15,7 @@ from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
 from job_board.portals.parser import Money
 from job_board.portals.parser import SalaryRange
-from job_board.utils import get_async_http_client
+from job_board.utils import async_http_client
 from job_board.utils import retry_on_http_errors
 
 
@@ -182,9 +182,8 @@ class Himalayas(BasePortal):
 
     @retry_on_http_errors(max_attempts=10, min_wait=1.5, max_wait=20)
     async def _make_async_request(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        client = get_async_http_client()
-        response = await client.get(self.url, params=params)
-        response.raise_for_status()
+        async with async_http_client() as client:
+            response = await client.get(self.url, params=params)
         return response.json()
 
     def get_items(self, jobs_data) -> list:
