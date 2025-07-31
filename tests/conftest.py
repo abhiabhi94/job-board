@@ -17,7 +17,7 @@ def disable_real_http_requests(respx_mock):
 @pytest.fixture
 def load_response():
     def _load_response(file_path: str) -> str:
-        base_path = config.BASE_DIR / "tests" / "portals" / "responses"
+        base_path = config.BASE_DIR / "tests" / "responses"
         with open(base_path / file_path) as fp:
             return fp.read()
 
