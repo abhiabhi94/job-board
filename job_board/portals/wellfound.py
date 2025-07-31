@@ -11,9 +11,7 @@ from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
 from job_board.utils import make_async_scrapfly_request
-from job_board.utils import make_scrapfly_request
 from job_board.utils import retry_on_http_errors
-from job_board.utils import ScrapflyError
 
 
 class Parser(JobParser):
@@ -43,41 +41,13 @@ class Parser(JobParser):
         compensation = self.item["compensation"]
         return self.parse_salary_range(compensation=compensation)
 
-    def get_extra_info(self):
-        root = self._get_extra_info()
-        if root is not None:
-            return html.fromstring(root)
-        return None
-
-    @retry_on_http_errors(
-        additional_status_codes=[403, 422],
-    )
-    def _get_extra_info(self):
-        link = self.get_link()
-        try:
-            return make_scrapfly_request(link, asp=True)
-        except ScrapflyError as exception:
-            if exception.response.status_code != 410:
-                raise
-            # the job is no longer available
-            logger.info(f"[Wellfound]: Job {link} is no longer available.")
-            return None
-
     def get_tags(self) -> list[str]:
-        root = self.extra_info
-        tags = []
-        if root is None:
-            return tags
-
-        skill_elements = root.xpath(
-            "//span[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'skills')]/following-sibling::div//div[contains(@class, 'bg-accent-persian-100')]"  # noqa: E501
-        )
-        tags = []
-        for element in skill_elements:
-            if tag := element.text_content().strip():
-                tags.append(tag)
-
-        return tags
+        # Extracting tags through wellfound requires us to
+        # scrape the detail page for every job. This operation
+        # becomes very expensive through the scrapfly API.
+        # So, don't fill it in here. Later, these will be filled
+        # in bulk, using a LLM.
+        return []
 
 
 class Wellfound(BasePortal):

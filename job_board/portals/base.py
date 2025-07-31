@@ -1,10 +1,6 @@
 from datetime import datetime
 
-import sqlalchemy as sa
-
-from job_board.connection import get_session
 from job_board.logger import logger
-from job_board.models import Job
 from job_board.portals.parser import Job as JobListing
 from job_board.portals.parser import JobParser
 
@@ -41,8 +37,7 @@ class BasePortal:
         return jobs
 
     def filter_items(self, items: list[object]) -> list[object]:
-        recent_links = []
-        parsers = []
+        recent_items = []
         for item in items:
             parser = self.parser_class(
                 item=item,
@@ -54,23 +49,9 @@ class BasePortal:
                 logger.info(f"{link=} {posted_on=} is too old, skipping.")
                 continue
 
-            recent_links.append(link)
-            parsers.append(parser)
+            recent_items.append(item)
 
-        statement = sa.select(Job.link).where(
-            sa.func.lower(Job.link).in_([link.lower() for link in recent_links])
-        )
-        with get_session(readonly=True) as session:
-            existing_links = session.execute(statement).scalars().all()
-
-        relevant_items = []
-        for parser in parsers:
-            link = parser.get_link()
-            if link in existing_links:
-                logger.info(f"Job {link} already exists, skipping.")
-                continue
-            relevant_items.append(parser.item)
-        return relevant_items
+        return recent_items
 
     def make_request(self) -> bytes | dict:
         """Makes a request to the portal and returns the response."""

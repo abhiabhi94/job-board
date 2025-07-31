@@ -7,6 +7,7 @@ from decimal import Decimal
 from functools import cached_property
 from typing import NamedTuple
 
+import httpx
 import pycountry
 from babel.numbers import format_compact_currency
 from lxml import etree
@@ -20,6 +21,12 @@ from job_board import config
 from job_board.logger import logger
 from job_board.utils import get_currency_from_symbol
 from job_board.utils import get_exchange_rate
+from job_board.utils import http_client
+from job_board.utils import make_openai_schema
+from job_board.utils import retry_on_http_errors
+
+
+OPENAI_RESPONSES_API_URL = "https://api.openai.com/v1/responses"
 
 SALARY_AMOUNT_REGEX = re.compile(
     r"""
@@ -390,3 +397,93 @@ class JobParser:
         amount = (amount / exchange_rate).quantize(Decimal("0.01"))
 
         return amount
+
+
+@retry_on_http_errors(max_attempts=10, max_wait=5)
+def extract_job_tags_using_llm(jobs: list[Job]) -> list[Job]:
+    class JobTags(BaseModel):
+        link: str
+        tags: list[str]
+
+    class JobsTags(BaseModel):
+        jobs: list[JobTags]
+
+    job_data = [job.model_dump() for job in jobs]
+    if not job_data:
+        return []
+
+    input_links = [job.link for job in jobs]
+    job_data_length = len(job_data)
+    prompt = f"""
+You are a job analysis system. You MUST process EXACTLY {job_data_length} job postings and return EXACTLY {job_data_length} results.
+
+INPUT JOBS TO ANALYZE:
+{json.dumps(job_data, indent=2)}
+
+CRITICAL REQUIREMENTS:
+1. Process ALL {job_data_length} jobs - missing even one job is a FAILURE
+2. Use ONLY the exact links provided above - DO NOT create, modify, or hallucinate any links
+3. Your response must have EXACTLY {job_data_length} results with these EXACT links:
+   {list(input_links)}
+4. Extract MAXIMUM 5 tags per job (never exceed this limit)
+5. Only include technical skills, programming languages, frameworks, and tools explicitly mentioned in the job description
+6. Use standard industry terms in lowercase
+7. For non-technical jobs (HR, sales, marketing, management, etc.), return exactly: ["non-tech"]
+8. Do not assume or infer technologies not explicitly mentioned
+"""  # noqa: E501
+
+    schema = make_openai_schema(JobsTags)
+    data = {
+        "model": config.OPENAI_MODEL,
+        "input": [
+            {
+                "role": "system",
+                "content": (
+                    "You are an expert at structured data extraction. "
+                    "You will extract technical tags from job postings."
+                ),
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": JobsTags.__name__,
+                "schema": schema,
+                "strict": True,
+            }
+        },
+        "temperature": 0,
+    }
+
+    with http_client() as client:
+        # https://platform.openai.com/docs/guides/structured-outputs?api-mode=responses&lang=curl&example=structured-data#examples  # noqa: E501
+        response = client.post(
+            OPENAI_RESPONSES_API_URL,
+            timeout=httpx.Timeout(
+                config.DEFAULT_HTTP_TIMEOUT, read=config.OPENAI_READ_TIMEOUT
+            ),
+            headers={
+                "Authorization": f"Bearer {config.OPENAI_API_KEY}",
+            },
+            json=data,
+        )
+
+    result = response.json()
+    logger.debug(f"OpenAI response ID: {result['id']}")
+    text = json.loads(result["output"][0]["content"][0]["text"])
+    job_link_map = {j.link: j for j in jobs}
+
+    job_with_tags = []
+    for job in text["jobs"]:
+        job_without_tag = job_link_map[job["link"]]
+        job_with_tags.append(
+            job_without_tag.model_copy(
+                update={"tags": job["tags"]},
+                deep=True,
+            )
+        )
+    return job_with_tags

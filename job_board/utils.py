@@ -5,9 +5,11 @@ from decimal import Decimal
 from functools import partial
 from typing import Any
 from typing import Callable
+from typing import Type
 
 import httpx
 import pycountry
+import pydantic
 import sentry_sdk
 from babel.numbers import get_currency_symbol
 from jinja2 import Environment
@@ -353,3 +355,24 @@ def log_to_sentry(exception: Exception, service_name: str, tags=None) -> str | N
 
     logger.error(f"Exception captured in Sentry: {exception!r}, event_id: {event_id}")
     return event_id
+
+
+def make_openai_schema(pydantic_model: Type[pydantic.BaseModel]) -> dict:
+    """Convert Pydantic model to OpenAI structured output compatible schema"""
+    schema = pydantic_model.model_json_schema()
+
+    def add_additional_properties(obj):
+        if isinstance(obj, dict):
+            if obj.get("type") == "object":
+                # According to OpenAI's guidelines,
+                # additionalProperties must always be set to False in objects
+                # https://platform.openai.com/docs/guides/structured-outputs?api-mode=chat&lang=curl&example=structured-data&type-restrictions=string-restrictions#additionalproperties-false-must-always-be-set-in-objects  #noqa: E501
+                obj["additionalProperties"] = False
+            for value in obj.values():
+                add_additional_properties(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                add_additional_properties(item)
+
+    add_additional_properties(schema)
+    return schema
