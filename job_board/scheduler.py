@@ -16,14 +16,14 @@ class JobScheduler:
         self._job_registry: Dict[str, Callable] = {}
         self._started = False
 
-    def schedule(self, cron_expr: str):
+    def schedule(self, **kwargs) -> Callable:
         """
         Decorator to schedule a function with cron expression.
 
         Examples:
-            @scheduler.schedule('30 10 * * *')  # Daily at 10:30
-            @scheduler.schedule('0 */2 * * *')  # Every 2 hours
-            @scheduler.schedule('0 0 * * 1')   # Weekly on Monday
+            @scheduler.schedule(minute='*/5')  # Every 5 minutes
+            @scheduler.schedule(hour='*/2')  # Every 2 hours
+            @scheduler.schedule(day_of_week='mon', hour=9)  # Weekly on Monday at 9 AM
         """
 
         def decorator(func: Callable):
@@ -33,14 +33,14 @@ class JobScheduler:
 
             self._job_registry[job_name] = func
 
-            trigger = CronTrigger.from_crontab(cron_expr)
+            trigger = CronTrigger(**kwargs)
             self._scheduler.add_job(
                 func,
                 trigger=trigger,
                 id=job_name,
             )
 
-            logger.info(f"Scheduled job '{job_name}' with cron '{cron_expr}'")
+            logger.info(f"Scheduled job '{job_name}' with cron '{kwargs}'")
             return func
 
         return decorator

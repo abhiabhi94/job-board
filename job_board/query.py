@@ -74,8 +74,8 @@ def filter_jobs(
 
     with get_session(readonly=True) as session:
         result = session.execute(statement)
-        job_objs = result.scalars().all()
-        jobs = [
+        jobs = result.scalars().all()
+        job_listings = [
             JobListing(
                 title=job.title,
                 description=job.description,
@@ -87,10 +87,10 @@ def filter_jobs(
                 is_remote=job.is_remote,
                 # locations=job.locations,
             )
-            for job in job_objs
+            for job in jobs
         ]
 
-    return jobs
+    return job_listings
 
 
 def _get_filters(

@@ -65,3 +65,7 @@ class Portal(BaseModel):
         with get_session(readonly=False) as session:
             portal = session.get(Portal, portal_id)
             portal.last_run_at = utcnow_naive()
+
+        # we should probably start a background job to fetch tags
+        # here, but using something like celery would be too much.
+        # For now, the scheduler will handle it after some time.

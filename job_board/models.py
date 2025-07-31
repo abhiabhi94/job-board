@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools
 from datetime import timedelta
-from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from requests.structures import CaseInsensitiveDict
@@ -16,9 +15,8 @@ from sqlalchemy.sql import expression
 from job_board import config
 from job_board.connection import get_session
 from job_board.logger import logger
-
-if TYPE_CHECKING:  # pragma: no cover
-    from job_board.portals.parser import Job as JobListing
+from job_board.portals.parser import extract_job_tags_using_llm
+from job_board.portals.parser import Job as JobListing
 from job_board.utils import utcnow_naive
 
 
@@ -151,6 +149,42 @@ class Job(BaseModel):
         ),
     )
 
+    @classmethod
+    def fill_missing_tags(cls) -> None:
+        with get_session(readonly=True) as session:
+            jobs = (
+                session.execute(
+                    sa.select(Job)
+                    .where(Job.is_active.is_(True))
+                    .outerjoin(JobTag, Job.id == JobTag.job_id)
+                    .where(JobTag.job_id.is_(None))
+                )
+                .scalars()
+                .all()
+            )
+            job_listings = []
+            for job in jobs:
+                job_obj = JobListing(
+                    title=job.title,
+                    description=job.description,
+                    link=job.link,
+                    tags=[],
+                )
+                job_listings.append(job_obj)
+
+        if not job_listings:
+            logger.info("No jobs found without tags")
+            return
+
+        logger.info(f"Found {len(job_listings)} jobs without tags")
+
+        for batch in itertools.batched(job_listings, config.BATCH_TAG_FILLING_SIZE):
+            listings_with_tags = extract_job_tags_using_llm(batch)
+            with get_session(readonly=False) as session:
+                store_tags(session=session, job_listings=listings_with_tags)
+
+            logger.info(f"Processed batch of {len(batch)} jobs")
+
 
 class Payload(BaseModel):
     __tablename__ = "payload"
@@ -175,54 +209,25 @@ BATCH_PAYLOAD_SIZE = 200
 def store_jobs(jobs: JobListing):
     for batch in itertools.batched(jobs, BATCH_JOB_SIZE):
         with get_session(readonly=False) as session:
-            _store_jobs(session=session, jobs=batch)
+            _store_jobs(session=session, job_listings=batch)
 
     store_payloads(jobs)
 
 
-def _store_jobs(session, jobs: JobListing):
-    tags = set()
-    for job in jobs:
-        if _tags := job.tags:
-            tags.update(_tags)
-
-    if tags:
-        session.execute(
-            insert(Tag)
-            .values([{"name": t} for t in tags])
-            .on_conflict_do_nothing(
-                index_elements=[
-                    sa.func.lower(Tag.name),
-                ],
-            )
-        )
-        logger.info("Stored tags")
-    else:
-        logger.info("No tags to store")
-
-    existing_tags = (
-        session.execute(sa.select(Tag).where(Tag.name.ilike(sa.any_(list(tags)))))
-        .scalars()
-        .all()
-    )
-
-    tag_map = CaseInsensitiveDict()
-    for tag in existing_tags:
-        tag_map[tag.name] = tag.id
-
+def _store_jobs(session, job_listings: JobListing) -> None:
     values = []
-    for job in jobs:
+    for listing in job_listings:
         value = {
-            "link": job.link,
-            "title": job.title,
-            "min_salary": job.min_salary,
-            "max_salary": job.max_salary,
-            "description": job.description,
-            "is_remote": job.is_remote,
+            "link": listing.link,
+            "title": listing.title,
+            "min_salary": listing.min_salary,
+            "max_salary": listing.max_salary,
+            "description": listing.description,
+            "is_remote": listing.is_remote,
             # FIXME: find a way to make this more uniform.
-            # "locations": job.locations,
+            # "locations": listing.locations,
         }
-        if posted_on := job.posted_on:
+        if posted_on := listing.posted_on:
             value["posted_on"] = posted_on
         values.append(value)
 
@@ -241,58 +246,94 @@ def _store_jobs(session, jobs: JobListing):
         .all()
     )
     logger.info(f"Stored {len(job_ids)} new jobs")
+    store_tags(session=session, job_listings=job_listings)
 
-    # now associate the jobs with the tags
-    job_objs = (
-        session.execute(sa.select(Job).where(Job.id.in_(job_ids))).scalars().all()
+
+def store_tags(*, session, job_listings: list[JobListing]):
+    """Store tags and job-tag relationships for jobs with tags"""
+    all_tags = set()
+    for listing in job_listings:
+        if tags := listing.tags:
+            all_tags.update(tags)
+
+    if not all_tags:
+        logger.info("No tags to store")
+        return
+
+    session.execute(
+        insert(Tag)
+        .values([{"name": tag} for tag in all_tags])
+        .on_conflict_do_nothing(
+            index_elements=[
+                sa.func.lower(Tag.name),
+            ],
+        )
+    )
+
+    existing_tags = (
+        session.execute(sa.select(Tag).where(Tag.name.ilike(sa.any_(list(all_tags)))))
+        .scalars()
+        .all()
+    )
+
+    tag_map = CaseInsensitiveDict()
+    for tag in existing_tags:
+        tag_map[tag.name] = tag.id
+
+    job_links = [job.link for job in job_listings]
+    jobs = (
+        session.execute(
+            sa.select(Job).where(
+                sa.func.lower(Job.link).in_([link.lower() for link in job_links])
+            )
+        )
+        .scalars()
+        .all()
     )
 
     job_link_map = CaseInsensitiveDict()
-    for job in job_objs:
+    for job in jobs:
         job_link_map[job.link] = job.id
 
     job_tags = []
-    for job in jobs:
-        job_id = job_link_map.get(job.link)
-        if not job_id:
-            # the job already exists
-            continue
-        for tag in job.tags:
+    for listing in job_listings:
+        job_id = job_link_map[listing.link]
+        for tag_name in listing.tags:
+            tag_id = tag_map[tag_name]
             job_tags.append(
                 {
                     "job_id": job_id,
-                    "tag_id": tag_map[tag],
+                    "tag_id": tag_id,
                 }
             )
 
-    if job_tags:
-        session.execute(
-            insert(JobTag)
-            .values(job_tags)
-            .on_conflict_do_nothing(
-                index_elements=[
-                    JobTag.job_id,
-                    JobTag.tag_id,
-                ],
-            )
+    session.execute(
+        insert(JobTag)
+        .values(job_tags)
+        .on_conflict_do_nothing(
+            index_elements=[
+                JobTag.job_id,
+                JobTag.tag_id,
+            ],
         )
+    )
 
-    logger.info(f"Stored {len(job_link_map)} new job tag links")
+    logger.info(f"Stored tags for {len(job_listings)} jobs")
 
 
-def store_payloads(jobs: JobListing) -> None:
-    for batch in itertools.batched(jobs, BATCH_PAYLOAD_SIZE):
+def store_payloads(job_listings: JobListing) -> None:
+    for batch in itertools.batched(job_listings, BATCH_PAYLOAD_SIZE):
         with get_session(readonly=False) as session:
-            _store_payloads(session=session, jobs=batch)
+            _store_payloads(session=session, job_listings=batch)
 
 
-def _store_payloads(session, jobs: JobListing) -> None:
+def _store_payloads(session, job_listings: JobListing) -> None:
     values = []
-    for job in jobs:
+    for listing in job_listings:
         value = {
-            "link": job.link,
-            "payload": job.payload,
-            "extra_info": job.extra_info,
+            "link": listing.link,
+            "payload": listing.payload,
+            "extra_info": listing.extra_info,
         }
         values.append(value)
 

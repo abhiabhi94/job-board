@@ -4,13 +4,15 @@ from datetime import timezone
 from decimal import Decimal
 from unittest.mock import patch
 
+import httpx
 import pytest
 
 from job_board.portals.base import BasePortal
+from job_board.portals.parser import extract_job_tags_using_llm
 from job_board.portals.parser import InvalidSalary
 from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
-
+from job_board.portals.parser import OPENAI_RESPONSES_API_URL
 
 now = datetime.now(timezone.utc)
 
@@ -163,7 +165,7 @@ def test_get_payload_for_unsupported_format(parser):
         parser.get_payload()
 
 
-def test_very_old_jobs_are_skipped(db_session):
+def test_very_old_jobs_are_skipped():
     class TestParser(JobParser):
         def get_link(self):
             return self.item["link"]
@@ -226,3 +228,76 @@ def test_salary_range_property(min_salary, max_salary, expected_output):
     )
 
     assert job.salary_range == expected_output
+
+
+def test_extract_job_tags_using_llm(respx_mock, load_response):
+    assert extract_job_tags_using_llm([]) == []
+    jobs = [
+        Job(
+            title="All Round DevOps Engineer",
+            description="description 1",
+            link="https://wellfound.com/jobs/3326702-all-round-devops-engineer",
+        ),
+        Job(
+            title="AI/ML Engineer",
+            description="description 2",
+            link="https://wellfound.com/jobs/3326697-ai-ml-engineer",
+        ),
+        Job(
+            title="Security Engineer",
+            description="description 3",
+            link="https://wellfound.com/jobs/3326692-security-engineer",
+        ),
+        Job(
+            title="Senior Autonomy Engineer II - Simulation",
+            description="description 4",
+            link="https://wellfound.com/jobs/3326689-senior-autonomy-engineer-ii-simulation",
+        ),
+        Job(
+            title="Senior Director, Business Systems Engineering, Employee Tech Group",
+            description="description 5",
+            link="https://wellfound.com/jobs/3326626-senior-director-business-systems-engineering-employee-tech-group",
+        ),
+    ]
+
+    respx_mock.post(OPENAI_RESPONSES_API_URL).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            text=load_response("openai.json"),
+        )
+    )
+
+    tags_response = extract_job_tags_using_llm(jobs)
+
+    assert tags_response == [
+        Job(
+            title="All Round DevOps Engineer",
+            description="description 1",
+            link="https://wellfound.com/jobs/3326702-all-round-devops-engineer",
+            tags=["azure", "c#", ".net", "pyspark", "sql"],
+        ),
+        Job(
+            title="AI/ML Engineer",
+            description="description 2",
+            link="https://wellfound.com/jobs/3326697-ai-ml-engineer",
+            tags=["python", "tensorflow", "pytorch", "computer vision", "flask"],
+        ),
+        Job(
+            title="Security Engineer",
+            description="description 3",
+            link="https://wellfound.com/jobs/3326692-security-engineer",
+            tags=["aws", "linux", "python", "soar", "edr/xdr"],
+        ),
+        Job(
+            title="Senior Autonomy Engineer II - Simulation",
+            description="description 4",
+            link="https://wellfound.com/jobs/3326689-senior-autonomy-engineer-ii-simulation",
+            tags=["c++", "python", "simulation", "linux", "data structures"],
+        ),
+        Job(
+            title="Senior Director, Business Systems Engineering, Employee Tech Group",
+            description="description 5",
+            link="https://wellfound.com/jobs/3326626-senior-director-business-systems-engineering-employee-tech-group",
+            tags=["servicenow", "workday", "workato", "ai/ml", "systems engineering"],
+        ),
+    ]

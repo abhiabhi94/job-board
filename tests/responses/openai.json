@@ -1,0 +1,107 @@
+{
+  "id": "resp_688c8fe40cb481988d01c89aedc91e240a12857ba7a7ed5b",
+  "object": "response",
+  "created_at": 1754042340,
+  "status": "completed",
+  "background": false,
+  "error": null,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": null,
+  "max_tool_calls": null,
+  "model": "gpt-4o-mini-2024-07-18",
+  "output": [
+    {
+      "id": "msg_688c8fe6e634819883db6279a2513be50a12857ba7a7ed5b",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"jobs\":[{\"link\":\"https://wellfound.com/jobs/3326702-all-round-devops-engineer\",\"tags\":[\"azure\",\"c#\",\".net\",\"pyspark\",\"sql\"]},{\"link\":\"https://wellfound.com/jobs/3326697-ai-ml-engineer\",\"tags\":[\"python\",\"tensorflow\",\"pytorch\",\"computer vision\",\"flask\"]},{\"link\":\"https://wellfound.com/jobs/3326692-security-engineer\",\"tags\":[\"aws\",\"linux\",\"python\",\"soar\",\"edr/xdr\"]},{\"link\":\"https://wellfound.com/jobs/3326689-senior-autonomy-engineer-ii-simulation\",\"tags\":[\"c++\",\"python\",\"simulation\",\"linux\",\"data structures\"]},{\"link\":\"https://wellfound.com/jobs/3326626-senior-director-business-systems-engineering-employee-tech-group\",\"tags\":[\"servicenow\",\"workday\",\"workato\",\"ai/ml\",\"systems engineering\"]}]}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "reasoning": {
+    "effort": null,
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 0,
+  "text": {
+    "format": {
+      "type": "json_schema",
+      "description": null,
+      "name": "JobsTags",
+      "schema": {
+        "$defs": {
+          "JobTags": {
+            "properties": {
+              "link": {
+                "title": "Link",
+                "type": "string"
+              },
+              "tags": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Tags",
+                "type": "array"
+              }
+            },
+            "required": [
+              "link",
+              "tags"
+            ],
+            "title": "JobTags",
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "properties": {
+          "jobs": {
+            "items": {
+              "$ref": "#/$defs/JobTags"
+            },
+            "title": "Jobs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "jobs"
+        ],
+        "title": "JobsTags",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 57944,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 1816,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 59760
+  },
+  "user": null,
+  "metadata": {}
+}

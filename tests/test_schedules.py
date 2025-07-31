@@ -4,6 +4,7 @@ import pytest
 
 from job_board import models
 from job_board.cli import fetch_jobs
+from job_board.models import Job
 from job_board.portals import PORTALS
 from job_board.scheduler import scheduler
 
@@ -46,3 +47,10 @@ def test_purge_old_jobs():
         scheduler.run_job("purge_old_jobs")
 
     mock_purge.assert_called_once()
+
+
+def test_fill_missing_tags():
+    with mock.patch.object(Job, "fill_missing_tags") as mock_method:
+        scheduler.run_job("fill_missing_tags")
+
+    mock_method.assert_called_once()

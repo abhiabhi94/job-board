@@ -103,7 +103,6 @@ def test_fetch_jobs(
     mock_job_page,
     mock_rss_response,
     mock_scrapfly_response,
-    db_session,
 ):
     portal = WeWorkRemotely()
     portal.parser_class.validate_recency = lambda x: True  # bypass recency check

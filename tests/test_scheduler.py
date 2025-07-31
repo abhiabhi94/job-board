@@ -15,7 +15,7 @@ def test_scheduler_init():
 def test_schedule_decorator():
     test_scheduler = JobScheduler()
 
-    @test_scheduler.schedule("0 10 * * *")
+    @test_scheduler.schedule(hour=0, minute=10)
     def test_job():
         pass  # pragma: no cover
 
@@ -31,7 +31,7 @@ def test_schedule_with_invalid_cron_syntax():
 
     with pytest.raises(ValueError):
 
-        @test_scheduler.schedule("invalid cron")
+        @test_scheduler.schedule(minute="invalid cron")
         def test_job():
             pass  # pragma: no cover
 
@@ -40,7 +40,7 @@ def test_run_job_success():
     test_scheduler = JobScheduler()
     mocker = mock.MagicMock()
 
-    @test_scheduler.schedule("0 10 * * *")
+    @test_scheduler.schedule(hour=0, minute=10)
     def test_job():
         return mocker()
 
@@ -61,11 +61,11 @@ def test_list_jobs():
 
     assert test_scheduler.list_jobs() == []
 
-    @test_scheduler.schedule("0 10 * * *")
+    @test_scheduler.schedule(hour=0, minute=10)
     def job1():
         pass  # pragma: no cover
 
-    @test_scheduler.schedule("0 11 * * *")
+    @test_scheduler.schedule(hour=0, minute=11)
     def job2():
         pass  # pragma: no cover
 
@@ -104,7 +104,7 @@ def test_stop_scheduler():
 def test_clear_jobs():
     test_scheduler = JobScheduler()
 
-    @test_scheduler.schedule("0 10 * * *")
+    @test_scheduler.schedule(hour=0, minute=10)
     def test_job():
         pass  # pragma: no cover
 
@@ -117,12 +117,12 @@ def test_clear_jobs():
 def test_job_scheduler_registering_same_job():
     test_scheduler = JobScheduler()
 
-    @test_scheduler.schedule("0 10 * * *")
+    @test_scheduler.schedule(hour=0, minute=10)
     def test_job():
         pass  # pragma: no cover
 
     with pytest.raises(ValueError, match="Job 'test_job' is already scheduled"):
 
-        @test_scheduler.schedule("0 11 * * *")
+        @test_scheduler.schedule(hour=0, minute=11)
         def test_job():
             pass  # pragma: no cover
