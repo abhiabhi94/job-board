@@ -2,11 +2,14 @@ import pathlib
 from datetime import datetime
 from datetime import timezone
 from decimal import Decimal
+from functools import lru_cache
 from functools import partial
 from typing import Any
 from typing import Callable
+from typing import NamedTuple
 from typing import Type
 
+import country_converter as coco
 import httpx
 import pycountry
 import pydantic
@@ -23,6 +26,9 @@ from tenacity import wait_exponential
 from job_board import config
 from job_board.logger import logger
 
+# used by country_converter to indicate
+# that the country code was not found
+NOT_FOUND = "not found"
 
 EXCHANGE_RATE_API_URL = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@{date}/v1/currencies/{currency}.json"
 EXCHANGE_RATE_FALLBACK_API_URL = (
@@ -357,7 +363,7 @@ def log_to_sentry(exception: Exception, service_name: str, tags=None) -> str | N
     return event_id
 
 
-def make_openai_schema(pydantic_model: Type[pydantic.BaseModel]) -> dict:
+def get_openai_schema(pydantic_model: Type[pydantic.BaseModel]) -> dict:
     """Convert Pydantic model to OpenAI structured output compatible schema"""
     schema = pydantic_model.model_json_schema()
 
@@ -376,3 +382,49 @@ def make_openai_schema(pydantic_model: Type[pydantic.BaseModel]) -> dict:
 
     add_additional_properties(schema)
     return schema
+
+
+def add_missing_countries():
+    """
+    Add missing countries to the pycountry database.
+    """
+
+    class Country(NamedTuple):
+        alpha_2: str
+        alpha_3: str
+        name: str
+        numeric: str
+
+    MISSING_COUNTRIES = [
+        # Kosovo
+        Country(alpha_2="XK", alpha_3="XXK", name="Kosovo", numeric="926"),
+    ]
+    all_country_codes = {country.alpha_2 for country in pycountry.countries}
+    for country in MISSING_COUNTRIES:
+        if country.alpha_2 in all_country_codes:
+            continue
+        pycountry.countries.add_entry(
+            alpha_2=country.alpha_2,
+            alpha_3=country.alpha_3,
+            name=country.name,
+            numeric=country.numeric,
+        )
+
+
+@lru_cache()
+def get_iso2(name: str) -> str | None:
+    """
+    Convert a country/Subdivision name to its ISO 3166-1 alpha-2 code.
+    Returns None if an exact match is not found.
+    """
+    name = name.strip().lower()
+    code = coco.convert(name, to="iso2")
+    if code != NOT_FOUND:
+        return code
+
+    try:
+        subdivision = pycountry.subdivisions.lookup(name)
+    except LookupError:
+        return None
+    else:
+        return subdivision.code

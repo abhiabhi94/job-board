@@ -12,6 +12,7 @@ from job_board.utils import utcnow_naive
 def test_fetch_jobs(
     respx_mock,
     load_response,
+    db_session,
 ):
     portal = WorkAtAStartup()
 

@@ -16,6 +16,7 @@ from job_board.portals.parser import JobParser
 from job_board.portals.parser import Money
 from job_board.portals.parser import SalaryRange
 from job_board.utils import async_http_client
+from job_board.utils import get_iso2
 from job_board.utils import retry_on_http_errors
 
 
@@ -43,7 +44,11 @@ class Parser(JobParser):
 
     def get_locations(self):
         # the API returns a list of countries
-        return self.item["locationRestrictions"]
+        locations = []
+        for country in self.item["locationRestrictions"]:
+            if iso_code := get_iso2(country):
+                locations.append(iso_code)
+        return locations
 
     def get_tags(self) -> list[str]:
         # categories are of the format: [Django-Python-Developer, Python-Developer]

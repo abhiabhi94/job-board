@@ -75,12 +75,121 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Location dropdown functionality
+    const locationButton = document.getElementById('location-button');
+    const locationOptions = document.getElementById('location-options');
+    const locationHiddenInput = locationOptions?.querySelector('input[name="location"]');
+    const locationText = locationButton?.querySelector('.location-text');
+    const locationArrow = locationButton?.querySelector('.location-arrow');
+    const locationSearch = document.getElementById('location-search');
+
     // Sort dropdown functionality
     const sortButton = document.getElementById('sort-button');
     const sortOptions = document.getElementById('sort-options');
     const hiddenInput = sortOptions?.querySelector('input[name="sort"]');
     const sortText = sortButton?.querySelector('.sort-text');
     const sortArrow = sortButton?.querySelector('.sort-arrow');
+
+    // Location dropdown functions
+    if (locationButton && locationOptions) {
+        function closeLocationDropdown() {
+            locationOptions.classList.add('hidden');
+            if (locationArrow) {
+                locationArrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function openLocationDropdown() {
+            locationOptions.classList.remove('hidden');
+            if (locationArrow) {
+                locationArrow.style.transform = 'rotate(180deg)';
+            }
+            // Focus search input when dropdown opens
+            setTimeout(() => {
+                if (locationSearch) locationSearch.focus();
+            }, 100);
+        }
+
+        // Toggle location dropdown
+        locationButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (locationOptions.classList.contains('hidden')) {
+                openLocationDropdown();
+            } else {
+                closeLocationDropdown();
+            }
+        });
+
+        // Handle location option selection
+        locationOptions.addEventListener('click', function (e) {
+            const option = e.target.closest('.location-option');
+            if (!option) return;
+
+            const value = option.dataset.value;
+            const text = option.textContent.trim();
+
+            // Update hidden input
+            if (locationHiddenInput) {
+                locationHiddenInput.value = value;
+            }
+
+            // Update button text
+            if (locationText) {
+                locationText.textContent = text;
+            }
+
+            // Close dropdown
+            closeLocationDropdown();
+
+            // Submit form
+            document.getElementById('filter-form')?.submit();
+        });
+
+        // Search functionality
+        if (locationSearch) {
+            locationSearch.addEventListener('input', function (e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const options = locationOptions.querySelectorAll('.location-option');
+
+                options.forEach(option => {
+                    const searchText = option.dataset.search || option.textContent.toLowerCase();
+                    if (searchText.includes(searchTerm)) {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+
+            // Prevent form submission when Enter is pressed in search
+            locationSearch.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Select first visible option
+                    const visibleOption = locationOptions.querySelector('.location-option[style="display: block"], .location-option:not([style*="display: none"])');
+                    if (visibleOption && visibleOption !== locationOptions.querySelector('.location-option')) {
+                        visibleOption.click();
+                    }
+                }
+            });
+        }
+
+        // Close location dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!locationButton.closest('.location-dropdown').contains(e.target)) {
+                closeLocationDropdown();
+            }
+        });
+
+        // Close location dropdown on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeLocationDropdown();
+            }
+        });
+    }
 
     if (!sortButton || !sortOptions) return;
 
@@ -297,6 +406,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 label.classList.remove('bg-primary', 'text-white');
                 label.classList.add('bg-gray-100', 'text-gray-700');
             });
+
+            // Reset location dropdown
+            const locationText = document.querySelector('.location-text');
+            if (locationText) {
+                locationText.textContent = 'Any Location';
+            }
 
             // Submit the form to reload with no filters
             form.submit();

@@ -5,16 +5,9 @@ from lxml import html
 
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
+from job_board.utils import get_iso2
 from job_board.utils import http_client
 
-RELEVANT_KEYS = {
-    "title",
-    "url",
-    "salary",
-    "tags",
-    "candidate_required_location",
-    "publication_date",
-}
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -41,7 +34,13 @@ class Parser(JobParser):
         return self.item["tags"]
 
     def get_locations(self):
-        return [self.item["candidate_required_location"]]
+        locations = []
+        # this API returns worldwide for remote jobs
+        required_locations = self.item["candidate_required_location"]
+        for country in required_locations.split(","):
+            if iso_code := get_iso2(country):
+                locations.append(iso_code)
+        return locations
 
     def get_is_remote(self):
         return self.item["candidate_required_location"].lower() == "worldwide"

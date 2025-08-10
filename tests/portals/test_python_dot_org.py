@@ -2,6 +2,7 @@ import re
 from datetime import date
 
 import httpx
+import pytest
 
 from job_board.portals import PythonDotOrg
 
@@ -9,6 +10,7 @@ from job_board.portals import PythonDotOrg
 def test_fetch_jobs(
     respx_mock,
     load_response,
+    db_session,
 ):
     sample_rss_feed = load_response("python_dot_org.rss")
     sample_jobs_html = load_response("python_sample_job.html")
@@ -40,4 +42,18 @@ def test_fetch_jobs(
     assert job.posted_on.date() == date(day=19, month=6, year=2025)
     assert job.tags == ["python", "cloud"]
     assert job.is_remote is False
-    assert job.locations == ["CLAYMONT, Utah, United States"]
+    assert job.locations == ["US-UT", "US"]
+
+
+@pytest.mark.parametrize(
+    "locations, expected_iso_codes",
+    [
+        ("USA, Canada", ["US", "CA"]),
+        ("New York", ["US-NY"]),
+        ("Remote", []),
+    ],
+)
+def test_parse_locations(locations, expected_iso_codes):
+    Parser = PythonDotOrg.parser_class
+    iso_codes = Parser.parse_locations(locations)
+    assert iso_codes == expected_iso_codes

@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
+import pycountry
 import sqlalchemy as sa
 
 from job_board.connection import get_session
@@ -9,6 +10,14 @@ from job_board.models import JobTag
 from job_board.models import Tag
 from job_board.portals.parser import Job as JobListing
 
+# Precompute subdivision mappings for efficient location filtering
+SUBDIVISION_MAP = {}
+for subdivision in pycountry.subdivisions:
+    country_code = subdivision.code.split("-")[0]
+    if country_code not in SUBDIVISION_MAP:
+        SUBDIVISION_MAP[country_code] = []
+    SUBDIVISION_MAP[country_code].append(subdivision.code)
+
 
 def count_jobs(
     tags: list[str],
@@ -16,6 +25,7 @@ def count_jobs(
     include_without_salary: bool,
     posted_on: datetime,
     is_remote: bool | None,
+    location_code: str | None = None,
 ):
     filters = _get_filters(
         tags=tags,
@@ -23,6 +33,7 @@ def count_jobs(
         include_without_salary=include_without_salary,
         is_remote=is_remote,
         posted_on=posted_on,
+        location_code=location_code,
     )
 
     statement = (
@@ -50,6 +61,7 @@ def filter_jobs(
     order_by: sa.UnaryExpression,
     offset: int = 0,
     limit: int = 10,
+    location_code: str | None = None,
 ):
     filters = _get_filters(
         tags=tags,
@@ -57,6 +69,7 @@ def filter_jobs(
         include_without_salary=include_without_salary,
         is_remote=is_remote,
         posted_on=posted_on,
+        location_code=location_code,
     )
 
     statement = (
@@ -85,7 +98,7 @@ def filter_jobs(
                 posted_on=job.posted_on,
                 tags=[tag.name for tag in job.tags],
                 is_remote=job.is_remote,
-                # locations=job.locations,
+                locations=job.locations,
             )
             for job in jobs
         ]
@@ -99,6 +112,7 @@ def _get_filters(
     include_without_salary: bool,
     is_remote: bool,
     posted_on: datetime,
+    location_code: str | None = None,
 ):
     filters: list[sa.UnaryExpression] = [
         Job.is_active.is_(True),
@@ -128,9 +142,17 @@ def _get_filters(
         )
 
     if tags:
-        # not using any_ directly because it doesn't work with ilike
-        # and we need case-insensitive matching
-        tag_conditions = [Tag.name.ilike(tag) for tag in tags]
+        tag_conditions = [sa.func.lower(Tag.name) == sa.func.lower(tag) for tag in tags]
         filters.append(sa.or_(*tag_conditions))
+
+    if location_code:
+        search_codes = [location_code] + SUBDIVISION_MAP.get(location_code, [])
+        filters.append(
+            sa.or_(
+                Job.locations.is_(None),
+                Job.locations == [],
+                Job.locations.op("&&")(search_codes),
+            )
+        )
 
     return filters

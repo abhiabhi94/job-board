@@ -73,6 +73,7 @@ def test_get_jobs(db_session, client, captured_templates):
         "is_remote": True,
         "posted_on": now - timedelta(days=config.JOB_AGE_LIMIT_DAYS),
         "sort": "posted_on_desc",
+        "location": None,
     }
     # remove the get_url method from pagination
     # as it is not needed in the test
@@ -197,7 +198,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
     job_1 = JobListing(
         link=link_1,
         title="Job 1",
-        min_salary=30000,
+        min_salary=30_000,
         is_remote=True,
         tags=["python", "remote"],
         description="A job description",
@@ -206,7 +207,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
     job_2 = JobListing(
         link=link_2,
         title="Job 2",
-        min_salary=25000,
+        min_salary=25_000,
         is_remote=True,
         description="Another job description",
         tags=["python"],
@@ -235,3 +236,66 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
     assert response.status_code == 200
     context = captured_templates[-1].context
     assert [j.link for j in context["jobs"]] == [link_2, link_1]
+
+
+def test_location_filtering_and_validation(db_session, client, captured_templates):
+    response = client.get("/", query_string={"location": "INVALID"})
+    assert response.status_code == 400
+
+    us_job = JobListing(
+        link="https://example.com/us-job",
+        title="US Job",
+        locations=["US"],
+        min_salary=50_000,
+        tags=["python"],
+        is_remote=True,
+        payload="some data",
+    )
+    india_job = JobListing(
+        link="https://example.com/india-job",
+        title="India Job",
+        locations=["IN"],
+        min_salary=50_000,
+        tags=["python"],
+        is_remote=True,
+        payload="some data",
+    )
+    ca_job = JobListing(
+        link="https://example.com/ca-job",
+        title="California Job",
+        locations=["US-CA"],
+        min_salary=50_000,
+        tags=["python"],
+        is_remote=True,
+        payload="some data",
+    )
+    no_location_job = JobListing(
+        link="https://example.com/no-location-job",
+        title="No Location Job",
+        locations=None,
+        min_salary=50_000,
+        tags=["python"],
+        is_remote=True,
+        payload="some data",
+    )
+
+    store_jobs(
+        [
+            us_job,
+            india_job,
+            ca_job,
+            no_location_job,
+        ]
+    )
+
+    response = client.get("/", query_string={"location": "us"})
+    assert response.status_code == 200
+    context = captured_templates[-1].context
+    links = {job.link for job in context["jobs"]}
+    assert links == {us_job.link, ca_job.link, no_location_job.link}
+
+    response = client.get("/")
+    assert response.status_code == 200
+    context = captured_templates[-1].context
+    links = {job.link for job in context["jobs"]}
+    assert links == {ca_job.link, us_job.link, india_job.link, no_location_job.link}
