@@ -69,6 +69,7 @@
         - job_board
         - README.md
         - pyproject.toml
+        - alembic.ini
       become_user: root
       notify:
         - restart jobboard

@@ -29,7 +29,7 @@ repos:
     rev: v3.15.0
     hooks:
         - id: reorder-python-imports
-          exclude: ^migrations/versions/.*\.py$
+          exclude: ^job_board/migrations/versions/.*\.py$
 
 -   repo: https://github.com/google/yamlfmt
     rev: v0.17.2
