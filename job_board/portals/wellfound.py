@@ -10,8 +10,11 @@ from job_board import config
 from job_board.logger import logger
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
+from job_board.utils import get_iso2
 from job_board.utils import make_async_scrapfly_request
+from job_board.utils import make_scrapfly_request
 from job_board.utils import retry_on_http_errors
+from job_board.utils import ScrapflyError
 
 
 class Parser(JobParser):
@@ -20,11 +23,58 @@ class Parser(JobParser):
         job_id = self.item["id"]
         return f"https://wellfound.com/jobs/{job_id}-{slug}"
 
+    def get_extra_info(self):
+        root = self._get_extra_info()
+        if root is not None:
+            return html.fromstring(root)
+        return None
+
+    @retry_on_http_errors(
+        additional_status_codes=[403, 422],
+    )
+    def _get_extra_info(self):
+        link = self.get_link()
+        try:
+            return make_scrapfly_request(link, asp=True)
+        except ScrapflyError as exception:
+            if exception.response.status_code != 410:
+                raise
+            # the job is no longer available
+            logger.info(f"[Wellfound]: Job {link} is no longer available.")
+            return None
+
     def get_is_remote(self):
         return self.item["remote"]
 
     def get_locations(self):
-        return self.item["locationNames"]
+        document = self.extra_info
+        return self.parse_locations(document)
+
+    @staticmethod
+    def parse_locations(document: None | html.HtmlElement) -> list[str]:
+        if document is None:
+            return []
+
+        try:
+            (script,) = document.xpath('//script[@type="application/ld+json"]')
+        except ValueError:
+            # No script tag found, return empty list
+            return []
+
+        data = json.loads(script.text_content())
+
+        locations = []
+        if locations_info := data.get("applicantLocationRequirements"):
+            if isinstance(locations_info, dict):
+                # for single location, convert it to a list
+                locations_info = [locations_info]
+
+            for location_info in locations_info:
+                name = location_info["name"]
+                if iso_code := get_iso2(name):
+                    locations.append(iso_code)
+
+        return locations
 
     def get_posted_on(self):
         return datetime.fromtimestamp(

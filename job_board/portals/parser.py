@@ -21,8 +21,8 @@ from job_board import config
 from job_board.logger import logger
 from job_board.utils import get_currency_from_symbol
 from job_board.utils import get_exchange_rate
+from job_board.utils import get_openai_schema
 from job_board.utils import http_client
-from job_board.utils import make_openai_schema
 from job_board.utils import retry_on_http_errors
 
 
@@ -432,7 +432,7 @@ CRITICAL REQUIREMENTS:
 8. Do not assume or infer technologies not explicitly mentioned
 """  # noqa: E501
 
-    schema = make_openai_schema(JobsTags)
+    schema = get_openai_schema(JobsTags)
     data = {
         "model": config.OPENAI_MODEL,
         "input": [

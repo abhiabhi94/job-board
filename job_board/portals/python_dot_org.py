@@ -9,6 +9,7 @@ from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
 from job_board.portals.parser import Money
 from job_board.portals.parser import SalaryRange
+from job_board.utils import get_iso2
 from job_board.utils import http_client
 
 
@@ -26,7 +27,15 @@ class Parser(JobParser):
         description = self.get_description()
         # First line contains location
         location = description.split("\n")[0]
-        return [location]
+        return self.parse_locations(location)
+
+    @staticmethod
+    def parse_locations(location: str) -> list[str]:
+        iso_codes = []
+        for location in location.split(","):
+            if iso_code := get_iso2(location):
+                iso_codes.append(iso_code)
+        return iso_codes
 
     def get_is_remote(self):
         locations = self.get_locations()

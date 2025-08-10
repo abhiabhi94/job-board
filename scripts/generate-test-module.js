@@ -51,7 +51,7 @@ try {
 
 // Export the main.js functionality as a module for testing
 export function initializeMainJs() {
-${innerContent.split('\n').map(line => '    ' + line).join('\n')}
+${innerContent.split('\n').map(line => ('    ' + line)).join('\n')}
 }
 `;
 

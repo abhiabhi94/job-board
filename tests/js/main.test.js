@@ -582,6 +582,595 @@ describe('Main.js Tests', () => {
     });
   });
 
+  describe('Location Dropdown', () => {
+    test('should handle complete location dropdown functionality', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US" data-search="united states usa">United States</div>
+                <div class="location-option" data-value="IN" data-search="india">India</div>
+                <div class="location-option" data-value="CA" data-search="canada">Canada</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationButton = document.getElementById('location-button');
+      const locationOptions = document.getElementById('location-options');
+      const locationArrow = document.querySelector('.location-arrow');
+      const locationText = document.querySelector('.location-text');
+      const locationHiddenInput = document.querySelector('input[name="location"]');
+      const locationSearch = document.getElementById('location-search');
+
+      // Test dropdown starts hidden
+      expect(locationOptions.classList.contains('hidden')).toBe(true);
+
+      // Test dropdown opening and closing by button click
+      const clickEvent = new Event('click', { bubbles: true });
+      Object.defineProperty(clickEvent, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent, 'stopPropagation', { value: vi.fn() });
+
+      locationButton.dispatchEvent(clickEvent);
+      expect(clickEvent.preventDefault).toHaveBeenCalled();
+      expect(clickEvent.stopPropagation).toHaveBeenCalled();
+      expect(locationOptions.classList.contains('hidden')).toBe(false);
+      expect(locationArrow.style.transform).toBe('rotate(180deg)');
+
+      // Test closing dropdown by clicking button again
+      const clickEvent2 = new Event('click', { bubbles: true });
+      Object.defineProperty(clickEvent2, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent2, 'stopPropagation', { value: vi.fn() });
+
+      locationButton.dispatchEvent(clickEvent2);
+      expect(locationOptions.classList.contains('hidden')).toBe(true);
+      expect(locationArrow.style.transform).toBe('rotate(0deg)');
+    });
+
+    test('should handle location option selection', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <div class="location-option" data-value="US">United States</div>
+                <div class="location-option" data-value="IN">India</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationOptions = document.getElementById('location-options');
+      const locationText = document.querySelector('.location-text');
+      const locationHiddenInput = document.querySelector('input[name="location"]');
+      const usOption = document.querySelector('.location-option[data-value="US"]');
+
+      // Open dropdown first
+      locationOptions.classList.remove('hidden');
+
+      // Test option selection
+      usOption.click();
+      expect(locationText.textContent).toBe('United States');
+      expect(locationHiddenInput.value).toBe('US');
+      expect(locationOptions.classList.contains('hidden')).toBe(true);
+      expect(form.submit).toHaveBeenCalled();
+    });
+
+    test('should handle location search functionality', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US" data-search="united states usa">United States</div>
+                <div class="location-option" data-value="IN" data-search="india">India</div>
+                <div class="location-option" data-value="CA" data-search="canada">Canada</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const locationSearch = document.getElementById('location-search');
+      const options = document.querySelectorAll('.location-option');
+
+      // Test search filtering
+      locationSearch.value = 'united';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      // Check that only US option is visible
+      expect(options[0].style.display).toBe('block'); // US
+      expect(options[1].style.display).toBe('none');  // India
+      expect(options[2].style.display).toBe('none');  // Canada
+
+      // Test search with different term
+      locationSearch.value = 'india';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      expect(options[0].style.display).toBe('none');  // US
+      expect(options[1].style.display).toBe('block'); // India
+      expect(options[2].style.display).toBe('none');  // Canada
+
+      // Test empty search shows all
+      locationSearch.value = '';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      options.forEach(option => {
+        expect(option.style.display).toBe('block');
+      });
+    });
+
+    test('should handle Enter key in search to select first visible option', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US" data-search="united states usa">United States</div>
+                <div class="location-option" data-value="IN" data-search="india">India</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationSearch = document.getElementById('location-search');
+      const locationText = document.querySelector('.location-text');
+      const locationHiddenInput = document.querySelector('input[name="location"]');
+
+      // Filter to show only India option (not the first one)
+      locationSearch.value = 'india';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      const inOption = document.querySelector('.location-option[data-value="IN"]');
+      inOption.click = vi.fn();
+
+      // Test Enter key selects first visible option (that's not the first in DOM)
+      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+      Object.defineProperty(enterEvent, 'preventDefault', { value: vi.fn() });
+
+      locationSearch.dispatchEvent(enterEvent);
+      expect(enterEvent.preventDefault).toHaveBeenCalled();
+      expect(inOption.click).toHaveBeenCalled();
+    });
+
+    test('should handle outside click to close location dropdown', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+            <div id="outside-element">Outside</div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const locationOptions = document.getElementById('location-options');
+      const locationArrow = document.querySelector('.location-arrow');
+      const outside = document.getElementById('outside-element');
+
+      // Manually open dropdown
+      locationOptions.classList.remove('hidden');
+      locationArrow.style.transform = 'rotate(180deg)';
+      expect(locationOptions.classList.contains('hidden')).toBe(false);
+
+      // Click outside to close
+      outside.click();
+      expect(locationOptions.classList.contains('hidden')).toBe(true);
+      expect(locationArrow.style.transform).toBe('rotate(0deg)');
+    });
+
+    test('should handle Escape key to close location dropdown', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const locationOptions = document.getElementById('location-options');
+      const locationArrow = document.querySelector('.location-arrow');
+
+      // Manually open dropdown
+      locationOptions.classList.remove('hidden');
+      locationArrow.style.transform = 'rotate(180deg)';
+      expect(locationOptions.classList.contains('hidden')).toBe(false);
+
+      // Press Escape to close
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      expect(locationOptions.classList.contains('hidden')).toBe(true);
+      expect(locationArrow.style.transform).toBe('rotate(0deg)');
+    });
+
+    test('should focus search input when dropdown opens', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const locationButton = document.getElementById('location-button');
+      const locationSearch = document.getElementById('location-search');
+      locationSearch.focus = vi.fn();
+
+      // Open dropdown
+      const clickEvent = new Event('click', { bubbles: true });
+      Object.defineProperty(clickEvent, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent, 'stopPropagation', { value: vi.fn() });
+
+      locationButton.dispatchEvent(clickEvent);
+
+      // Verify focus is called after timeout (we execute immediately in tests)
+      expect(locationSearch.focus).toHaveBeenCalled();
+    });
+
+    test('should reset location dropdown in clearAllFilters', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <form id="filter-form">
+              <div class="location-dropdown">
+                <span class="location-text">United States</span>
+              </div>
+            </form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.reset = vi.fn();
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationText = document.querySelector('.location-text');
+      expect(locationText.textContent).toBe('United States');
+
+      // Call clearAllFilters
+      window.clearAllFilters();
+
+      expect(locationText.textContent).toBe('Any Location');
+      expect(form.reset).toHaveBeenCalled();
+      expect(form.submit).toHaveBeenCalled();
+    });
+  });
+
+  describe('Location Dropdown Edge Cases', () => {
+    test('should handle location option click when not a .location-option element', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <div class="location-option" data-value="US">United States</div>
+                <span>Not a location option</span>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationOptions = document.getElementById('location-options');
+      const nonOptionElement = locationOptions.querySelector('span');
+
+      // Open dropdown first
+      locationOptions.classList.remove('hidden');
+
+      // Click on non-option element should do nothing
+      nonOptionElement.click();
+      expect(form.submit).not.toHaveBeenCalled();
+    });
+
+    test('should handle search with data-search attribute vs textContent fallback', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US" data-search="united states usa">United States</div>
+                <div class="location-option" data-value="UK">United Kingdom</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const locationSearch = document.getElementById('location-search');
+      const options = document.querySelectorAll('.location-option');
+
+      // Test search using data-search attribute (US has custom search terms)
+      locationSearch.value = 'usa';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      expect(options[0].style.display).toBe('block'); // US (matches via data-search)
+      expect(options[1].style.display).toBe('none');  // UK (no match)
+
+      // Test search using textContent fallback (UK has no data-search)
+      locationSearch.value = 'kingdom';
+      locationSearch.dispatchEvent(new Event('input'));
+
+      expect(options[0].style.display).toBe('none');  // US (no match)
+      expect(options[1].style.display).toBe('block'); // UK (matches via textContent)
+    });
+
+    test('should handle Enter key when no visible options exist', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US" style="display: none;">United States</div>
+                <div class="location-option" data-value="IN" style="display: none;">India</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationSearch = document.getElementById('location-search');
+
+      // All options are hidden, so Enter should do nothing
+      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+      Object.defineProperty(enterEvent, 'preventDefault', { value: vi.fn() });
+
+      locationSearch.dispatchEvent(enterEvent);
+      expect(enterEvent.preventDefault).toHaveBeenCalled();
+      expect(form.submit).not.toHaveBeenCalled();
+    });
+
+    test('should handle when locationSearch element does not exist', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <!-- No location-search input -->
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      // Should not throw when locationSearch is null
+      expect(() => {
+        initializeMainJs();
+      }).not.toThrow();
+    });
+
+    test('should handle focus timeout when locationSearch exists', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <span class="location-text">Any Location</span>
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <input name="location" type="hidden" value="">
+                <input id="location-search" type="text" placeholder="Search countries...">
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      // Mock setTimeout to capture the focus timeout
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 100) {
+          callback();
+        }
+        return 1;
+      });
+
+      initializeMainJs();
+
+      const locationButton = document.getElementById('location-button');
+      const locationSearch = document.getElementById('location-search');
+      locationSearch.focus = vi.fn();
+
+      // Open dropdown to trigger focus timeout
+      const clickEvent = new Event('click', { bubbles: true });
+      Object.defineProperty(clickEvent, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent, 'stopPropagation', { value: vi.fn() });
+
+      locationButton.dispatchEvent(clickEvent);
+
+      expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 100);
+      expect(locationSearch.focus).toHaveBeenCalled();
+    });
+
+    test('should handle missing locationHiddenInput and locationText gracefully', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div class="location-dropdown">
+              <button id="location-button">
+                <!-- Missing location-text span -->
+                <span class="location-arrow">↓</span>
+              </button>
+              <div id="location-options" class="hidden">
+                <!-- Missing hidden input -->
+                <div class="location-option" data-value="US">United States</div>
+              </div>
+            </div>
+            <form id="filter-form"></form>
+          </body>
+        </html>
+      `;
+
+      const form = document.getElementById('filter-form');
+      form.submit = vi.fn();
+
+      initializeMainJs();
+
+      const locationOptions = document.getElementById('location-options');
+      const usOption = document.querySelector('.location-option[data-value="US"]');
+
+      // Open dropdown first
+      locationOptions.classList.remove('hidden');
+
+      // Should not throw when locationHiddenInput and locationText are null
+      expect(() => {
+        usOption.click();
+      }).not.toThrow();
+
+      expect(form.submit).toHaveBeenCalled();
+    });
+  });
+
   describe('Edge Cases and Error Handling', () => {
     test('should handle missing elements gracefully', () => {
       document.documentElement.innerHTML = `

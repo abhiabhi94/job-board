@@ -5,6 +5,7 @@ from decimal import Decimal
 from enum import StrEnum
 
 import humanize
+import pycountry
 from flask import abort
 from flask import Flask
 from flask import render_template
@@ -55,6 +56,11 @@ def get_jobs():
         posted_on = utcnow_naive() - timedelta(days=config.JOB_AGE_LIMIT_DAYS)
     tags = request.args.getlist("tags", type=str)
     is_remote = request.args.get("is_remote", type=bool, default=True)
+    location_code = request.args.get("location", type=str)
+    if location_code:
+        location_code = location_code.upper()
+        if not pycountry.countries.get(alpha_2=location_code):
+            abort(400, "Invalid location code")
 
     sort = request.args.get("sort", type=str, default=SortOption.POSTED_ON_DESC)
     match sort:
@@ -80,6 +86,7 @@ def get_jobs():
         offset=offset,
         limit=PER_PAGE,
         order_by=order_by,
+        location_code=location_code,
     )
     total_jobs = count_jobs(
         min_salary=min_salary,
@@ -87,6 +94,7 @@ def get_jobs():
         posted_on=posted_on,
         tags=tags,
         is_remote=is_remote,
+        location_code=location_code,
     )
     total_pages = math.ceil(total_jobs / PER_PAGE)
     page = max(1, min(page, total_pages))
@@ -99,6 +107,7 @@ def get_jobs():
             "sort": request.args.get("sort"),
             "posted_on": request.args.get("posted_on"),
             "include_without_salary": request.args.get("include_without_salary"),
+            "location": request.args.get("location"),
         }
 
         if tags := request.args.getlist("tags"):
@@ -120,7 +129,9 @@ def get_jobs():
             "is_remote": is_remote,
             "posted_on": posted_on,
             "sort": sort,
+            "location": location_code,
         },
+        countries=[{"code": c.alpha_2, "name": c.name} for c in pycountry.countries],
         pagination={
             "page": page,
             "per_page": PER_PAGE,

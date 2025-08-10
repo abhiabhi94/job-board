@@ -10,6 +10,7 @@ repos:
     rev: v5.0.0
     hooks:
         - id: trailing-whitespace
+          exclude: ^job_board/static/js/main\.mjs$  # manually generated.
         - id: end-of-file-fixer
           exclude: ^job_board/static/css/output\.css$
         - id: check-yaml
@@ -28,6 +29,7 @@ repos:
     rev: v3.15.0
     hooks:
         - id: reorder-python-imports
+          exclude: ^migrations/versions/.*\.py$
 
 -   repo: https://github.com/google/yamlfmt
     rev: v0.17.2

@@ -27,6 +27,36 @@
             </div>
 
             <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+                <div class="location-dropdown relative">
+                    <button type="button" class="location-button w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-primary" id="location-button">
+                        <span class="location-text text-gray-700 dark:text-gray-300">
+                            {% if current_filters.location %}
+                                {% for country in countries %}
+                                    {% if country.code == current_filters.location %}{{ country.name }}{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Any Location
+                            {% endif %}
+                        </span>
+                        <svg class="location-arrow w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform" viewBox="0 0 12 12">
+                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        </svg>
+                    </button>
+                    <div class="location-options absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10 hidden max-h-60 overflow-y-auto" id="location-options">
+                        <input type="hidden" name="location" value="{{ current_filters.location or '' }}">
+                        <div class="p-2 border-b border-gray-100 dark:border-gray-600">
+                            <input type="text" id="location-search" placeholder="Search countries..." class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div class="location-option px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-700 dark:text-gray-300" data-value="">Any Location</div>
+                        {% for country in countries %}
+                            <div class="location-option px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-700 dark:text-gray-300" data-value="{{ country.code }}" data-search="{{ country.name|lower }}">{{ country.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Work Type</label>
                 <div class="space-y-2">
                     <div class="flex items-center">
@@ -127,7 +157,7 @@
 
                     <!-- Description Section - Flexible Height -->
                     <div class="block mb-4 relative z-10">
-                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-200 min-h-[4rem] cursor-pointer" onclick="window.open('{{ job.link }}', '_blank')">{{ job.description|truncate(300) }}</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-200 min-h-[4rem] cursor-pointer" onclick="window.open('{{ job.link }}', '_blank')">{{ (job.description or "")|truncate(300) }}</p>
                     </div>
 
                     <!-- Footer Section - Always at Bottom -->

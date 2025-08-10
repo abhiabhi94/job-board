@@ -69,7 +69,7 @@ def test_store_jobs(db_session):
             posted_on=now - timedelta(days=1),
             tags=["python", "remote"],
             is_remote=True,
-            locations=["New York", "Remote"],
+            locations=["US", "IN"],
             description="Looking for Django and FastAPI developer",
             payload="some data",
         ),
@@ -202,3 +202,24 @@ def test_fill_missing_tags(db_session):
 
     # call the method again to ensure its idempotent.
     Job.fill_missing_tags()
+
+
+def test_location_check_constraint(db_session):
+    valid_job = Job(
+        title="Valid Location Job",
+        link="https://example.com/valid",
+        locations=["US", "IN", "US-CA"],
+        posted_on=now,
+    )
+    db_session.add(valid_job)
+    db_session.commit()
+
+    invalid_job = Job(
+        title="Invalid Location Job",
+        link="https://example.com/invalid",
+        locations=["INVALID", "New York"],
+        posted_on=now,
+    )
+    with pytest.raises(sa.exc.IntegrityError):
+        db_session.add(invalid_job)
+        db_session.commit()

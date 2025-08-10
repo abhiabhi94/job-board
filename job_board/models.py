@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 from datetime import timedelta
 
+import pycountry
 import sqlalchemy as sa
 from requests.structures import CaseInsensitiveDict
 from sqlalchemy.dialects.postgresql import insert
@@ -17,7 +18,18 @@ from job_board.connection import get_session
 from job_board.logger import logger
 from job_board.portals.parser import extract_job_tags_using_llm
 from job_board.portals.parser import Job as JobListing
+from job_board.utils import add_missing_countries
 from job_board.utils import utcnow_naive
+
+# TODO: move this to a separate place, this is not the right place for it.
+add_missing_countries()
+# Generate valid location codes list once
+_valid_codes = []
+for country in pycountry.countries:
+    _valid_codes.append(f"'{country.alpha_2}'::text")
+for subdivision in pycountry.subdivisions:
+    _valid_codes.append(f"'{subdivision.code}'::text")
+_valid_codes_array = "[" + ",".join(_valid_codes) + "]::text[]"
 
 
 class Base(DeclarativeBase):
@@ -122,8 +134,7 @@ class Job(BaseModel):
         server_default=expression.false(),
         index=True,
     )
-    # FIXME: find a way to make this more uniform.
-    # locations = sa.Column(sa.String, nullable=True)
+    locations = sa.Column(sa.ARRAY(sa.String), nullable=True)
 
     __table_args__ = (
         sa.Index(
@@ -147,6 +158,11 @@ class Job(BaseModel):
             "min_salary IS NULL OR max_salary IS NULL OR max_salary >= min_salary",
             name="check_salary_range",
         ),
+        sa.CheckConstraint(
+            f"locations IS NULL OR locations::text[] <@ ARRAY{_valid_codes_array}",
+            name="check_valid_location_codes",
+        ),
+        sa.Index("ix_job_locations", "locations", postgresql_using="gin"),
     )
 
     @classmethod
@@ -224,8 +240,7 @@ def _store_jobs(session, job_listings: JobListing) -> None:
             "max_salary": listing.max_salary,
             "description": listing.description,
             "is_remote": listing.is_remote,
-            # FIXME: find a way to make this more uniform.
-            # "locations": listing.locations,
+            "locations": listing.locations,
         }
         if posted_on := listing.posted_on:
             value["posted_on"] = posted_on

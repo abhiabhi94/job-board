@@ -123,6 +123,11 @@
       notify:
         - restart jobboard
         - restart jobboard-scheduler
+    - name: Run database migrations
+      command: "{{ app_dir }}/venv/bin/alembic upgrade head"
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
     - name: Create secrets directory
       file:
         path: "/etc/secrets/{{ service_name }}"

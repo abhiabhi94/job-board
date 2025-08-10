@@ -11,8 +11,8 @@ from job_board import config
 from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import EXCHANGE_RATE_FALLBACK_API_URL
 from job_board.utils import get_exchange_rate
+from job_board.utils import get_openai_schema
 from job_board.utils import log_to_sentry
-from job_board.utils import make_openai_schema
 from job_board.utils import make_scrapfly_request
 from job_board.utils import retry_on_http_errors
 
@@ -156,7 +156,7 @@ def test_log_to_sentry():
     mock_sentry_sdk.capture_exception.assert_not_called()
 
 
-def test_make_openai_schema():
+def test_get_openai_schema():
     class TestModel(BaseModel):
         title: str
         description: str | None = None
@@ -165,7 +165,7 @@ def test_make_openai_schema():
     class ListTestModel(BaseModel):
         items: list[TestModel]
 
-    schema = make_openai_schema(ListTestModel)
+    schema = get_openai_schema(ListTestModel)
 
     expected_schema = {
         "$defs": {

@@ -16,6 +16,7 @@ from job_board.utils import EXCHANGE_RATE_API_URL
 def test_fetch_jobs(
     respx_mock,
     load_response,
+    db_session,
 ):
     portal = Himalayas()
     # so that tests don't fail in future due to the date check.
@@ -72,7 +73,7 @@ def test_fetch_jobs(
         year=2025, month=6, day=10, hour=8, minute=30, second=27, tzinfo=timezone.utc
     )
     assert job.tags == ["data", "analyst", "data science"]
-    assert job.locations == ["India"]
+    assert job.locations == ["IN"]
     assert job.is_remote is False
     assert job.description is not None
 

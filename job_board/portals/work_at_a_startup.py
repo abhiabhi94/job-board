@@ -5,6 +5,7 @@ from job_board import config
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
+from job_board.utils import get_iso2
 from job_board.utils import http_client
 from job_board.utils import jinja_env
 
@@ -33,13 +34,17 @@ class Parser(JobParser):
         return [s["name"] for s in self.item["skills"]]
 
     def get_locations(self):
-        locations = self.item["locations"]
-        if locations:
-            if not isinstance(locations[0], str):
-                # This API sometimes returns weird data
-                # like {"locations": [[['Remote - UK or Europe']]]}
-                return []
-        return self.item["locations"]
+        locations = []
+        for location in self.item["locations"]:
+            if not isinstance(location, str):
+                continue
+            if location.count(",") == 2:
+                # example: "New York, NY, USA"
+                # remove the name from the location
+                location = ",".join(location.split(",")[1:3])
+            if iso_code := get_iso2(location):
+                locations.append(iso_code)
+        return locations
 
 
 ALGOLIA_URL = "https://45bwzj1sgc-3.algolianet.com/1/indexes/*/queries"

@@ -43,7 +43,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "url": "https://remotive.com/jobs/124",
                 "title": "Java Developer",
                 "description": "<p>We are looking for a Java developer.</p>",
-                "candidate_required_location": "Worldwide",
+                "candidate_required_location": "United States",
                 "tags": ["java", "spring"],
                 "salary": "100000-130000",
                 "publication_date": frozen_time,
@@ -63,7 +63,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "url": "https://remotive.com/jobs/126",
                 "title": "Python Developer",
                 "description": "<p>We need a Python expert.</p>",
-                "candidate_required_location": "Worldwide",
+                "candidate_required_location": "Americas, Europe",
                 "tags": ["python"],
                 "publication_date": frozen_time,
             },
@@ -72,7 +72,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "url": "https://remotive.com/jobs/127",
                 "title": "Python Developer",
                 "description": "<p>We need a Python expert.</p>",
-                "candidate_required_location": "Worldwide",
+                "candidate_required_location": "USA, UK, Canada, Germany",
                 "tags": ["python"],
                 "salary": "90000-120000",
                 "publication_date": (
@@ -87,6 +87,7 @@ def test_fetch_jobs(
     respx_mock,
     sample_jobs_response,
     frozen_time,
+    db_session,
 ):
     respx_mock.get(Remotive.url).mock(
         return_value=httpx.Response(json=sample_jobs_response, status_code=200)
@@ -107,6 +108,6 @@ def test_fetch_jobs(
     assert job.posted_on == datetime.strptime(frozen_time, DATE_FORMAT).astimezone(
         timezone.utc
     )
-    assert job.locations == ["Worldwide"]
+    assert job.locations == []
     assert job.is_remote is True
     assert job.tags == ["python", "django", "api"]

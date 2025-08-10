@@ -30,6 +30,8 @@ dependencies = [
     "babel",
     "gunicorn",
     "sentry-sdk[flask]",
+    "country_converter",
+    "alembic",
 ]
 [project.optional-dependencies]
 dev = [
