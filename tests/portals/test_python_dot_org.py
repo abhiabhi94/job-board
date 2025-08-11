@@ -3,6 +3,7 @@ from datetime import date
 
 import httpx
 import pytest
+from lxml import html
 
 from job_board.portals import PythonDotOrg
 
@@ -43,6 +44,7 @@ def test_fetch_jobs(
     assert job.tags == ["python", "cloud"]
     assert job.is_remote is False
     assert job.locations == ["US-UT", "US"]
+    assert job.company_name == "Confidential"
 
 
 @pytest.mark.parametrize(
@@ -57,3 +59,16 @@ def test_parse_locations(locations, expected_iso_codes):
     Parser = PythonDotOrg.parser_class
     iso_codes = Parser.parse_locations(locations)
     assert iso_codes == expected_iso_codes
+
+
+@pytest.mark.parametrize(
+    "detail_page, expected_company_name",
+    [
+        ("something", None),
+    ],
+)
+def test_parse_company_name(detail_page, expected_company_name):
+    Parser = PythonDotOrg.parser_class
+    detail_page = html.fromstring(detail_page)
+    company_name = Parser._get_company_name(detail_page)
+    assert company_name == expected_company_name

@@ -132,9 +132,18 @@ class Parser(JobParser):
         )
         return [element.text_content().strip() for element in skill_elements]
 
-    def get_locations(self):
+    def get_locations(self) -> list[str]:
         document = self.extra_info
         return self.parse_locations_from_json_ld(document)
+
+    def get_company_name(self) -> str:
+        document = self.extra_info
+        return self._get_company_name(document)
+
+    @classmethod
+    def _get_company_name(cls, document) -> str:
+        data = cls.parse_json_ld(document)
+        return data["hiringOrganization"]["name"]
 
 
 class WeWorkRemotely(BasePortal):

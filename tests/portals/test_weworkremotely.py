@@ -81,22 +81,46 @@ def mock_job_page():
         <script type="application/ld+json"> {
     "@context" : "http://schema.org/",
     "@type" : "JobPosting",
-    "title" : "Mid-Senior Rails Systems Monitoring &amp; Quality Assurance ",
-       "image": "https://we-work-remotely.imgix.net/logos/0170/7458/logo.gif?ixlib=rails-4.0.0&w=50&h=50&dpr=2&fit=fill&auto=compress",
-    "description" : "Apply now and help us take our development to the next level.&lt;/p&gt;",
-    "datePosted" : "2025-04-11 23:05:46 UTC",
-    "validThrough" : "2025-09-08 23:05:46 UTC",
-    "employmentType" : "Full-Time",
+    "title" : "Senior Software Engineer, AI Model serving",
+    "description" : "&lt;p&gt;&lt;strong&gt;Overview&lt;/strong&gt;&lt;/p&gt;
+&lt;p data-speechify-sentence=&quot;&quot;&gt;As Speechify expands, our AI team seeks a Senior Backend Engineer. This role is central to ensuring our infrastructure scales efficiently, optimizing key product flows, and constructing resilient end-to-end systems. If you are passionate about strategizing, enjoy high-paced environments, and are eager to take ownership of product decisions, we&amp;rsquo;d love to hear from you.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What Yo&lt;/strong&gt;&lt;strong&gt;u&amp;rsquo;&lt;/strong&gt;&lt;strong&gt;ll Do&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li data-speechify-sentence=&quot;&quot;&gt;State of the art voice cloning&lt;/li&gt;
+&lt;li data-speechify-sentence=&quot;&quot;&gt;Low latency and cost effective text to speech&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;An Ideal Candidate Should Have&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Proven experience in backend development: Python&lt;/li&gt;
+&lt;li&gt;Direct experience with GCP and knowledge of AWS, Azure, or other cloud providers.&lt;/li&gt;
+&lt;li&gt;Efficiency in ideation and implementation, prioritizing tasks based on urgency and impact.&lt;/li&gt;
+&lt;li&gt;Experience with Docker and containerized deployments.&lt;/li&gt;
+&lt;li&gt;Proficiency in deploying high availability applications on Kubernetes.&lt;/li&gt;
+&lt;li&gt;Preferred: Experience deploying NLP or TTS models to production.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p data-speechify-sentence=&quot;&quot;&gt;&lt;strong&gt;What We Offer&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A dynamic environment where your contributions shape the company and its products.&lt;/li&gt;
+&lt;li&gt;A team that values innovation, intuition, and drive.&lt;/li&gt;
+&lt;li&gt;Autonomy, fostering focus and creativity.&lt;/li&gt;
+&lt;li&gt;The opportunity to have a significant impact in a revolutionary industry.&lt;/li&gt;
+&lt;li&gt;Competitive compensation, a welcoming atmosphere, and a commitment to an exceptional asynchronous work culture.&lt;/li&gt;
+&lt;li&gt;The privilege of working on a product that changes lives, particularly for those with learning differences like dyslexia, ADD, and more.&lt;/li&gt;
+&lt;li&gt;An active role at the intersection of artificial intelligence and audio &amp;ndash; a rapidly evolving tech domain.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Compensation:&amp;nbsp;&lt;/strong&gt;The US base salary range for this full-time position is $140,000-$200,000 + bonus + equity depending on experience&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Think you&amp;rsquo;re a good fit for this job?&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Tell us more about yourself and why you&#39;re interested in the role when you apply.&lt;br&gt;And don&amp;rsquo;t forget to include links to your portfolio and LinkedIn.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Not looking but know someone who would make a great fit?&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Refer them!&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Speechify is committed to a diverse and inclusive workplace.&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Speechify does not discriminate on the basis of race, national origin, gender, gender identity, sexual orientation, protected veteran status, disability, age, or other legally protected status.&lt;/p&gt;",
+    "datePosted" : "2025-07-09 15:39:57 UTC",
+    "validThrough" : "2025-09-07 15:39:57 UTC",
+    "employmentType" : "Contract",
     "directApply": "False",
     "occupationalCategory": "Back-End Programming",
-    "url": "https://webpunch.com/",
-      "jobLocation": {
-        "@type": "Place",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Germany"
-        }
-      },
+    "url": "http://www.speechify.com",
     "jobLocationType": "TELECOMMUTE",
     "baseSalary" : {
       "@type": "MonetaryAmount",
@@ -108,18 +132,21 @@ def mock_job_page():
         "unitText":"YEAR"
       }
     },
-      "applicantLocationRequirements" : [{"@type":"Country","name":"AU"},{"@type":"Country","name":"CA"},{"@type":"Country","name":"CH"},{"@type":"Country","name":"DE"},{"@type":"Country","name":"FR"},{"@type":"Country","name":"GB"},{"@type":"Country","name":"HK"},{"@type":"Country","name":"IT"},{"@type":"Country","name":"JP"},{"@type":"Country","name":"MX"},{"@type":"Country","name":"US"}],
+      "applicantLocationRequirements" : [
+        {"@type":"Country","name":"AF"},
+        {"@type":"Country","name":"AX"},
+        {"@type":"Country","name":"AL"}
+      ],
     "hiringOrganization" : {
       "@type" : "Organization",
-      "name" : "WebPunch",
-      "address": "Denver, CO",
-      "sameAs" : "https://webpunch.com/"
-        , "logo": "https://we-work-remotely.imgix.net/logos/0170/7458/logo.gif?ixlib=rails-4.0.0&w=50&h=50&dpr=2&fit=fill&auto=compress"
+      "name" : "Speechify Inc",
+      "address": "Florida",
+      "sameAs" : "http://www.speechify.com"
     },
     "identifier": {
       "@type": "PropertyValue",
-      "name": "WebPunch",
-      "value": "webpunch-mid-senior-rails-systems-monitoring-quality-assurance"
+      "name": "Speechify Inc",
+      "value": "speechify-inc-senior-software-engineer-ai-model-serving"
     }
   }
   </script>
@@ -168,11 +195,11 @@ def test_fetch_jobs(
 
     mock_scrapfly_response(
         url=f"{JOB_URL}/job-without-salary",
-        content="<div></div>",
+        content='<script type="application/ld+json">{"hiringOrganization" : {"name" : "Speechify Inc"}}</script><div></div>',  # noqa: E501
     )
     mock_scrapfly_response(
         url=f"{JOB_URL}/job-salary-missing",
-        content="<div>salary:</div>",
+        content='<script type="application/ld+json">{"hiringOrganization" : {"name" : "Speechify Inc"}}</script><div>salary:</div>',  # noqa: E501
     )
 
     jobs = portal.fetch_jobs()
@@ -189,20 +216,9 @@ def test_fetch_jobs(
         year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
     )
     assert job.is_remote is True
-    assert job.locations == [
-        "AU",
-        "CA",
-        "CH",
-        "DE",
-        "FR",
-        "GB",
-        "HK",
-        "IT",
-        "JP",
-        "MX",
-        "US",
-    ]
+    assert job.locations == ["AF", "AX", "AL"]
     assert job.tags == ["c#"]
+    assert job.company_name == "Speechify Inc"
 
 
 @pytest.mark.parametrize(

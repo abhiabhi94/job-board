@@ -52,6 +52,8 @@ SALARY_RANGE_REGEX = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
+STRING_LITERAL_REGEX = re.compile(r'"([^"\\\\]*(\\\\.[^"\\\\]*)*)"')
+
 STANDARD_TAGS_MAPPING = CaseInsensitiveDict()
 STANDARD_TAGS_MAPPING.update(
     {
@@ -98,6 +100,7 @@ class Job(BaseModel):
     payload: str | None = None
     extra_info: str | None = None
     portal_name: str | None = None
+    company_name: str | None = None
 
     model_config = ConfigDict(frozen=True)
 
@@ -146,6 +149,9 @@ class JobParser:
         posted_on = self.get_posted_on()
         title = self.get_title().strip()
         description = self.get_description().strip()
+        company_name = self.get_company_name()
+        if company_name is not None:
+            company_name = company_name.strip()
         tags = self._normalize_tags(self.get_tags())
         salary_range = self.get_salary_range()
         min_salary = salary_range.min_salary
@@ -173,6 +179,7 @@ class JobParser:
             locations=locations,
             payload=payload,
             extra_info=extra_info,
+            company_name=company_name,
         )
 
     def validate_recency(self) -> bool:
@@ -204,6 +211,9 @@ class JobParser:
         """Extracts the tags from the item."""
         raise NotImplementedError()
 
+    def get_company_name(self) -> str | None:
+        raise NotImplementedError()
+
     def _normalize_tags(self, tags: list[str]) -> list[str]:
         normalized_tags = []
         for tag in tags:
@@ -220,8 +230,8 @@ class JobParser:
         """Checks if the job is remote."""
         raise NotImplementedError()
 
-    def get_locations(self) -> list[str] | None:
-        return []
+    def get_locations(self) -> list[str]:
+        raise NotImplementedError()
 
     def get_payload(self) -> str:
         match self.api_data_format:
@@ -400,18 +410,13 @@ class JobParser:
 
         return amount
 
-    @staticmethod
-    def parse_locations_from_json_ld(document: None | html.HtmlElement) -> list[str]:
-        if document is None:
+    @classmethod
+    def parse_locations_from_json_ld(
+        cls, document: None | html.HtmlElement
+    ) -> list[str]:
+        data = cls.parse_json_ld(document)
+        if not data:
             return []
-
-        try:
-            (script,) = document.xpath('//script[@type="application/ld+json"]')
-        except ValueError:
-            # No script tag found, return empty list
-            return []
-
-        data = json.loads(script.text_content())
 
         locations = []
         if locations_info := data.get("applicantLocationRequirements"):
@@ -425,6 +430,32 @@ class JobParser:
                     locations.append(iso_code)
 
         return locations
+
+    @classmethod
+    def parse_json_ld(cls, document: None | html.HtmlElement) -> dict | None:
+        if document is None:
+            return None
+
+        try:
+            (script,) = document.xpath('//script[@type="application/ld+json"]')
+        except ValueError:
+            return None
+
+        json_ld = json.loads(cls._fix_json_newlines(script.text_content()))
+        return json_ld
+
+    @staticmethod
+    def _fix_json_newlines(text: str) -> str:
+        """
+        Fix newlines in JSON strings using regex.
+        Mainly used by WeWorkRemotely to handle newlines in JSON-LD.
+        Their JSON-LD sometimes has newlines that break parsing.
+        """
+
+        def escape_newlines(match):
+            return match.group(0).replace("\n", "\\n").replace("\r", "\\r")
+
+        return STRING_LITERAL_REGEX.sub(escape_newlines, text)
 
 
 @retry_on_http_errors(max_attempts=10, max_wait=5)

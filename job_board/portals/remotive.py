@@ -45,6 +45,9 @@ class Parser(JobParser):
     def get_is_remote(self):
         return self.item["candidate_required_location"].lower() == "worldwide"
 
+    def get_company_name(self) -> str:
+        return self.item["company_name"]
+
 
 class Remotive(BasePortal):
     """Docs: https://github.com/remotive-com/remote-jobs-api"""

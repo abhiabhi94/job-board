@@ -30,6 +30,7 @@ def sample_job(frozen_time):
         "tags": ["python", "django", "api"],
         "salary": "90000-120000",
         "publication_date": frozen_time,
+        "company_name": "Remotive",
     }
 
 
@@ -47,6 +48,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "tags": ["java", "spring"],
                 "salary": "100000-130000",
                 "publication_date": frozen_time,
+                "company_name": "Tech Corp",
             },
             # matching keywords but low salary
             {
@@ -57,6 +59,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "tags": ["python"],
                 "salary": "40000-50000",
                 "publication_date": frozen_time,
+                "company_name": "Junior Devs Inc",
             },
             # no salary info
             {
@@ -66,6 +69,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "candidate_required_location": "Americas, Europe",
                 "tags": ["python"],
                 "publication_date": frozen_time,
+                "company_name": "Global Tech",
             },
             # too old
             {
@@ -78,6 +82,7 @@ def sample_jobs_response(sample_job, frozen_time):
                 "publication_date": (
                     datetime.now(timezone.utc) - timedelta(days=30)
                 ).strftime(DATE_FORMAT),
+                "company_name": "Old Jobs Inc",
             },
         ]
     }
@@ -111,3 +116,4 @@ def test_fetch_jobs(
     assert job.locations == []
     assert job.is_remote is True
     assert job.tags == ["python", "django", "api"]
+    assert job.company_name == "Remotive"

@@ -33,6 +33,7 @@ def test_count_jobs(db_session):
                 posted_on=now - timedelta(days=10),
                 tags=["python", "remote"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job2",
@@ -42,6 +43,7 @@ def test_count_jobs(db_session):
                 posted_on=now - timedelta(days=20),
                 tags=["python"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job3",
@@ -51,6 +53,7 @@ def test_count_jobs(db_session):
                 posted_on=now - timedelta(days=5),
                 tags=["developer"],
                 payload="some data",
+                company_name="Test Company",
             ),
         ]
     )
@@ -129,6 +132,7 @@ def test_filter_jobs(db_session):
                 posted_on=now - timedelta(days=10),
                 tags=["python", "remote"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job2",
@@ -138,6 +142,7 @@ def test_filter_jobs(db_session):
                 posted_on=now - timedelta(days=20),
                 tags=["python"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job3",
@@ -147,6 +152,7 @@ def test_filter_jobs(db_session):
                 posted_on=now - timedelta(days=5),
                 tags=["developer"],
                 payload="some data",
+                company_name="Test Company",
             ),
         ]
     )

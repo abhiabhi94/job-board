@@ -136,6 +136,9 @@ class Job(BaseModel):
         index=True,
     )
     locations = sa.Column(sa.ARRAY(sa.String), nullable=True)
+    # TODO: make this required in future, can't backfill it now
+    # for all existing jobs.
+    company_name = sa.Column(sa.String, nullable=True)
 
     __table_args__ = (
         sa.Index(
@@ -263,6 +266,7 @@ def _store_jobs(session, job_listings: JobListing) -> None:
             "description": listing.description,
             "is_remote": listing.is_remote,
             "locations": listing.locations,
+            "company_name": listing.company_name,
         }
         if posted_on := listing.posted_on:
             value["posted_on"] = posted_on

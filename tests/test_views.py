@@ -102,6 +102,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
                 description="A job description",
                 tags=["python", "remote"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job2",
@@ -112,6 +113,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
                 description="Another job description",
                 tags=["python"],
                 payload="some data",
+                company_name="Test Company",
             ),
             JobListing(
                 link="https://example.com/job3",
@@ -122,6 +124,7 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
                 description="A third job description",
                 tags=["developer"],
                 payload="some data",
+                company_name="Test Company",
             ),
         ]
     )
@@ -203,6 +206,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
         tags=["python", "remote"],
         description="A job description",
         payload="some data",
+        company_name="Test Company",
     )
     job_2 = JobListing(
         link=link_2,
@@ -212,6 +216,7 @@ def test_get_jobs_sorting(db_session, client, captured_templates):
         description="Another job description",
         tags=["python"],
         payload="some data",
+        company_name="Test Company",
     )
 
     store_jobs([job_1, job_2])
@@ -250,6 +255,7 @@ def test_location_filtering_and_validation(db_session, client, captured_template
         tags=["python"],
         is_remote=True,
         payload="some data",
+        company_name="Test Company",
     )
     india_job = JobListing(
         link="https://example.com/india-job",
@@ -259,6 +265,7 @@ def test_location_filtering_and_validation(db_session, client, captured_template
         tags=["python"],
         is_remote=True,
         payload="some data",
+        company_name="Test Company",
     )
     ca_job = JobListing(
         link="https://example.com/ca-job",
@@ -268,6 +275,7 @@ def test_location_filtering_and_validation(db_session, client, captured_template
         tags=["python"],
         is_remote=True,
         payload="some data",
+        company_name="Test Company",
     )
     no_location_job = JobListing(
         link="https://example.com/no-location-job",
@@ -277,6 +285,7 @@ def test_location_filtering_and_validation(db_session, client, captured_template
         tags=["python"],
         is_remote=True,
         payload="some data",
+        company_name="Test Company",
     )
 
     store_jobs(

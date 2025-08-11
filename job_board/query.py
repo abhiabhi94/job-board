@@ -100,6 +100,7 @@ def filter_jobs(
                 is_remote=job.is_remote,
                 locations=job.locations,
                 portal_name=job.portal_name,
+                company_name=job.company_name,
             )
             for job in jobs
         ]
