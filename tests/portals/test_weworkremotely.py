@@ -78,6 +78,51 @@ def mock_rss_response():
 def mock_job_page():
     def _mock_job_page():
         job_page_content = """
+        <script type="application/ld+json"> {
+    "@context" : "http://schema.org/",
+    "@type" : "JobPosting",
+    "title" : "Mid-Senior Rails Systems Monitoring &amp; Quality Assurance ",
+       "image": "https://we-work-remotely.imgix.net/logos/0170/7458/logo.gif?ixlib=rails-4.0.0&w=50&h=50&dpr=2&fit=fill&auto=compress",
+    "description" : "Apply now and help us take our development to the next level.&lt;/p&gt;",
+    "datePosted" : "2025-04-11 23:05:46 UTC",
+    "validThrough" : "2025-09-08 23:05:46 UTC",
+    "employmentType" : "Full-Time",
+    "directApply": "False",
+    "occupationalCategory": "Back-End Programming",
+    "url": "https://webpunch.com/",
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Germany"
+        }
+      },
+    "jobLocationType": "TELECOMMUTE",
+    "baseSalary" : {
+      "@type": "MonetaryAmount",
+      "currency" : "USD",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": "0",
+        "maxValue": "0",
+        "unitText":"YEAR"
+      }
+    },
+      "applicantLocationRequirements" : [{"@type":"Country","name":"AU"},{"@type":"Country","name":"CA"},{"@type":"Country","name":"CH"},{"@type":"Country","name":"DE"},{"@type":"Country","name":"FR"},{"@type":"Country","name":"GB"},{"@type":"Country","name":"HK"},{"@type":"Country","name":"IT"},{"@type":"Country","name":"JP"},{"@type":"Country","name":"MX"},{"@type":"Country","name":"US"}],
+    "hiringOrganization" : {
+      "@type" : "Organization",
+      "name" : "WebPunch",
+      "address": "Denver, CO",
+      "sameAs" : "https://webpunch.com/"
+        , "logo": "https://we-work-remotely.imgix.net/logos/0170/7458/logo.gif?ixlib=rails-4.0.0&w=50&h=50&dpr=2&fit=fill&auto=compress"
+    },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "WebPunch",
+      "value": "webpunch-mid-senior-rails-systems-monitoring-quality-assurance"
+    }
+  }
+  </script>
         <title>Python Developer</title>
         <p> Something happened 6 days ago, this is not the date of posting </p>
         <span> Posted 5 days ago </span>
@@ -144,7 +189,19 @@ def test_fetch_jobs(
         year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
     )
     assert job.is_remote is True
-    assert job.locations == []
+    assert job.locations == [
+        "AU",
+        "CA",
+        "CH",
+        "DE",
+        "FR",
+        "GB",
+        "HK",
+        "IT",
+        "JP",
+        "MX",
+        "US",
+    ]
     assert job.tags == ["c#"]
 
 

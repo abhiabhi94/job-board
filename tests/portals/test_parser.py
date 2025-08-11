@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -6,6 +7,7 @@ from unittest.mock import patch
 
 import httpx
 import pytest
+from lxml import html
 
 from job_board.portals.base import BasePortal
 from job_board.portals.parser import extract_job_tags_using_llm
@@ -301,3 +303,32 @@ def test_extract_job_tags_using_llm(respx_mock, load_response):
             tags=["servicenow", "workday", "workato", "ai/ml", "systems engineering"],
         ),
     ]
+
+
+@pytest.mark.parametrize(
+    "data, iso_codes",
+    [
+        (
+            {
+                "applicantLocationRequirements": [
+                    {"name": "United States"},
+                    {"name": "Canada"},
+                    {"name": "Remote"},
+                ]
+            },
+            ["US", "CA"],
+        ),
+        (
+            {"applicantLocationRequirements": {"name": "United Kingdom"}},
+            ["GB"],
+        ),
+        ({"applicantLocationRequirements": []}, []),
+        ({}, []),
+    ],
+)
+def test_parse_locations_from_json_ld(data, iso_codes, parser):
+    document = html.fromstring(
+        f'<script type="application/ld+json">{json.dumps(data)}</script>'
+    )
+    locations = parser.parse_locations_from_json_ld(document)
+    assert locations == iso_codes

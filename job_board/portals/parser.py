@@ -21,6 +21,7 @@ from job_board import config
 from job_board.logger import logger
 from job_board.utils import get_currency_from_symbol
 from job_board.utils import get_exchange_rate
+from job_board.utils import get_iso2
 from job_board.utils import get_openai_schema
 from job_board.utils import http_client
 from job_board.utils import retry_on_http_errors
@@ -397,6 +398,32 @@ class JobParser:
         amount = (amount / exchange_rate).quantize(Decimal("0.01"))
 
         return amount
+
+    @staticmethod
+    def parse_locations_from_json_ld(document: None | html.HtmlElement) -> list[str]:
+        if document is None:
+            return []
+
+        try:
+            (script,) = document.xpath('//script[@type="application/ld+json"]')
+        except ValueError:
+            # No script tag found, return empty list
+            return []
+
+        data = json.loads(script.text_content())
+
+        locations = []
+        if locations_info := data.get("applicantLocationRequirements"):
+            if isinstance(locations_info, dict):
+                # for single location, convert it to a list
+                locations_info = [locations_info]
+
+            for location_info in locations_info:
+                name = location_info["name"]
+                if iso_code := get_iso2(name):
+                    locations.append(iso_code)
+
+        return locations
 
 
 @retry_on_http_errors(max_attempts=10, max_wait=5)
