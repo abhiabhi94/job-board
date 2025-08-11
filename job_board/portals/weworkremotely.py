@@ -132,6 +132,10 @@ class Parser(JobParser):
         )
         return [element.text_content().strip() for element in skill_elements]
 
+    def get_locations(self):
+        document = self.extra_info
+        return self.parse_locations_from_json_ld(document)
+
 
 class WeWorkRemotely(BasePortal):
     portal_name = "weworkremotely"

@@ -1,5 +1,4 @@
 import asyncio
-import json
 import re
 import time
 from datetime import datetime
@@ -8,7 +7,6 @@ from unittest.mock import patch
 
 import httpx
 import pytest
-from lxml import html
 
 from job_board.models import store_jobs
 from job_board.portals.parser import Job
@@ -184,35 +182,6 @@ def test_scrapfly_api_returns_non_successful_response(wellfound, respx_mock):
     assert excinfo.value.request.url == "https://wellfound.com/jobs"
     assert excinfo.value.response.status_code == 403
     assert excinfo.value.is_retryable is False
-
-
-@pytest.mark.parametrize(
-    "data, iso_codes",
-    [
-        (
-            {
-                "applicantLocationRequirements": [
-                    {"name": "United States"},
-                    {"name": "Canada"},
-                    {"name": "Remote"},
-                ]
-            },
-            ["US", "CA"],
-        ),
-        (
-            {"applicantLocationRequirements": {"name": "United Kingdom"}},
-            ["GB"],
-        ),
-        ({"applicantLocationRequirements": []}, []),
-        ({}, []),
-    ],
-)
-def test_parse_locations(data, iso_codes):
-    document = html.fromstring(
-        f'<script type="application/ld+json">{json.dumps(data)}</script>'
-    )
-    locations = Wellfound.parser_class.parse_locations(document)
-    assert locations == iso_codes
 
 
 def test_get_locations(respx_mock):
