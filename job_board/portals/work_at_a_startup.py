@@ -30,10 +30,10 @@ class Parser(JobParser):
     def get_is_remote(self) -> bool:
         return self.item["remote"].lower() in {"yes", "only"}
 
-    def get_tags(self):
+    def get_tags(self) -> list[str]:
         return [s["name"] for s in self.item["skills"]]
 
-    def get_locations(self):
+    def get_locations(self) -> list[str]:
         locations = []
         for location in self.item["locations"]:
             if not isinstance(location, str):
@@ -45,6 +45,9 @@ class Parser(JobParser):
             if iso_code := get_iso2(location):
                 locations.append(iso_code)
         return locations
+
+    def get_company_name(self) -> str:
+        return self.item["_company"]["name"]
 
 
 ALGOLIA_URL = "https://45bwzj1sgc-3.algolianet.com/1/indexes/*/queries"
@@ -105,5 +108,11 @@ class WorkAtAStartup(BasePortal):
         # we need to extract the job data from each page.
         items = []
         for company in data["companies"]:
-            items.extend(company["jobs"])
+            # Create a copy of company data without 'jobs' to avoid circular reference
+            # when serializing job items that contain the company reference
+            company_copy = dict(company)
+            company_copy.pop("jobs", None)
+            for job in company["jobs"]:
+                job["_company"] = company_copy
+                items.append(job)
         return items

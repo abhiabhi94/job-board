@@ -132,6 +132,7 @@ def test_fetch_jobs(
     assert job.tags == []
     assert job.locations == ["US"]
     assert job.is_remote is True
+    assert job.company_name == "One Frequency"
 
     # now try to fetch jobs again, it should return an empty list
     # because the portal has already fetched all jobs

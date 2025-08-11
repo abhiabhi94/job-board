@@ -72,6 +72,15 @@ class Parser(JobParser):
         # in bulk, using a LLM.
         return []
 
+    def get_company_name(self) -> str:
+        document = self.extra_info
+        return self._get_company_name(document)
+
+    @classmethod
+    def _get_company_name(cls, document) -> str:
+        data = cls.parse_json_ld(document)
+        return data["hiringOrganization"]["name"]
+
 
 class Wellfound(BasePortal):
     portal_name = "wellfound"

@@ -58,3 +58,4 @@ def test_fetch_jobs(
     assert job.description is not None
     assert job.tags == []
     assert job.locations == []
+    assert job.company_name == "Cyble"

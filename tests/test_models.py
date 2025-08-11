@@ -72,6 +72,7 @@ def test_store_jobs(db_session):
             locations=["US", "IN"],
             description="Looking for Django and FastAPI developer",
             payload="some data",
+            company_name="Test Company",
         ),
         JobListing(
             link="https://wellfound.com/jobs/job2",
@@ -80,6 +81,7 @@ def test_store_jobs(db_session):
             tags=["python", "django"],
             is_remote=False,
             payload="some data",
+            company_name="Test Company",
         ),
         JobListing(
             link="https://himalayas.app/jobs/job3",
@@ -87,6 +89,7 @@ def test_store_jobs(db_session):
             salary=Decimal(str(100_000)),
             is_remote=False,
             payload="some data",
+            company_name="Test Company",
         ),
     ]
 
@@ -145,6 +148,7 @@ def test_store_jobs_with_empty_tags(db_session):
             title="Job 1",
             posted_on=now - timedelta(days=1),
             payload="some data",
+            company_name="Test Company",
         ),
     ]
 
@@ -166,12 +170,14 @@ def test_purge_old_jobs(db_session):
             title="Job 1",
             posted_on=now - timedelta(days=1),
             payload="some data",
+            company_name="New Company",
         ),
         JobListing(
             link="https://example.com/old-job",
             title="Job 2",
             posted_on=now - timedelta(days=365),
             payload="some data",
+            company_name="Old Company",
         ),
     ]
 
@@ -191,6 +197,7 @@ def test_fill_missing_tags(db_session):
         title="job-title",
         description="job-description",
         link="https://example.com/2",
+        company_name="Test Company",
     )
     db_session.add(job)
 
@@ -201,6 +208,7 @@ def test_fill_missing_tags(db_session):
                 title=job.title,
                 link=job.link,
                 tags=["new", "tag"],
+                company_name=job.company_name,
             )
         ],
     ):
@@ -219,6 +227,7 @@ def test_location_check_constraint(db_session):
         link="https://example.com/valid",
         locations=["US", "IN", "US-CA"],
         posted_on=now,
+        company_name="Valid Company",
     )
     db_session.add(valid_job)
     db_session.commit()
@@ -228,6 +237,7 @@ def test_location_check_constraint(db_session):
         link="https://example.com/invalid",
         locations=["INVALID", "New York"],
         posted_on=now,
+        company_name="Invalid Company",
     )
     with pytest.raises(sa.exc.IntegrityError):
         db_session.add(invalid_job)

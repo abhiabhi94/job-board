@@ -84,6 +84,21 @@ class Parser(JobParser):
 
         return tags + job_tags
 
+    def get_company_name(self) -> str | None:
+        detail_page = self.extra_info
+        return self._get_company_name(detail_page)
+
+    @staticmethod
+    def _get_company_name(detail_page) -> str | None:
+        try:
+            (company_element,) = detail_page.cssselect(
+                ".listing-company-name > .company-name"
+            )
+        except ValueError:
+            return None
+        else:
+            return company_element.text_content()
+
 
 class PythonDotOrg(BasePortal):
     portal_name = "python"

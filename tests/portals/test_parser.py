@@ -35,6 +35,8 @@ def parser():
         "get_salary_range",
         "get_is_remote",
         "get_extra_info",
+        "get_locations",
+        "get_company_name",
     ],
 )
 def test_abstract_methods(method_name, parser):
@@ -332,3 +334,21 @@ def test_parse_locations_from_json_ld(data, iso_codes, parser):
     )
     locations = parser.parse_locations_from_json_ld(document)
     assert locations == iso_codes
+
+
+@pytest.mark.parametrize(
+    "data, expected_locations",
+    [
+        [None, []],
+        ['<script>{"invalid": "data"}</script>', []],
+    ],
+)
+def test_parse_locations_from_jsonld_with_invalid_data(
+    parser, data, expected_locations
+):
+    if data is None:
+        document = None
+    else:
+        document = html.fromstring(data)
+    locations = parser.parse_locations_from_json_ld(document)
+    assert locations == expected_locations

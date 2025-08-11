@@ -90,6 +90,9 @@ class Parser(JobParser):
             ),
         )
 
+    def get_company_name(self) -> str:
+        return self.item["companyName"]
+
 
 MAX_JOBS_PER_REQUEST = 20  # Maximum jobs per request for the API
 
