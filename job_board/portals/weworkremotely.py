@@ -139,6 +139,8 @@ class Parser(JobParser):
 
 class WeWorkRemotely(BasePortal):
     portal_name = "weworkremotely"
+    base_url = "https://weworkremotely.com"
+    display_name = "We Work Remotely"
     url = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
     api_data_format = "xml"
     parser_class = Parser

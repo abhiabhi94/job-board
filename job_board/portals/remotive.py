@@ -50,6 +50,8 @@ class Remotive(BasePortal):
     """Docs: https://github.com/remotive-com/remote-jobs-api"""
 
     portal_name = "remotive"
+    base_url = "https://remotive.com"
+    display_name = "Remotive"
     url = "https://remotive.com/api/remote-jobs?category=software-dev&limit=500"
     api_data_format = "json"
     parser_class = Parser

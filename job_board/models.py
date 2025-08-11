@@ -7,6 +7,7 @@ import pycountry
 import sqlalchemy as sa
 from requests.structures import CaseInsensitiveDict
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -164,6 +165,27 @@ class Job(BaseModel):
         ),
         sa.Index("ix_job_locations", "locations", postgresql_using="gin"),
     )
+
+    @hybrid_property
+    def portal_name(self) -> str | None:
+        from job_board.portals.base import PORTALS
+
+        for portal_class in PORTALS.values():
+            if self.link.startswith(portal_class.base_url):
+                return portal_class.display_name
+        return None
+
+    @portal_name.expression
+    def portal_name(cls):
+        from job_board.portals.base import PORTALS
+
+        case_conditions = []
+        for portal_class in PORTALS.values():
+            case_conditions.append(
+                (cls.link.startswith(portal_class.base_url), portal_class.display_name)
+            )
+
+        return sa.case(*case_conditions, else_=None)
 
     @classmethod
     def fill_missing_tags(cls) -> None:

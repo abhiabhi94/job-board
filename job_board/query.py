@@ -99,6 +99,7 @@ def filter_jobs(
                 tags=[tag.name for tag in job.tags],
                 is_remote=job.is_remote,
                 locations=job.locations,
+                portal_name=job.portal_name,
             )
             for job in jobs
         ]

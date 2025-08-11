@@ -97,6 +97,7 @@ class Job(BaseModel):
     locations: list[str] | None = Field(default_factory=list)
     payload: str | None = None
     extra_info: str | None = None
+    portal_name: str | None = None
 
     model_config = ConfigDict(frozen=True)
 
