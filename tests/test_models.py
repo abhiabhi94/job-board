@@ -63,7 +63,7 @@ def test_store_jobs(db_session):
 
     job_listings = [
         JobListing(
-            link="https://job1.com",
+            link="https://remotive.com/jobs/job1",
             title="Job 1",
             salary=Decimal(str(80_000)),
             posted_on=now - timedelta(days=1),
@@ -74,7 +74,7 @@ def test_store_jobs(db_session):
             payload="some data",
         ),
         JobListing(
-            link="https://job2.com",
+            link="https://wellfound.com/jobs/job2",
             title="Job 2",
             salary=Decimal(str(100_000)),
             tags=["python", "django"],
@@ -82,7 +82,7 @@ def test_store_jobs(db_session):
             payload="some data",
         ),
         JobListing(
-            link="https://job3.com",
+            link="https://himalayas.app/jobs/job3",
             title="Job 3",
             salary=Decimal(str(100_000)),
             is_remote=False,
@@ -95,10 +95,13 @@ def test_store_jobs(db_session):
     jobs = db_session.execute(sa.select(Job)).scalars().all()
 
     assert {j.link for j in jobs} == {
-        "https://job1.com",
-        "https://job2.com",
-        "https://job3.com",
+        "https://remotive.com/jobs/job1",
+        "https://wellfound.com/jobs/job2",
+        "https://himalayas.app/jobs/job3",
     }
+
+    # Test portal_name property
+    assert {j.portal_name for j in jobs} == {"Remotive", "Wellfound", "Himalayas"}
     assert {t.name for j in jobs for t in j.tags} == {
         "python",
         "remote",
@@ -115,6 +118,12 @@ def test_store_jobs(db_session):
             .where(Payload.link.in_(j.link for j in job_listings))
         ).scalar_one()
         == 3
+    )
+    assert (
+        db_session.execute(
+            sa.select(sa.func.count()).where(Job.portal_name == "Remotive")
+        ).scalar_one()
+        == 1
     )
 
     # Check that the method is idempotent

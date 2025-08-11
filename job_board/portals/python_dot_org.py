@@ -88,6 +88,7 @@ class Parser(JobParser):
 class PythonDotOrg(BasePortal):
     portal_name = "python"
     base_url = "https://www.python.org"
+    display_name = "Python.org"
     jobs_url = f"{base_url}/jobs/"
     url = f"{base_url}/jobs/feed/rss/"
     api_data_format = "xml"

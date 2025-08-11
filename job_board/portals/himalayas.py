@@ -97,9 +97,11 @@ MAX_JOBS_PER_REQUEST = 20  # Maximum jobs per request for the API
 class Himalayas(BasePortal):
     """Docs: https://himalayas.app/api"""
 
+    portal_name = "himalayas"
+    base_url = "https://himalayas.app"
+    display_name = "Himalayas"
     url = "https://himalayas.app/jobs/api"
     api_data_format = "json"
-    portal_name = "himalayas"
     parser_class = Parser
 
     def make_request(self) -> list[dict[str, Any]]:

@@ -75,6 +75,8 @@ class Parser(JobParser):
 
 class Wellfound(BasePortal):
     portal_name = "wellfound"
+    base_url = "https://wellfound.com"
+    display_name = "Wellfound"
     url = "https://wellfound.com/role/r/software-engineer"
     # although the API returns HTML, but the JSON content is embedded in the HTML
     # so we will treat it as JSON for our purposes.

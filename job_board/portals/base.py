@@ -17,6 +17,8 @@ PORTALS = {}
 
 class BasePortal:
     portal_name: str
+    display_name: str
+    base_url: str
     url: str
     api_data_format: str
     parser_class: type["JobParser"]
