@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import httpx
+import pytest
 
 from job_board.portals import WorkAtAStartup
 from job_board.portals.parser import Job
@@ -59,3 +60,23 @@ def test_fetch_jobs(
     assert job.tags == []
     assert job.locations == []
     assert job.company_name == "Cyble"
+
+
+@pytest.mark.parametrize(
+    [
+        "locations",
+        "expected_locations",
+    ],
+    [
+        (["New York, NY, USA", "New York, NY, US"], ["US"]),
+        (["San Francisco, CA, USA"], ["US"]),
+        (["San Francisco, CA, US"], ["US"]),
+        (["San Francisco"], []),
+        (["DL, IN"], ["IN"]),
+        # TODO: someday FIXME as well.
+        (["Remote - UK or Europe"], []),
+    ],
+)
+def test_parse_locations(locations, expected_locations):
+    Parser = WorkAtAStartup.parser_class
+    assert Parser.parse_locations(locations) == expected_locations

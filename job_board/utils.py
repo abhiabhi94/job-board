@@ -26,10 +26,6 @@ from tenacity import wait_exponential
 from job_board import config
 from job_board.logger import logger
 
-# used by country_converter to indicate
-# that the country code was not found
-NOT_FOUND = "not found"
-
 EXCHANGE_RATE_API_URL = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@{date}/v1/currencies/{currency}.json"
 EXCHANGE_RATE_FALLBACK_API_URL = (
     "https://{date}.currency-api.pages.dev/v1/currencies/{currency}.json"
@@ -417,6 +413,10 @@ def get_iso2(name: str) -> str | None:
     Convert a country/Subdivision name to its ISO 3166-1 alpha-2 code.
     Returns None if an exact match is not found.
     """
+    # default value returned from country_converter
+    # when the country code is not found
+    NOT_FOUND = "not found"
+
     name = name.strip().lower()
     code = coco.convert(name, to="iso2")
     if code != NOT_FOUND:
