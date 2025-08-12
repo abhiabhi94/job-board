@@ -34,17 +34,33 @@ class Parser(JobParser):
         return [s["name"] for s in self.item["skills"]]
 
     def get_locations(self) -> list[str]:
-        locations = []
-        for location in self.item["locations"]:
+        return self.parse_locations(self.item["locations"])
+
+    @staticmethod
+    def parse_locations(locations: list[str]) -> list[str]:
+        # this API can return the same location in different formats
+        # so, keeping this as a set to avoid duplicates.
+        parsed_locations = set()
+        for location in locations:
             if not isinstance(location, str):
                 continue
+
+            country = None
             if location.count(",") == 2:
                 # example: "New York, NY, USA"
-                # remove the name from the location
-                location = ",".join(location.split(",")[1:3])
+                _, _, country = location.split(",")
+            elif location.count(",") == 1:
+                _, country = location.split(",")
+
+            if country is not None:
+                # the format of locations for this API is too inconsistent
+                # to be considering both subdivision and country.
+                # they are some times returned as full names,
+                # sometimes abbreviations, sometimes codes etc,
+                location = country
             if iso_code := get_iso2(location):
-                locations.append(iso_code)
-        return locations
+                parsed_locations.add(iso_code)
+        return list(parsed_locations)
 
     def get_company_name(self) -> str:
         return self.item["_company"]["name"]
