@@ -12,3 +12,8 @@
   --color-accent: #f59e0b;
   --color-accent-light: #fef3c7;
 }
+
+/* Custom styles for seen jobs */
+.job-seen-transform {
+  transform: scale(0.98);
+}
