@@ -319,6 +319,26 @@ export function initializeMainJs() {
                     }, index * 100);
                 });
     
+                // Initialize seen jobs functionality for newly loaded cards
+                setTimeout(() => {
+                    const seenJobs = getSeenJobs();
+                    newJobCards.forEach(jobCard => {
+                        const jobId = jobCard.dataset.jobId;
+    
+                        // Apply seen state if job is marked as seen
+                        if (jobId && seenJobs.includes(jobId)) {
+                            updateJobVisualState(jobCard, true);
+                        }
+    
+                        // Add event listener if not already added
+                        const btn = jobCard.querySelector('.seen-job-btn');
+                        if (btn && !btn.hasAttribute('data-listener-added')) {
+                            btn.addEventListener('click', handleSeenJobClick);
+                            btn.setAttribute('data-listener-added', 'true');
+                        }
+                    });
+                }, 1000);
+    
                 currentPage = parseInt(nextPage);
     
                 // Check if there are more pages
@@ -361,14 +381,6 @@ export function initializeMainJs() {
             });
         }
     
-        window.loadMoreJobs = function(nextPage) {
-            // Enable infinite scroll after first manual load
-            if (!infiniteScrollEnabled) {
-                infiniteScrollEnabled = true;
-                enableInfiniteScroll();
-            }
-            loadJobs(parseInt(nextPage));
-        };
     
         function enableInfiniteScroll() {
             let scrollTimeout;
@@ -423,5 +435,241 @@ export function initializeMainJs() {
                 form.submit();
             }
         };
+    
+        // Seen Jobs Management
+        const SEEN_JOBS_KEY = 'job-board-seen-jobs';
+    
+        function getSeenJobs() {
+            try {
+                const seenJobs = localStorage.getItem(SEEN_JOBS_KEY);
+                return seenJobs ? JSON.parse(seenJobs) : [];
+            } catch (error) {
+                console.error('Error reading seen jobs from localStorage:', error);
+                return [];
+            }
+        }
+    
+        function markJobAsSeen(jobId, seen = true) {
+            try {
+                let seenJobs = getSeenJobs();
+                const index = seenJobs.indexOf(jobId);
+    
+                if (seen && index === -1) {
+                    seenJobs.push(jobId);
+                } else if (!seen && index !== -1) {
+                    seenJobs.splice(index, 1);
+                }
+    
+                localStorage.setItem(SEEN_JOBS_KEY, JSON.stringify(seenJobs));
+                return true;
+            } catch (error) {
+                console.error('Error updating seen jobs in localStorage:', error);
+                return false;
+            }
+        }
+    
+        function isJobSeen(jobId) {
+            const seenJobs = getSeenJobs();
+            return seenJobs.includes(jobId);
+        }
+    
+        function clearSeenJobs() {
+            try {
+                localStorage.removeItem(SEEN_JOBS_KEY);
+                return true;
+            } catch (error) {
+                console.error('Error clearing seen jobs from localStorage:', error);
+                return false;
+            }
+        }
+    
+        // Apply visual feedback for seen jobs
+        function updateJobVisualState(jobCard, isSeen) {
+            if (!jobCard) {
+                console.error('updateJobVisualState: jobCard is null');
+                return;
+            }
+    
+            if (isSeen) {
+                jobCard.classList.add('job-seen');
+    
+                // Apply seen styles and disable hover effects
+                jobCard.style.opacity = '0.2';
+                jobCard.style.filter = 'brightness(0.8)';
+                jobCard.style.pointerEvents = 'auto'; // Keep clickable
+    
+                // Disable hover effects by removing/overriding hover handlers
+                jobCard.onmouseenter = null;
+                jobCard.onmouseleave = null;
+                // Use CSS class for transform to avoid overriding existing transforms
+                jobCard.classList.add('job-seen-transform');
+    
+                // Update button state
+                const btn = jobCard.querySelector('.seen-job-btn');
+                if (btn) {
+                    btn.style.opacity = '0.6';
+                    const seenIcon = btn.querySelector('.seen-icon');
+                    const unseenIcon = btn.querySelector('.unseen-icon');
+    
+                    if (seenIcon) seenIcon.classList.remove('hidden');
+                    if (unseenIcon) unseenIcon.classList.add('hidden');
+                    btn.title = 'Mark as unseen';
+                    btn.setAttribute('aria-label', 'Mark job as unseen');
+                }
+            } else {
+                jobCard.classList.remove('job-seen');
+    
+                // Restore normal styles
+                jobCard.style.opacity = '';
+                jobCard.style.filter = '';
+                // Remove transform class instead of resetting inline style
+                jobCard.classList.remove('job-seen-transform');
+    
+                // Restore hover effects
+                jobCard.onmouseenter = function() { this.style.transform = 'translateY(-8px) scale(1.02)'; };
+                jobCard.onmouseleave = function() { this.style.transform = 'translateY(0) scale(1)'; };
+    
+                // Update button state
+                const btn = jobCard.querySelector('.seen-job-btn');
+                if (btn) {
+                    btn.style.opacity = '';
+                    const seenIcon = btn.querySelector('.seen-icon');
+                    const unseenIcon = btn.querySelector('.unseen-icon');
+    
+                    if (seenIcon) seenIcon.classList.add('hidden');
+                    if (unseenIcon) unseenIcon.classList.remove('hidden');
+                    btn.title = 'Mark as seen';
+                    btn.setAttribute('aria-label', 'Mark job as seen');
+                }
+            }
+        }
+    
+        // Handle seen job button clicks
+        function handleSeenJobClick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+    
+            const btn = event.currentTarget;
+            const jobId = btn.dataset.jobId;
+            const jobCard = btn.closest('article');
+    
+            if (!jobId || !jobCard) return;
+    
+            const currentlySeen = isJobSeen(jobId);
+            const newSeenState = !currentlySeen;
+    
+            if (markJobAsSeen(jobId, newSeenState)) {
+                updateJobVisualState(jobCard, newSeenState);
+            }
+        }
+    
+        // Restore seen states on page load
+        function restoreSeenStates() {
+            const jobCards = document.querySelectorAll('article[data-job-id]');
+            const seenJobs = getSeenJobs();
+    
+            jobCards.forEach(jobCard => {
+                const jobId = jobCard.dataset.jobId;
+                if (jobId && seenJobs.includes(jobId)) {
+                    updateJobVisualState(jobCard, true);
+                }
+            });
+        }
+    
+        // Initialize seen job functionality
+        function initializeSeenJobs() {
+            // Restore seen states for existing jobs
+            restoreSeenStates();
+    
+            // Add event listeners to seen job buttons
+            const seenJobBtns = document.querySelectorAll('.seen-job-btn');
+            seenJobBtns.forEach(btn => {
+                if (!btn.hasAttribute('data-listener-added')) {
+                    btn.addEventListener('click', handleSeenJobClick);
+                    btn.setAttribute('data-listener-added', 'true');
+                }
+            });
+        }
+    
+        // Initialize with retry mechanism
+        function initializeSeenJobsWithRetry(retryCount = 0) {
+            const maxRetries = 3;
+            const jobCards = document.querySelectorAll('article[data-job-id]');
+            const seenJobs = getSeenJobs();
+    
+            if (jobCards.length === 0 && retryCount < maxRetries) {
+                setTimeout(() => initializeSeenJobsWithRetry(retryCount + 1), 500);
+                return;
+            }
+    
+            initializeSeenJobs();
+    
+            // Double-check that all seen jobs are visually marked after a brief delay
+            setTimeout(() => {
+                jobCards.forEach(jobCard => {
+                    const jobId = jobCard.dataset.jobId;
+                    if (jobId && seenJobs.includes(jobId) && !jobCard.classList.contains('job-seen')) {
+                        updateJobVisualState(jobCard, true);
+                    }
+                });
+            }, 200);
+        }
+    
+        // Initialize seen jobs on page load with retry mechanism
+        setTimeout(() => {
+            initializeSeenJobsWithRetry();
+        }, 1000);
+    
+        // Also initialize on window load as backup
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initializeSeenJobsWithRetry();
+            }, 500);
+        });
+    
+        // Extend loadMoreJobs to include seen job initialization for new jobs
+        window.loadMoreJobs = function(nextPage) {
+            // Enable infinite scroll after first manual load
+            if (!infiniteScrollEnabled) {
+                infiniteScrollEnabled = true;
+                enableInfiniteScroll();
+            }
+            loadJobs(parseInt(nextPage));
+    
+            // Wait for new content to be added, then initialize seen jobs for new cards
+            setTimeout(() => {
+                const seenJobs = getSeenJobs();
+                document.querySelectorAll('article[data-job-id]').forEach(jobCard => {
+                    const jobId = jobCard.dataset.jobId;
+    
+                    // Apply seen state if job is marked as seen
+                    if (jobId && seenJobs.includes(jobId)) {
+                        updateJobVisualState(jobCard, true);
+                    }
+    
+                    // Add event listener if not already added
+                    const btn = jobCard.querySelector('.seen-job-btn');
+                    if (btn && !btn.hasAttribute('data-listener-added')) {
+                        btn.addEventListener('click', handleSeenJobClick);
+                        btn.setAttribute('data-listener-added', 'true');
+                    }
+                });
+            }, 1000);
+        };
+    
+        // Make functions available globally for testing
+        window.seenJobsAPI = {
+            getSeenJobs,
+            markJobAsSeen,
+            isJobSeen,
+            clearSeenJobs,
+            updateJobVisualState,
+            handleSeenJobClick,
+            restoreSeenStates,
+            initializeSeenJobs
+        };
+    
+        // Also expose loadJobs for testing
+        window.loadJobs = loadJobs;
     
 }

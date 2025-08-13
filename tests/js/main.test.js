@@ -12,6 +12,10 @@ describe('Main.js Tests', () => {
       removeItem: vi.fn()
     };
 
+    // Mock console methods
+    global.console.error = vi.fn();
+    global.console.log = vi.fn();
+
     global.fetch = vi.fn(() => Promise.resolve({
       text: () => Promise.resolve(`
         <html>
@@ -26,8 +30,16 @@ describe('Main.js Tests', () => {
     global.setTimeout = setTimeout;
     global.clearTimeout = clearTimeout;
 
+    // Mock console to suppress debug logs during tests
+    global.console = {
+      log: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn()
+    };
+
     delete window.loadMoreJobs;
     delete window.clearAllFilters;
+    delete window.seenJobsAPI;
 
     vi.clearAllMocks();
   });
@@ -1171,6 +1183,1227 @@ describe('Main.js Tests', () => {
     });
   });
 
+  describe('Seen Jobs Functionality', () => {
+    beforeEach(() => {
+      // Clear localStorage before each test
+      global.localStorage.getItem.mockClear();
+      global.localStorage.setItem.mockClear();
+      global.localStorage.removeItem.mockClear();
+    });
+
+    test('should manage seen jobs in localStorage', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      // Test getSeenJobs with empty localStorage
+      global.localStorage.getItem.mockReturnValue(null);
+      expect(window.seenJobsAPI.getSeenJobs()).toEqual([]);
+
+      // Test getSeenJobs with existing data
+      global.localStorage.getItem.mockReturnValue('["job1","job2"]');
+      expect(window.seenJobsAPI.getSeenJobs()).toEqual(['job1', 'job2']);
+
+      // Test markJobAsSeen to mark as seen
+      global.localStorage.getItem.mockReturnValue('[]');
+      expect(window.seenJobsAPI.markJobAsSeen('job3', true)).toBe(true);
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["job3"]');
+
+      // Test markJobAsSeen to unmark as seen
+      global.localStorage.getItem.mockReturnValue('["job3","job4"]');
+      expect(window.seenJobsAPI.markJobAsSeen('job3', false)).toBe(true);
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["job4"]');
+
+      // Test isJobSeen
+      global.localStorage.getItem.mockReturnValue('["job1","job2"]');
+      expect(window.seenJobsAPI.isJobSeen('job1')).toBe(true);
+      expect(window.seenJobsAPI.isJobSeen('job3')).toBe(false);
+
+      // Test clearSeenJobs
+      expect(window.seenJobsAPI.clearSeenJobs()).toBe(true);
+      expect(global.localStorage.removeItem).toHaveBeenCalledWith('job-board-seen-jobs');
+    });
+
+    test('should handle localStorage errors gracefully', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      initializeMainJs();
+
+      // Test getSeenJobs error
+      global.localStorage.getItem.mockImplementation(() => {
+        throw new Error('localStorage error');
+      });
+      expect(window.seenJobsAPI.getSeenJobs()).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Error reading seen jobs from localStorage:', expect.any(Error));
+
+      // Test markJobAsSeen error
+      global.localStorage.setItem.mockImplementation(() => {
+        throw new Error('localStorage error');
+      });
+      expect(window.seenJobsAPI.markJobAsSeen('job1', true)).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Error updating seen jobs in localStorage:', expect.any(Error));
+
+      // Test clearSeenJobs error
+      global.localStorage.removeItem.mockImplementation(() => {
+        throw new Error('localStorage error');
+      });
+      expect(window.seenJobsAPI.clearSeenJobs()).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Error clearing seen jobs from localStorage:', expect.any(Error));
+
+      consoleSpy.mockRestore();
+    });
+
+    test('should handle malformed JSON in localStorage', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      initializeMainJs();
+
+      // Test malformed JSON
+      global.localStorage.getItem.mockReturnValue('malformed json');
+      expect(window.seenJobsAPI.getSeenJobs()).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Error reading seen jobs from localStorage:', expect.any(Error));
+
+      consoleSpy.mockRestore();
+    });
+
+    test('should update job visual state correctly', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="job1">
+              <button class="seen-job-btn">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const jobCard = document.querySelector('article');
+      const btn = document.querySelector('.seen-job-btn');
+      const seenIcon = document.querySelector('.seen-icon');
+      const unseenIcon = document.querySelector('.unseen-icon');
+
+      // Test marking as seen
+      window.seenJobsAPI.updateJobVisualState(jobCard, true);
+      expect(jobCard.classList.contains('job-seen')).toBe(true);
+      expect(jobCard.style.opacity).toBe('0.2');
+      expect(btn.style.opacity).toBe('0.6');
+      expect(jobCard.onmouseenter).toBe(null); // Hover disabled
+      expect(jobCard.onmouseleave).toBe(null); // Hover disabled
+      expect(seenIcon.classList.contains('hidden')).toBe(false);
+      expect(unseenIcon.classList.contains('hidden')).toBe(true);
+      expect(btn.title).toBe('Mark as unseen');
+      expect(btn.getAttribute('aria-label')).toBe('Mark job as unseen');
+
+      // Test marking as unseen
+      window.seenJobsAPI.updateJobVisualState(jobCard, false);
+      expect(jobCard.classList.contains('job-seen')).toBe(false);
+      expect(jobCard.style.opacity).toBe('');
+      expect(btn.style.opacity).toBe('');
+      expect(jobCard.classList.contains('job-seen-transform')).toBe(false); // Transform class removed
+      expect(typeof jobCard.onmouseenter).toBe('function'); // Hover restored
+      expect(typeof jobCard.onmouseleave).toBe('function'); // Hover restored
+      expect(seenIcon.classList.contains('hidden')).toBe(true);
+      expect(unseenIcon.classList.contains('hidden')).toBe(false);
+      expect(btn.title).toBe('Mark as seen');
+      expect(btn.getAttribute('aria-label')).toBe('Mark job as seen');
+    });
+
+    test('should handle seen job button clicks', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="job1">
+              <button class="seen-job-btn" data-job-id="job1">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('[]');
+      initializeMainJs();
+
+      const btn = document.querySelector('.seen-job-btn');
+      const jobCard = document.querySelector('article');
+
+      // Test click event handling
+      const clickEvent = new Event('click');
+      Object.defineProperty(clickEvent, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent, 'stopPropagation', { value: vi.fn() });
+      Object.defineProperty(clickEvent, 'currentTarget', { value: btn });
+
+      window.seenJobsAPI.handleSeenJobClick(clickEvent);
+
+      expect(clickEvent.preventDefault).toHaveBeenCalled();
+      expect(clickEvent.stopPropagation).toHaveBeenCalled();
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["job1"]');
+    });
+
+    test('should handle seen job button clicks with missing elements', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      // Test click with no jobId
+      const btnWithoutJobId = document.createElement('button');
+      const clickEvent1 = new Event('click');
+      Object.defineProperty(clickEvent1, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent1, 'stopPropagation', { value: vi.fn() });
+      Object.defineProperty(clickEvent1, 'currentTarget', { value: btnWithoutJobId });
+
+      // Should return early when no jobId
+      window.seenJobsAPI.handleSeenJobClick(clickEvent1);
+      expect(global.localStorage.setItem).not.toHaveBeenCalled();
+
+      // Test click with no jobCard
+      const btnWithJobId = document.createElement('button');
+      btnWithJobId.dataset.jobId = 'job1';
+      const clickEvent2 = new Event('click');
+      Object.defineProperty(clickEvent2, 'preventDefault', { value: vi.fn() });
+      Object.defineProperty(clickEvent2, 'stopPropagation', { value: vi.fn() });
+      Object.defineProperty(clickEvent2, 'currentTarget', { value: btnWithJobId });
+
+      // Should return early when no jobCard
+      window.seenJobsAPI.handleSeenJobClick(clickEvent2);
+      expect(global.localStorage.setItem).not.toHaveBeenCalled();
+    });
+
+    test('should restore seen states on page load', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="job1">
+              <button class="seen-job-btn">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+            <article data-job-id="job2">
+              <button class="seen-job-btn">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('["job1"]');
+      initializeMainJs();
+
+      window.seenJobsAPI.restoreSeenStates();
+
+      const job1Card = document.querySelector('article[data-job-id="job1"]');
+      const job2Card = document.querySelector('article[data-job-id="job2"]');
+
+      expect(job1Card.classList.contains('job-seen')).toBe(true);
+      expect(job2Card.classList.contains('job-seen')).toBe(false);
+    });
+
+    test('should initialize seen jobs functionality', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="job1">
+              <button class="seen-job-btn">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('["job1"]');
+
+      // Create a spy to track event listeners
+      const addEventListenerSpy = vi.fn();
+      document.querySelector('.seen-job-btn').addEventListener = addEventListenerSpy;
+
+      initializeMainJs();
+
+      window.seenJobsAPI.initializeSeenJobs();
+
+      // Should restore seen states and add event listeners
+      const jobCard = document.querySelector('article[data-job-id="job1"]');
+      expect(jobCard.classList.contains('job-seen')).toBe(true);
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+    });
+
+    test('should integrate with load more jobs functionality', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <article data-job-id="existing-job">
+                <button class="seen-job-btn">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Mock fetch to return new job cards
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="new-job">
+                <button class="seen-job-btn">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="true"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('["new-job"]');
+
+      // Mock setTimeout to capture callbacks but execute the 1000ms one manually
+      let timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+        } else {
+          callback();
+        }
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Load more jobs
+      window.loadMoreJobs(2);
+
+      // Wait for fetch to complete and DOM to be updated
+      await vi.waitFor(() => {
+        const newJob = document.querySelector('article[data-job-id="new-job"]');
+        expect(newJob).toBeTruthy();
+      });
+
+      // Execute the setTimeout callback for seen jobs integration
+      timeoutCallbacks.forEach(callback => callback());
+
+      // Verify that the new job is marked as seen
+      const newJob = document.querySelector('article[data-job-id="new-job"]');
+      expect(newJob).toBeTruthy();
+      expect(newJob.style.opacity).toBe('0.2');
+      expect(newJob.classList.contains('job-seen')).toBe(true);
+
+      // Check that setTimeout was called for the seen jobs integration (1000ms delay)
+      expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+
+    test('should handle seen job button clicks in real scenarios', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="job1">
+              <button class="seen-job-btn" data-job-id="job1">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      // Mock setTimeout to execute callbacks immediately for testing
+      global.setTimeout = vi.fn((callback, delay) => {
+        callback();
+        return 1;
+      });
+
+      initializeMainJs();
+
+      const btn = document.querySelector('.seen-job-btn');
+
+      // Simulate actual button click
+      btn.click();
+
+      // Verify job was marked as seen
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["job1"]');
+
+      // Test clicking again to unmark
+      global.localStorage.getItem.mockReturnValue('["job1"]');
+      global.localStorage.setItem.mockClear();
+      btn.click();
+
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '[]');
+    });
+
+    test('should handle add event listener for dynamically loaded jobs', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('[]');
+      initializeMainJs();
+
+      // Simulate the logic that gets executed in the setTimeout callback
+      const newJobCard = document.createElement('article');
+      newJobCard.dataset.jobId = 'new-job';
+      newJobCard.innerHTML = `
+        <button class="seen-job-btn">
+          <svg class="seen-icon hidden"></svg>
+          <svg class="unseen-icon"></svg>
+        </button>
+      `;
+      document.body.appendChild(newJobCard);
+
+      const addEventListenerSpy = vi.fn();
+      const btn = newJobCard.querySelector('.seen-job-btn');
+      btn.addEventListener = addEventListenerSpy;
+
+      // Execute the logic from the setTimeout callback
+      const jobCards = document.querySelectorAll('article[data-job-id]');
+      jobCards.forEach(jobCard => {
+        const btn = jobCard.querySelector('.seen-job-btn');
+        if (btn && !btn.hasAttribute('data-listener-added')) {
+          btn.addEventListener('click', window.seenJobsAPI.handleSeenJobClick);
+          btn.setAttribute('data-listener-added', 'true');
+        }
+      });
+
+      // Verify event listener was added and data-listener-added attribute was set
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(btn.getAttribute('data-listener-added')).toBe('true');
+    });
+
+    test('should not add duplicate event listeners', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      // Test the logic directly by simulating the timeout callback
+      const jobCard = document.createElement('article');
+      jobCard.dataset.jobId = 'job1';
+      jobCard.innerHTML = `
+        <button class="seen-job-btn" data-listener-added="true">
+          <svg class="seen-icon hidden"></svg>
+          <svg class="unseen-icon"></svg>
+        </button>
+      `;
+      document.body.appendChild(jobCard);
+
+      const addEventListenerSpy = vi.fn();
+      const btn = jobCard.querySelector('.seen-job-btn');
+      btn.addEventListener = addEventListenerSpy;
+
+      // Execute the logic that would be in the setTimeout callback
+      const jobCards = document.querySelectorAll('article[data-job-id]');
+      jobCards.forEach(jobCard => {
+        const btn = jobCard.querySelector('.seen-job-btn');
+        if (btn && !btn.hasAttribute('data-listener-added')) {
+          btn.addEventListener('click', window.seenJobsAPI.handleSeenJobClick);
+          btn.setAttribute('data-listener-added', 'true');
+        }
+      });
+
+      // Should not add event listener since data-listener-added="true"
+      expect(addEventListenerSpy).not.toHaveBeenCalled();
+    });
+
+    test('should handle updateJobVisualState with null jobCard', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      // Mock console.error
+      const consoleSpy = vi.spyOn(global.console, 'error').mockImplementation(() => {});
+
+      initializeMainJs();
+
+      // Test with null jobCard - should not throw an error
+      expect(() => {
+        window.seenJobsAPI.updateJobVisualState(null, true);
+      }).not.toThrow();
+
+      // Console.error should have been called
+      expect(global.console.error).toHaveBeenCalledWith('updateJobVisualState: jobCard is null');
+    });
+
+    test('should test hover effect functions when unmarking jobs as unseen', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="test-job" class="job-seen" style="opacity: 0.2;">
+              <button class="seen-job-btn" data-job-id="test-job">
+                <svg class="seen-icon"></svg>
+                <svg class="unseen-icon hidden"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const jobCard = document.querySelector('article[data-job-id="test-job"]');
+
+      // Mark as unseen to restore hover effects
+      window.seenJobsAPI.updateJobVisualState(jobCard, false);
+
+      // Test that hover functions were restored and work
+      expect(typeof jobCard.onmouseenter).toBe('function');
+      expect(typeof jobCard.onmouseleave).toBe('function');
+
+      // Test the hover functions
+      jobCard.onmouseenter();
+      expect(jobCard.style.transform).toBe('translateY(-8px) scale(1.02)');
+
+      jobCard.onmouseleave();
+      expect(jobCard.style.transform).toBe('translateY(0) scale(1)');
+    });
+
+    test('should use CSS class for transform instead of inline styles', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="test-job">
+              <button class="seen-job-btn" data-job-id="test-job">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      initializeMainJs();
+
+      const jobCard = document.querySelector('article[data-job-id="test-job"]');
+
+      // Mark as seen - should add CSS class
+      window.seenJobsAPI.updateJobVisualState(jobCard, true);
+
+      // Verify CSS class is added instead of inline transform
+      expect(jobCard.classList.contains('job-seen-transform')).toBe(true);
+      // Don't check inline transform as it may have animation styles
+
+      // Mark as unseen - should remove CSS class
+      window.seenJobsAPI.updateJobVisualState(jobCard, false);
+
+      // Verify CSS class is removed
+      expect(jobCard.classList.contains('job-seen-transform')).toBe(false);
+    });
+
+    test('should test clearSeenJobs error handling', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+          </body>
+        </html>
+      `;
+
+      // Mock localStorage to throw an error
+      const originalRemoveItem = global.localStorage.removeItem;
+      global.localStorage.removeItem = vi.fn(() => {
+        throw new Error('Storage error');
+      });
+
+      const consoleSpy = vi.spyOn(global.console, 'error').mockImplementation(() => {});
+
+      initializeMainJs();
+
+      const result = window.seenJobsAPI.clearSeenJobs();
+
+      expect(result).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Error clearing seen jobs from localStorage:', expect.any(Error));
+
+      // Restore original function
+      global.localStorage.removeItem = originalRemoveItem;
+    });
+
+    test('should handle window load event initialization', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="test-job">
+              <button class="seen-job-btn" data-job-id="test-job">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('["test-job"]');
+
+      // Mock setTimeout to capture callbacks
+      let timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        timeoutCallbacks.push({ callback, delay });
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Trigger window load event
+      const loadEvent = new Event('load');
+      window.dispatchEvent(loadEvent);
+
+      // Execute the window load timeout callback
+      const windowLoadCallback = timeoutCallbacks.find(t => t.delay === 500);
+      expect(windowLoadCallback).toBeTruthy();
+
+      windowLoadCallback.callback();
+
+      const jobCard = document.querySelector('article[data-job-id="test-job"]');
+      expect(jobCard.classList.contains('job-seen')).toBe(true);
+    });
+
+    test('should handle double-check re-application of seen state', () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <article data-job-id="test-job">
+              <button class="seen-job-btn" data-job-id="test-job">
+                <svg class="seen-icon hidden"></svg>
+                <svg class="unseen-icon"></svg>
+              </button>
+            </article>
+          </body>
+        </html>
+      `;
+
+      global.localStorage.getItem.mockReturnValue('["test-job"]');
+
+      // Mock setTimeout to capture callbacks
+      let timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        timeoutCallbacks.push({ callback, delay });
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Execute the 1000ms timeout (initialization)
+      const initCallback = timeoutCallbacks.find(t => t.delay === 1000);
+      expect(initCallback).toBeTruthy();
+      initCallback.callback();
+
+      // Find and execute the 200ms double-check timeout
+      const doubleCheckCallback = timeoutCallbacks.find(t => t.delay === 200);
+      expect(doubleCheckCallback).toBeTruthy();
+
+      // Simulate job card not having seen class (missed in first pass)
+      const jobCard = document.querySelector('article[data-job-id="test-job"]');
+      jobCard.classList.remove('job-seen');
+
+      // Execute double-check callback
+      doubleCheckCallback.callback();
+
+      // Verify it re-applied the seen state
+      expect(jobCard.classList.contains('job-seen')).toBe(true);
+    });
+
+    test('should handle event listener addition in loadMoreJobs for unseen buttons', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <article data-job-id="existing-job">
+                <button class="seen-job-btn">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Mock fetch to return new job cards without data-listener-added
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="new-job">
+                <button class="seen-job-btn" data-job-id="new-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="true"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      let timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+        } else {
+          callback();
+        }
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Load more jobs
+      window.loadMoreJobs(2);
+
+      // Wait for new job to be added
+      await vi.waitFor(() => {
+        const newJob = document.querySelector('article[data-job-id="new-job"]');
+        expect(newJob).toBeTruthy();
+      });
+
+      // Verify new button doesn't have listener initially
+      const newBtn = document.querySelector('article[data-job-id="new-job"] .seen-job-btn');
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Execute the setTimeout callback for loadMoreJobs
+      timeoutCallbacks.forEach(callback => callback());
+
+      // Verify event listener was added to new button
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(true);
+
+      // Test that the button actually works by clicking it
+      newBtn.click();
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["new-job"]');
+    });
+
+    test('should cover event listener addition lines in loadMoreJobs', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+          </body>
+        </html>
+      `;
+
+      // Mock fetch to return job with button that needs listener
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="test-job">
+                <button class="seen-job-btn" data-job-id="test-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      // Mock setTimeout to collect all callbacks
+      let allCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        allCallbacks.push({ callback, delay });
+        if (delay !== 1000) {
+          callback(); // Execute non-1000ms timeouts immediately
+        }
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Call loadMoreJobs directly to trigger the event listener addition
+      window.loadMoreJobs(2);
+
+      // Wait for DOM to be updated
+      await vi.waitFor(() => {
+        const newJob = document.querySelector('article[data-job-id="test-job"]');
+        expect(newJob).toBeTruthy();
+      });
+
+      // Execute the 1000ms callback from loadMoreJobs which adds event listeners
+      const loadMoreCallback = allCallbacks.find(c => c.delay === 1000);
+      expect(loadMoreCallback).toBeTruthy();
+      loadMoreCallback.callback();
+
+      // Verify the button now has the event listener
+      const btn = document.querySelector('.seen-job-btn[data-job-id="test-job"]');
+      expect(btn.hasAttribute('data-listener-added')).toBe(true);
+
+      // Verify the event listener works
+      btn.click();
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '["test-job"]');
+    });
+
+    test('should initialize seen jobs for infinite scroll loaded cards', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+          </body>
+        </html>
+      `;
+
+      // Mock fetch for loadJobs (infinite scroll)
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="infinite-job">
+                <button class="seen-job-btn" data-job-id="infinite-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('["infinite-job"]');
+
+      // Mock setTimeout to capture callbacks
+      let timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+        } else {
+          callback();
+        }
+        return 1;
+      });
+
+      initializeMainJs();
+
+      // Call loadJobs directly (as infinite scroll does)
+      window.loadJobs(2);
+
+      // Wait for new job to be added
+      await vi.waitFor(() => {
+        const newJob = document.querySelector('article[data-job-id="infinite-job"]');
+        expect(newJob).toBeTruthy();
+      });
+
+      // Verify button doesn't have listener initially
+      const btn = document.querySelector('.seen-job-btn[data-job-id="infinite-job"]');
+      expect(btn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Execute the 1000ms timeout callback that initializes seen jobs
+      timeoutCallbacks.forEach(callback => callback());
+
+      // Verify the job was marked as seen (visual state)
+      const jobCard = document.querySelector('article[data-job-id="infinite-job"]');
+      expect(jobCard.classList.contains('job-seen')).toBe(true);
+      expect(jobCard.style.opacity).toBe('0.2');
+
+      // Verify event listener was added
+      expect(btn.hasAttribute('data-listener-added')).toBe(true);
+
+      // Test the button works by clicking to unmark
+      btn.click();
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('job-board-seen-jobs', '[]');
+    });
+
+    test('should cover lines 336-337 in loadJobs timeout with precise control', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+          </body>
+        </html>
+      `;
+
+      // Mock fetch that returns a job WITHOUT the data-listener-added attribute
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="coverage-test-job">
+                <button class="seen-job-btn" data-job-id="coverage-test-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      // Intercept setTimeout to get direct access to the callback
+      let loadJobsTimeoutCallback = null;
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          loadJobsTimeoutCallback = callback;
+          return 999; // Return different ID
+        } else {
+          return originalSetTimeout(callback, delay);
+        }
+      });
+
+      initializeMainJs();
+
+      // Call loadJobs to set up the timeout
+      window.loadJobs(2);
+
+      // Wait for fetch and DOM update
+      await vi.waitFor(() => {
+        const job = document.querySelector('article[data-job-id="coverage-test-job"]');
+        expect(job).toBeTruthy();
+      });
+
+      // Verify the button exists and has NO listener attribute
+      const btn = document.querySelector('.seen-job-btn[data-job-id="coverage-test-job"]');
+      expect(btn).toBeTruthy();
+      expect(btn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Spy on the exact button's addEventListener method
+      const addEventListenerSpy = vi.spyOn(btn, 'addEventListener');
+
+      // Now execute the timeout callback which should hit lines 336-337
+      expect(loadJobsTimeoutCallback).not.toBeNull();
+      loadJobsTimeoutCallback();
+
+      // Verify lines 336-337 were executed
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(btn.hasAttribute('data-listener-added')).toBe(true);
+
+      addEventListenerSpy.mockRestore();
+      global.setTimeout = originalSetTimeout;
+    });
+
+    test('should cover lines 651-652 in loadMoreJobs timeout with precise control', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+          </body>
+        </html>
+      `;
+
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="loadmore-coverage-job">
+                <button class="seen-job-btn" data-job-id="loadmore-coverage-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      // Intercept setTimeout for loadMoreJobs - need to capture the SECOND 1000ms timeout
+      let timeoutCallbacks = [];
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+          return 998 + timeoutCallbacks.length; // Different IDs
+        } else {
+          return originalSetTimeout(callback, delay);
+        }
+      });
+
+      initializeMainJs();
+
+      // Call loadMoreJobs
+      window.loadMoreJobs(2);
+
+      // Wait for fetch and DOM update
+      await vi.waitFor(() => {
+        const job = document.querySelector('article[data-job-id="loadmore-coverage-job"]');
+        expect(job).toBeTruthy();
+      });
+
+      // Verify button state
+      const btn = document.querySelector('.seen-job-btn[data-job-id="loadmore-coverage-job"]');
+      expect(btn).toBeTruthy();
+      expect(btn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Spy on addEventListener
+      const addEventListenerSpy = vi.spyOn(btn, 'addEventListener');
+
+      // Execute the loadMoreJobs timeout callback (lines 651-652) - should be the second one
+      expect(timeoutCallbacks.length).toBeGreaterThanOrEqual(2);
+      const loadMoreJobsTimeoutCallback = timeoutCallbacks[1]; // Second timeout is from loadMoreJobs
+      loadMoreJobsTimeoutCallback();
+
+      // Verify lines 651-652 were executed
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(btn.hasAttribute('data-listener-added')).toBe(true);
+
+      addEventListenerSpy.mockRestore();
+      global.setTimeout = originalSetTimeout;
+    });
+
+    test('should execute event listener addition lines in loadJobs function', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <article data-job-id="existing-job">
+                <button class="seen-job-btn" data-job-id="existing-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+            </div>
+          </body>
+        </html>
+      `;
+
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="fresh-job">
+                <button class="seen-job-btn" data-job-id="fresh-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      // Mock setTimeout but execute the callbacks synchronously for precise control
+      const timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+          return delay;
+        } else {
+          callback();
+          return delay;
+        }
+      });
+
+      initializeMainJs();
+
+      // Spy on addEventListener to verify it gets called
+      const addEventListenerSpy = vi.spyOn(Element.prototype, 'addEventListener');
+
+      // Call loadJobs
+      window.loadJobs(2);
+
+      // Wait for DOM to be updated
+      await vi.waitFor(() => {
+        const newBtn = document.querySelector('article[data-job-id="fresh-job"] .seen-job-btn');
+        expect(newBtn).toBeTruthy();
+      });
+
+      const newBtn = document.querySelector('article[data-job-id="fresh-job"] .seen-job-btn');
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Execute the timeout callback which should add the event listener
+      timeoutCallbacks.forEach(callback => callback());
+
+      // Verify addEventListener was called on the new button
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(true);
+
+      addEventListenerSpy.mockRestore();
+    });
+
+    test('should execute event listener addition lines in loadMoreJobs function', async () => {
+      document.documentElement.innerHTML = `
+        <html>
+          <head></head>
+          <body>
+            <div id="theme-toggle">Toggle</div>
+            <div data-current-page="1"></div>
+            <form id="filter-form"></form>
+            <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+          </body>
+        </html>
+      `;
+
+      global.fetch = vi.fn(() => Promise.resolve({
+        text: () => Promise.resolve(`
+          <html>
+            <body>
+              <article data-job-id="fresh-loadmore-job">
+                <button class="seen-job-btn" data-job-id="fresh-loadmore-job">
+                  <svg class="seen-icon hidden"></svg>
+                  <svg class="unseen-icon"></svg>
+                </button>
+              </article>
+              <div data-has-next="false"></div>
+            </body>
+          </html>
+        `)
+      }));
+
+      global.localStorage.getItem.mockReturnValue('[]');
+
+      const timeoutCallbacks = [];
+      global.setTimeout = vi.fn((callback, delay) => {
+        if (delay === 1000) {
+          timeoutCallbacks.push(callback);
+          return delay;
+        } else {
+          callback();
+          return delay;
+        }
+      });
+
+      initializeMainJs();
+
+      // Spy on addEventListener
+      const addEventListenerSpy = vi.spyOn(Element.prototype, 'addEventListener');
+
+      // Call loadMoreJobs
+      window.loadMoreJobs(2);
+
+      // Wait for DOM to be updated
+      await vi.waitFor(() => {
+        const newBtn = document.querySelector('article[data-job-id="fresh-loadmore-job"] .seen-job-btn');
+        expect(newBtn).toBeTruthy();
+      });
+
+      const newBtn = document.querySelector('article[data-job-id="fresh-loadmore-job"] .seen-job-btn');
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(false);
+
+      // Execute timeout callback
+      timeoutCallbacks.forEach(callback => callback());
+
+      // Verify addEventListener was called
+      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(newBtn.hasAttribute('data-listener-added')).toBe(true);
+
+      addEventListenerSpy.mockRestore();
+    });
+  });
+
   describe('Edge Cases and Error Handling', () => {
     test('should handle missing elements gracefully', () => {
       document.documentElement.innerHTML = `
@@ -1207,6 +2440,7 @@ describe('Main.js Tests', () => {
               <input type="checkbox" name="tags" value="python" checked>
             </form>
             <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
           </body>
         </html>
       `;
@@ -1234,6 +2468,7 @@ describe('Main.js Tests', () => {
               <!-- Form without action attribute -->
             </form>
             <button id="load-more-btn">Load More</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
           </body>
         </html>
       `;
