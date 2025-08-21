@@ -11,11 +11,12 @@ from job_board import config
 from job_board.models import store_jobs
 from job_board.portals.parser import Job as JobListing
 from job_board.utils import utcnow_naive
+from job_board.views import API_PER_PAGE
 from job_board.views import (
     app as flask_app,
 )
 from job_board.views import AVAILABLE_TAGS
-from job_board.views import PER_PAGE
+from job_board.views import VIEWS_PER_PAGE
 
 now = utcnow_naive()
 
@@ -65,7 +66,7 @@ def test_get_jobs(db_session, client, captured_templates):
     assert context["jobs"] == []
     assert context["page"] == 1
     assert context["available_tags"] == AVAILABLE_TAGS
-    assert context["per_page"] == PER_PAGE
+    assert context["per_page"] == VIEWS_PER_PAGE
     assert context["current_filters"] == {
         "min_salary": Decimal("20000"),
         "include_without_salary": False,
@@ -80,7 +81,7 @@ def test_get_jobs(db_session, client, captured_templates):
     context["pagination"].pop("get_url")
     assert context["pagination"] == {
         "page": 1,
-        "per_page": PER_PAGE,
+        "per_page": VIEWS_PER_PAGE,
         "total_pages": 0,
         "total_jobs": 0,
         "has_prev": False,
@@ -88,7 +89,7 @@ def test_get_jobs(db_session, client, captured_templates):
     }
 
 
-@patch("job_board.views.PER_PAGE", new=1)
+@patch("job_board.views.VIEWS_PER_PAGE", new=1)
 @freeze_time(now)
 def test_get_jobs_with_filters(db_session, client, captured_templates):
     store_jobs(
@@ -184,6 +185,20 @@ def test_get_jobs_with_filters(db_session, client, captured_templates):
     assert pagination["has_next"] is False
     assert pagination["has_prev"] is True
     assert pagination["page"] == 2
+    filters = context["current_filters"]
+    assert filters["min_salary"] == 20000
+    assert filters["include_without_salary"] is False
+    assert filters["tags"] == ["python", "remote"]
+    assert filters["is_remote"] is True
+    assert filters["sort"] == "posted_on_desc"
+
+    # now test the pagination URL and verify whether
+    # filters are preserved across pagination.
+    url = pagination["get_url"](pagination["page"])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    context = captured_templates[-1].context
     filters = context["current_filters"]
     assert filters["min_salary"] == 20000
     assert filters["include_without_salary"] is False
@@ -308,3 +323,48 @@ def test_location_filtering_and_validation(db_session, client, captured_template
     context = captured_templates[-1].context
     links = {job.link for job in context["jobs"]}
     assert links == {ca_job.link, us_job.link, india_job.link, no_location_job.link}
+
+
+@freeze_time(now)
+def test_get_jobs_api(db_session, client):
+    job1 = JobListing(
+        link="https://example.com/job1",
+        title="Job 1",
+        min_salary=30000,
+        is_remote=True,
+        posted_on=now - timedelta(days=10),
+        description="A job description",
+        tags=["python", "remote"],
+        payload="some data",
+        company_name="Test Company",
+    )
+    job2 = JobListing(
+        link="https://example.com/job2",
+        title="Job 2",
+        min_salary=25000,
+        is_remote=True,
+        posted_on=now - timedelta(days=20),
+        description="Another job description",
+        tags=["python"],
+        payload="some data",
+        company_name="Test Company",
+    )
+    store_jobs([job1, job2])
+
+    response = client.get(
+        "/.json",
+        query_string={
+            "min_salary": 20_000,
+            "tags": ["python", "remote"],
+            "sort": "created_at_desc",
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json
+    assert data["total_jobs"] == 2
+    assert data["per_page"] == API_PER_PAGE
+    assert len(data["jobs"]) == 2
+
+    job_titles = {job["title"] for job in data["jobs"]}
+    assert {job1.title, job2.title} == job_titles
