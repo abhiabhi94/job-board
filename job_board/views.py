@@ -8,6 +8,7 @@ import humanize
 import pycountry
 from flask import abort
 from flask import Flask
+from flask import jsonify
 from flask import render_template
 from flask import request
 from flask import url_for
@@ -18,12 +19,12 @@ from job_board.query import count_jobs
 from job_board.query import filter_jobs
 from job_board.utils import utcnow_naive
 
-
 app = Flask(__name__)
 app.jinja_env.filters["naturaltime"] = humanize.naturaltime
 
 
-PER_PAGE = 12
+API_PER_PAGE = 50
+VIEWS_PER_PAGE = 12
 AVAILABLE_TAGS = [
     "developer",
     "backend",
@@ -43,8 +44,10 @@ AVAILABLE_TAGS = [
 class SortOption(StrEnum):
     SALARY_DESC = "salary_desc"
     POSTED_ON_DESC = "posted_on_desc"
+    CREATED_AT_DESC = "created_at_desc"
 
 
+@app.route("/.json")
 @app.route("/")
 def get_jobs():
     min_salary = request.args.get("min_salary", type=Decimal, default=Decimal("20000"))
@@ -68,14 +71,23 @@ def get_jobs():
             order_by = Job.max_salary.desc()
         case SortOption.POSTED_ON_DESC:
             order_by = Job.posted_on.desc()
+        case SortOption.CREATED_AT_DESC:
+            order_by = Job.created_at.desc()
         case _:
             abort(400, "Invalid sort parameter")
 
     page = request.args.get("page", type=int, default=1)
+
+    api = False
+    per_page = VIEWS_PER_PAGE
+    if request.url_rule.rule == "/.json":
+        api = True
+        per_page = API_PER_PAGE
+
     if page <= 1:
         offset = 0
     else:
-        offset = (page - 1) * PER_PAGE
+        offset = (page - 1) * per_page
 
     jobs = filter_jobs(
         min_salary=min_salary,
@@ -84,7 +96,7 @@ def get_jobs():
         tags=tags,
         is_remote=is_remote,
         offset=offset,
-        limit=PER_PAGE,
+        limit=per_page,
         order_by=order_by,
         location_code=location_code,
     )
@@ -96,8 +108,33 @@ def get_jobs():
         is_remote=is_remote,
         location_code=location_code,
     )
-    total_pages = math.ceil(total_jobs / PER_PAGE)
+    total_pages = math.ceil(total_jobs / per_page)
     page = max(1, min(page, total_pages))
+
+    if api:
+        return jsonify(
+            {
+                "total_jobs": total_jobs,
+                "per_page": per_page,
+                "jobs": [
+                    {
+                        "id": job.id,
+                        "title": job.title,
+                        "link": job.link,
+                        "min_salary": job.min_salary,
+                        "max_salary": job.max_salary,
+                        "posted_on": job.posted_on,
+                        "tags": job.tags,
+                        "is_remote": job.is_remote,
+                        "locations": job.locations,
+                        "portal_name": job.portal_name,
+                        "company_name": job.company_name,
+                        "description": job.description,
+                    }
+                    for job in jobs
+                ],
+            }
+        )
 
     def get_pagination_url(page_num):
         url_args = {
@@ -120,7 +157,7 @@ def get_jobs():
         jobs=jobs,
         available_tags=AVAILABLE_TAGS,
         page=page,
-        per_page=PER_PAGE,
+        per_page=per_page,
         SortOption=SortOption,
         current_filters={
             "min_salary": max(min_salary, Decimal("0")),
@@ -134,7 +171,7 @@ def get_jobs():
         countries=[{"code": c.alpha_2, "name": c.name} for c in pycountry.countries],
         pagination={
             "page": page,
-            "per_page": PER_PAGE,
+            "per_page": per_page,
             "total_pages": total_pages,
             "total_jobs": total_jobs,
             "has_prev": page > 1,

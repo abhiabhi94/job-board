@@ -18,6 +18,10 @@ Most configurations can be set through a `.env` file. All configurations
 can be found in [`job_board/config.py`](./job_board/config.py) file.
 
 
+### API
+The API endpoint is `/.json`.
+All filters that are available on the UI are also available on the JSON.
+
 ### CLI
 - Most options should be available using the `--help` flag.
 

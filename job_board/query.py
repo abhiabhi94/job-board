@@ -90,6 +90,7 @@ def filter_jobs(
         jobs = result.scalars().all()
         job_listings = [
             JobListing(
+                id=job.id,
                 title=job.title,
                 description=job.description,
                 link=job.link,

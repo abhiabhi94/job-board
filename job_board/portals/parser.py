@@ -88,6 +88,7 @@ class SalaryRange(NamedTuple):
 
 
 class Job(BaseModel):
+    id: int | None = None
     title: str
     description: str | None = None
     link: str
