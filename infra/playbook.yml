@@ -12,10 +12,10 @@
       systemd:
         name: "{{ service_name }}-scheduler"
         state: restarted
-    - name: reload nginx
+    - name: restart nginx
       systemd:
         name: nginx
-        state: reloaded
+        state: restarted
     - name: reload systemd
       systemd:
         daemon_reload: yes
@@ -163,13 +163,13 @@
         src: nginx.conf.j2
         dest: "/etc/nginx/sites-available/{{ service_name }}"
         mode: '0644'
-      notify: reload nginx
+      notify: restart nginx
     - name: Enable nginx site
       file:
         src: "/etc/nginx/sites-available/{{ service_name }}"
         dest: "/etc/nginx/sites-enabled/{{ service_name }}"
         state: link
-      notify: reload nginx
+      notify: restart nginx
     - name: Start and enable services
       systemd:
         name: "{{ item }}"
@@ -196,7 +196,7 @@
         certbot --nginx -d {{ domain }} -d www.{{ domain }} --agree-tos --redirect -m {{ admin_email }} --non-interactive --keep-until-expiring
 
       register: certbot_result
-      notify: reload nginx
+      notify: restart nginx
     - name: Test deployment
       uri:
         url: "https://{{ domain }}"
