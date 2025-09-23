@@ -31,6 +31,7 @@ def test_fetch_jobs(
     )
 
     portal = PythonDotOrg()
+    portal.parser_class.validate_recency = lambda x: True
     jobs = portal.fetch_jobs()
     assert len(jobs) == 20
     job = jobs[0]

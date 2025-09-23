@@ -183,10 +183,16 @@ class JobParser:
             company_name=company_name,
         )
 
-    def validate_recency(self) -> bool:
-        cutoff_date = datetime.now(tz=timezone.utc) - timedelta(
-            days=config.JOB_AGE_LIMIT_DAYS
-        )
+    def validate_recency(self, cutoff_date: datetime | None = None) -> bool:
+        """
+        cutoff_date: The date to compare against the job's posted date.
+        Usually None, which means use the default from config.
+        Otherwise, used from the portal's last_run_at date.
+        """
+        if cutoff_date is None:
+            cutoff_date = datetime.now(tz=timezone.utc) - timedelta(
+                days=config.JOB_AGE_LIMIT_DAYS
+            )
         posted_on = self.get_posted_on()
         if posted_on and posted_on < cutoff_date:
             return False

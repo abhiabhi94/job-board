@@ -31,11 +31,7 @@ class Parser(JobParser):
         return self.item["guid"]
 
     def get_posted_on(self) -> datetime:
-        return self._get_posted_on(self.item)
-
-    @staticmethod
-    def _get_posted_on(item) -> datetime:
-        return datetime.fromtimestamp(item["pubDate"]).astimezone(timezone.utc)
+        return datetime.fromtimestamp(self.item["pubDate"]).astimezone(timezone.utc)
 
     def get_is_remote(self) -> bool:
         # the API returns a list of countries
@@ -169,14 +165,6 @@ class Himalayas(BasePortal):
 
             for result in task_results:
                 batch_jobs = result["jobs"]
-                # Check if all jobs in this batch are older than cutoff
-                if all(cutoff_date > Parser._get_posted_on(j) for j in batch_jobs):
-                    logger.info(
-                        f"[Himalayas]: No more jobs to fetch. "
-                        f"{cutoff_date=}, {jobs_fetched=}"
-                    )
-                    return jobs_data
-
                 jobs_data.extend(batch_jobs)
                 jobs_fetched += len(batch_jobs)
 
@@ -187,6 +175,19 @@ class Himalayas(BasePortal):
 
                 if jobs_fetched >= total_jobs:
                     break
+                # Check if all jobs in this batch are older than cutoff
+                for job in batch_jobs:
+                    parser = self.parser_class(
+                        item=job, api_data_format=self.api_data_format
+                    )
+                    if parser.validate_recency(cutoff_date):
+                        break
+                else:  # All jobs in this batch are older than cutoff
+                    logger.info(
+                        f"[Himalayas]: No more jobs to fetch. "
+                        f"{cutoff_date=}, {jobs_fetched=}"
+                    )
+                    return jobs_data
 
         return jobs_data
 
