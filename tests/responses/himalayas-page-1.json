@@ -3,7 +3,7 @@
     "updatedAt": 1749544227,
     "offset": 0,
     "limit": 20,
-    "totalCount": 40,
+    "totalCount": "${total_jobs}",
     "jobs": [
         {
             "title": "Data Analyst (Punjabi Speaker) ",

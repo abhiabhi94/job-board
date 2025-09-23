@@ -19,8 +19,6 @@ def test_fetch_jobs(
     db_session,
 ):
     portal = Himalayas()
-    # so that tests don't fail in future due to the date check.
-    portal.validate_recency = lambda x: True
 
     exchange_rate_url_pattern = re.compile(
         EXCHANGE_RATE_API_URL.format(currency="usd", date=r"\d{4}-\d{2}-\d{2}"),
@@ -39,12 +37,21 @@ def test_fetch_jobs(
     )
 
     page_1 = load_response("himalayas-page-1.json")
+    page_1_response = httpx.Response(
+        text=re.sub(
+            r'"totalCount":\s*"\$\{total_jobs\}"',
+            '"totalCount": 60',
+            page_1,
+        ),
+        status_code=200,
+    )
     page_2 = load_response("himalayas-page-2.json")
 
     respx_mock.get(portal.url).mock(
         side_effect=[
-            httpx.Response(text=page_1, status_code=200),
+            page_1_response,
             httpx.Response(text="", status_code=429),
+            httpx.Response(text=page_2, status_code=200),
             httpx.Response(text=page_2, status_code=200),
         ]
     )
@@ -52,12 +59,16 @@ def test_fetch_jobs(
     with (
         patch.object(asyncio, "sleep") as mocked_sleep,
         patch.object(config, "HIMALAYAS_REQUESTS_BATCH_SIZE", 1),
+        # so that tests don't fail in future due to the date check.
+        patch.object(
+            portal.parser_class, "validate_recency", lambda x, cutoff_date=None: True
+        ),
     ):
         jobs = portal.fetch_jobs()
 
     mocked_sleep.assert_called_once()
 
-    assert len(jobs) == 40
+    assert len(jobs) == 60
     # just pick any one job from the list
     # each of them will have the same structure
     job = jobs[0]
@@ -80,13 +91,25 @@ def test_fetch_jobs(
     portal.last_run_at = datetime.now(tz=timezone.utc) + timedelta(days=1)
     respx_mock.get(portal.url).mock(
         side_effect=[
-            httpx.Response(text=page_1, status_code=200),
+            page_1_response,
             httpx.Response(text=page_2, status_code=200),
         ]
     )
 
     # this should return just the results from the first page
     # since the last_run_at is set to a future date
-    jobs = portal.fetch_jobs()
+    original_validate_recency = portal.parser_class.validate_recency
 
-    assert len(jobs) == 20
+    def mock_validate_recency(self, cutoff_date=None):
+        if cutoff_date is None:
+            # case where validate_recency is used outside, when filtering items
+            return True
+        return original_validate_recency(self, cutoff_date=cutoff_date)
+
+    with (
+        patch.object(portal.parser_class, "validate_recency", mock_validate_recency),
+        patch.object(config, "HIMALAYAS_REQUESTS_BATCH_SIZE", 1),
+    ):
+        jobs = portal.fetch_jobs()
+
+    assert len(jobs) == 40
