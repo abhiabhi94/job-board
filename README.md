@@ -2,7 +2,7 @@
 
 A job board, this was initially built out of boring job hunting.
 This basically scans through different portals and based upon the
-preferences like keywords, salary, etc., and brings the jobs that match
+preferences like keywords, salary, location etc., and shows the jobs that match
 your preference.
 
 ### Portals Integrated
@@ -152,8 +152,3 @@ from scripts.
   to make requests and scrape.
     - These cookies seem to be long-lasting(haven't needed to change them even
     once since this was implemented.)
-
-
-### TODO
-- Add filtering as per location, nowadays remote doesn't actually
-mean remote. Some job descriptions say remote India, remote USA etc.
