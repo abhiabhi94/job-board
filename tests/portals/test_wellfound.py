@@ -226,3 +226,32 @@ def test_get_locations(respx_mock):
         parser.get_locations()
 
     mocked_sleep.assert_called()
+
+
+def test_get_company_name_when_job_unavailable(respx_mock):
+    parser = Wellfound.parser_class(item={}, api_data_format="html")
+    parser.get_link = lambda: "https://wellfound.com/jobs/12345"
+
+    respx_mock.get(SCRAPFLY_URL).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "result": {
+                    "success": False,
+                    "status_code": 410,
+                    "log_url": "...",
+                    "error": {
+                        "message": "Gone",
+                        "retryable": False,
+                    },
+                    "url": "https://wellfound.com/jobs/12345",
+                    "content": "",
+                    "response_headers": {
+                        "Content-Type": "text/html; charset=utf-8",
+                    },
+                }
+            },
+        ),
+    )
+
+    assert parser.get_company_name() is None
