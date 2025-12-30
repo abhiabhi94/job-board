@@ -72,9 +72,10 @@ class Parser(JobParser):
         # in bulk, using a LLM.
         return []
 
-    def get_company_name(self) -> str:
+    def get_company_name(self) -> str | None:
         document = self.extra_info
-        return self._get_company_name(document)
+        if document is not None:
+            return self._get_company_name(document)
 
     @classmethod
     def _get_company_name(cls, document) -> str:
