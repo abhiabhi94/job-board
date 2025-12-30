@@ -57,7 +57,7 @@ class Parser(JobParser):
 
     def get_currency(self) -> str:
         # the API returns the currency code
-        return self.item["currency"]
+        return self.item["currency"] or config.DEFAULT_CURRENCY
 
     def get_salary_range(self) -> SalaryRange:
         currency = self.get_currency()
