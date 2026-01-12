@@ -17,7 +17,7 @@ repos:
         - id: check-added-large-files
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.11
     hooks:
         # Run the linter.
         - id: ruff
@@ -32,7 +32,7 @@ repos:
           exclude: ^job_board/migrations/versions/.*\.py$
 
 -   repo: https://github.com/google/yamlfmt
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
         - id: yamlfmt
           files: ^infra/.*\.(yml|yaml)$
