@@ -58,7 +58,7 @@ def filter_jobs(
     include_without_salary: bool,
     is_remote: bool | None,
     posted_on: datetime,
-    order_by: sa.UnaryExpression,
+    order_by: sa.UnaryExpression | tuple[sa.UnaryExpression, ...],
     offset: int = 0,
     limit: int = 10,
     location_code: str | None = None,
@@ -72,6 +72,7 @@ def filter_jobs(
         location_code=location_code,
     )
 
+    order_by_clause = order_by if isinstance(order_by, tuple) else (order_by,)
     statement = (
         (
             sa.select(Job)
@@ -80,7 +81,7 @@ def filter_jobs(
             .distinct()
             .where(*filters)
         )
-        .order_by(order_by)
+        .order_by(*order_by_clause)
         .offset(offset)
         .limit(limit)
     )
