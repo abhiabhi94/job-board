@@ -68,7 +68,10 @@ def get_jobs():
     sort = request.args.get("sort", type=str, default=SortOption.POSTED_ON_DESC)
     match sort:
         case SortOption.SALARY_DESC:
-            order_by = (Job.max_salary.desc().nullslast(), Job.min_salary.desc().nullslast())
+            order_by = (
+                Job.max_salary.desc().nullslast(),
+                Job.min_salary.desc().nullslast(),
+            )
         case SortOption.POSTED_ON_DESC:
             order_by = Job.posted_on.desc()
         case SortOption.CREATED_AT_DESC:
