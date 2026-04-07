@@ -11,7 +11,6 @@ from job_board.portals import WeWorkRemotely
 from job_board.portals.weworkremotely import Parser
 from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import SCRAPFLY_URL
-from job_board.utils import _prepare_scrapfly_params
 
 
 JOB_URL = "https://weworkremotely.com/jobs"
@@ -19,19 +18,25 @@ JOB_URL = "https://weworkremotely.com/jobs"
 
 @pytest.fixture
 def mock_scrapfly_response(respx_mock):
-    def _mock_scrapfly_response(url, content):
-        respx_mock.get(SCRAPFLY_URL, params=_prepare_scrapfly_params(url, asp=False)).mock(
-            return_value=httpx.Response(
-                status_code=200,
-                json={
-                    "result": {
-                        "success": True,
-                        "log_url": "https://scrapfly.com/dashboard/monitoring/something",
-                        "content": content,
-                    }
-                },
-            )
+    url_to_content = {}
+
+    def side_effect(request):
+        url = request.url.params.get("url")
+        return httpx.Response(
+            status_code=200,
+            json={
+                "result": {
+                    "success": True,
+                    "log_url": "https://scrapfly.com/dashboard/monitoring/something",
+                    "content": url_to_content[url],
+                }
+            },
         )
+
+    respx_mock.get(SCRAPFLY_URL).mock(side_effect=side_effect)
+
+    def _mock_scrapfly_response(url, content):
+        url_to_content[url] = content
 
     return _mock_scrapfly_response
 
