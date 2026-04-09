@@ -22,6 +22,13 @@ def mock_scrapfly_response(respx_mock):
 
     def side_effect(request):
         url = request.url.params.get("url")
+        assert url is not None, (
+            f"Scrapfly request missing 'url' query param: {request.url}"
+        )
+        assert url in url_to_content, (
+            f"Unexpected Scrapfly URL requested: {url!r}. "
+            f"Registered URLs: {list(url_to_content)}"
+        )
         return httpx.Response(
             status_code=200,
             json={
