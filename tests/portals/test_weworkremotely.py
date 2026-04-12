@@ -18,19 +18,32 @@ JOB_URL = "https://weworkremotely.com/jobs"
 
 @pytest.fixture
 def mock_scrapfly_response(respx_mock):
-    def _mock_scrapfly_response(url, content):
-        respx_mock.get(SCRAPFLY_URL, params={"url": url}).mock(
-            return_value=httpx.Response(
-                status_code=200,
-                json={
-                    "result": {
-                        "success": True,
-                        "log_url": "https://scrapfly.com/dashboard/monitoring/something",
-                        "content": content,
-                    }
-                },
-            )
+    url_to_content = {}
+
+    def side_effect(request):
+        url = request.url.params.get("url")
+        assert url is not None, (
+            f"Scrapfly request missing 'url' query param: {request.url}"
         )
+        assert url in url_to_content, (
+            f"Unexpected Scrapfly URL requested: {url!r}. "
+            f"Registered URLs: {list(url_to_content)}"
+        )
+        return httpx.Response(
+            status_code=200,
+            json={
+                "result": {
+                    "success": True,
+                    "log_url": "https://scrapfly.com/dashboard/monitoring/something",
+                    "content": url_to_content[url],
+                }
+            },
+        )
+
+    respx_mock.get(SCRAPFLY_URL).mock(side_effect=side_effect)
+
+    def _mock_scrapfly_response(url, content):
+        url_to_content[url] = content
 
     return _mock_scrapfly_response
 
