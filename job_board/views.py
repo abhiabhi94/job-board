@@ -47,6 +47,11 @@ class SortOption(StrEnum):
     CREATED_AT_DESC = "created_at_desc"
 
 
+@app.route("/early-access")
+def early_access():
+    return render_template("early_access.html", ENV=config.ENV)
+
+
 @app.route("/.json")
 @app.route("/")
 def get_jobs():
