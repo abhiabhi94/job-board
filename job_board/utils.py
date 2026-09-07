@@ -1,13 +1,12 @@
 import pathlib
+from collections.abc import Callable
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 from functools import lru_cache
 from functools import partial
 from typing import Any
-from typing import Callable
 from typing import NamedTuple
-from typing import Type
 
 import country_converter as coco
 import httpx
@@ -33,7 +32,7 @@ EXCHANGE_RATE_FALLBACK_API_URL = (
 
 
 def utcnow_naive():
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 def response_hook(response: httpx.Response) -> None:
@@ -261,10 +260,8 @@ def _before_sleep_logging(retry_state: RetryCallState) -> None:
         retry_state: Current state of retry
     """
     logger.warning(
-        (
-            f"Retrying due to {retry_state.outcome.exception()!r}, "
-            f"attempt: {retry_state.attempt_number}"
-        )
+        f"Retrying due to {retry_state.outcome.exception()!r}, "
+        f"attempt: {retry_state.attempt_number}"
     )
 
 
@@ -311,7 +308,7 @@ def get_exchange_rate(
     Doc: https://github.com/fawazahmed0/exchange-api?tab=readme-ov-file
     """
     if from_currency == to_currency:
-        return Decimal("1")
+        return Decimal(1)
 
     if exchange_date is None:
         # some portals might not provide the posted date.
@@ -359,7 +356,7 @@ def log_to_sentry(exception: Exception, service_name: str, tags=None) -> str | N
     return event_id
 
 
-def get_openai_schema(pydantic_model: Type[pydantic.BaseModel]) -> dict:
+def get_openai_schema(pydantic_model: type[pydantic.BaseModel]) -> dict:
     """Convert Pydantic model to OpenAI structured output compatible schema"""
     schema = pydantic_model.model_json_schema()
 
@@ -407,7 +404,7 @@ def add_missing_countries():
         )
 
 
-@lru_cache()
+@lru_cache
 def get_iso2(name: str) -> str | None:
     """
     Convert a country/Subdivision name to its ISO 3166-1 alpha-2 code.

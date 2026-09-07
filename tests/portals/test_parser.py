@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -16,7 +16,7 @@ from job_board.portals.parser import Job
 from job_board.portals.parser import JobParser
 from job_board.portals.parser import OPENAI_RESPONSES_API_URL
 
-now = datetime.now(timezone.utc)
+now = datetime.now(UTC)
 
 
 @pytest.fixture
@@ -51,7 +51,7 @@ def test_abstract_methods(method_name, parser):
         pytest.param(
             {
                 "salary_value": "100000",
-                "expected_result": Decimal("100000"),
+                "expected_result": Decimal(100000),
             },
             id="valid_salary_above_minimum",
         ),
@@ -59,8 +59,8 @@ def test_abstract_methods(method_name, parser):
         pytest.param(
             {
                 "salary_value": "$120,000",
-                "min_salary": Decimal("100000"),
-                "expected_result": Decimal("120000"),
+                "min_salary": Decimal(100000),
+                "expected_result": Decimal(120000),
             },
             id="valid_salary_with_formatting",
         ),
@@ -206,19 +206,19 @@ def test_very_old_jobs_are_skipped(db_session):
     "min_salary,max_salary,expected_output",
     [
         # Both min and max salary are present and equal
-        (Decimal("100000"), Decimal("100000"), "$100K"),
+        (Decimal(100000), Decimal(100000), "$100K"),
         # Both min and max salary are present and different
-        (Decimal("80000"), Decimal("120000"), "$80K - $120K"),
+        (Decimal(80000), Decimal(120000), "$80K - $120K"),
         # Only min salary is present
-        (Decimal("75000"), None, "$75K and above"),
+        (Decimal(75000), None, "$75K and above"),
         # Only max salary is present
-        (None, Decimal("150000"), "Up to $150K"),
+        (None, Decimal(150000), "Up to $150K"),
         # Neither min nor max salary is present
         (None, None, ""),
         # Large amounts with proper formatting
-        (Decimal("1000000"), Decimal("2000000"), "$1M - $2M"),
+        (Decimal(1000000), Decimal(2000000), "$1M - $2M"),
         # Small amounts
-        (Decimal("50000"), Decimal("60000"), "$50K - $60K"),
+        (Decimal(50000), Decimal(60000), "$50K - $60K"),
         # Decimal amounts that round to same value
         (Decimal("99999.99"), Decimal("100000.01"), "$100K"),
     ],

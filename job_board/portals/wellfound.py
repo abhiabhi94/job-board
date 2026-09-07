@@ -1,7 +1,7 @@
 import asyncio
 import json
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from typing import Any
 
 from lxml import html
@@ -52,7 +52,7 @@ class Parser(JobParser):
     def get_posted_on(self):
         return datetime.fromtimestamp(
             self.item["liveStartAt"],
-        ).astimezone(timezone.utc)
+        ).astimezone(UTC)
 
     def get_title(self):
         return self.item["title"]
@@ -124,11 +124,9 @@ class Wellfound(BasePortal):
             batch_urls = [f"{self.url}?page={page}" for page in batch_pages]
 
             logger.info(
-                (
-                    "[Wellfound]: Fetching pages in batch, "
-                    f"total pages: {total_pages}, "
-                    f"batch info: pages {batch_pages[0]}-{batch_pages[-1]}"
-                )
+                "[Wellfound]: Fetching pages in batch, "
+                f"total pages: {total_pages}, "
+                f"batch info: pages {batch_pages[0]}-{batch_pages[-1]}"
             )
             async with asyncio.TaskGroup() as tg:
                 tasks = [tg.create_task(self._make_request(url)) for url in batch_urls]
