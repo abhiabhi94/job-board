@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 
 import httpx
@@ -13,7 +13,7 @@ from job_board.portals.remotive import DATE_FORMAT
 
 @pytest.fixture
 def frozen_time():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     with freeze_time(now):
         yield now.strftime(DATE_FORMAT)
 
@@ -79,9 +79,9 @@ def sample_jobs_response(sample_job, frozen_time):
                 "candidate_required_location": "USA, UK, Canada, Germany",
                 "tags": ["python"],
                 "salary": "90000-120000",
-                "publication_date": (
-                    datetime.now(timezone.utc) - timedelta(days=30)
-                ).strftime(DATE_FORMAT),
+                "publication_date": (datetime.now(UTC) - timedelta(days=30)).strftime(
+                    DATE_FORMAT
+                ),
                 "company_name": "Old Jobs Inc",
             },
         ]
@@ -110,9 +110,7 @@ def test_fetch_jobs(
     assert job.description is not None
     assert job.min_salary == Decimal("90000.00")
     assert job.max_salary == Decimal("120000.00")
-    assert job.posted_on == datetime.strptime(frozen_time, DATE_FORMAT).astimezone(
-        timezone.utc
-    )
+    assert job.posted_on == datetime.strptime(frozen_time, DATE_FORMAT).astimezone(UTC)
     assert job.locations == []
     assert job.is_remote is True
     assert job.tags == ["python", "django", "api"]

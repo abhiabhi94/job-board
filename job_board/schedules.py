@@ -5,7 +5,6 @@ from job_board.portals import PORTALS
 from job_board.portals import Wellfound
 from job_board.scheduler import scheduler
 
-
 # Schedule individual portal jobs to isolate failures
 for portal_name in PORTALS:
     if portal_name == Wellfound.portal_name:
