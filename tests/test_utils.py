@@ -46,7 +46,7 @@ def test_get_exchange_rate(respx_mock):
         from_currency="usd",
         to_currency="usd",
         exchange_date=today,
-    ) == Decimal("1")
+    ) == Decimal(1)
 
     today_str = today.strftime("%Y-%m-%d")
     valid_response = httpx.Response(

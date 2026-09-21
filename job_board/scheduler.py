@@ -1,6 +1,4 @@
-from typing import Callable
-from typing import Dict
-from typing import List
+from collections.abc import Callable
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -13,7 +11,7 @@ class JobScheduler:
 
     def __init__(self):
         self._scheduler = BackgroundScheduler()
-        self._job_registry: Dict[str, Callable] = {}
+        self._job_registry: dict[str, Callable] = {}
         self._started = False
 
     def schedule(self, **kwargs) -> Callable:
@@ -52,7 +50,7 @@ class JobScheduler:
         else:
             raise ValueError(f"Job '{job_name}' not found")
 
-    def list_jobs(self) -> List[str]:
+    def list_jobs(self) -> list[str]:
         return list(self._job_registry.keys())
 
     def start(self):
