@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 
 import httpx
@@ -11,7 +11,6 @@ from job_board.portals import WeWorkRemotely
 from job_board.portals.weworkremotely import Parser
 from job_board.utils import EXCHANGE_RATE_API_URL
 from job_board.utils import SCRAPFLY_URL
-
 
 JOB_URL = "https://weworkremotely.com/jobs"
 
@@ -226,7 +225,7 @@ def test_fetch_jobs(
     assert job.min_salary is None
     assert job.max_salary is None
     assert job.posted_on == datetime(
-        year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=timezone.utc
+        year=2025, month=4, day=14, hour=13, minute=12, second=48, tzinfo=UTC
     )
     assert job.is_remote is True
     assert job.locations == ["AF", "AX", "AL"]
@@ -237,9 +236,9 @@ def test_fetch_jobs(
 @pytest.mark.parametrize(
     ("salary_info, min_salary, max_salary"),
     [
-        ("$80,000", Decimal("80000"), None),
-        ("$80,000 - $100,000", Decimal("80000"), Decimal("100000")),
-        ("$100K or more USD", Decimal("100000"), None),
+        ("$80,000", Decimal(80000), None),
+        ("$80,000 - $100,000", Decimal(80000), Decimal(100000)),
+        ("$100K or more USD", Decimal(100000), None),
         ("$100,000 or more CAD", Decimal("73529.41"), None),
         ("", None, None),  # No salary info
     ],
@@ -248,7 +247,7 @@ def test_get_salary_range(
     salary_info, min_salary, max_salary, respx_mock, load_response
 ):
     parser = Parser(api_data_format="xml", item={})
-    parser.get_posted_on = lambda: datetime.now(timezone.utc)
+    parser.get_posted_on = lambda: datetime.now(UTC)
     parser.get_link = lambda: "https://weworkremotely.com/jobs/job-1"
     response = load_response("weworkremotely.html").replace("$SALARY_INFO", salary_info)
     parser.extra_info = html.fromstring(response)
