@@ -9,8 +9,8 @@ from job_board.connection import get_session
 from job_board.logger import logger
 
 if TYPE_CHECKING:
-    from job_board.portals.parser import JobParser
     from job_board.portals.parser import Job as JobListing
+    from job_board.portals.parser import JobParser
 
 PORTALS = {}
 
@@ -21,7 +21,7 @@ class BasePortal:
     base_url: str
     url: str
     api_data_format: str
-    parser_class: type["JobParser"]
+    parser_class: type[JobParser]
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -31,7 +31,7 @@ class BasePortal:
     def __init__(self, last_run_at: None | datetime = None):
         self.last_run_at = last_run_at
 
-    def fetch_jobs(self) -> list["JobListing"]:
+    def fetch_jobs(self) -> list[JobListing]:
         """Fetch jobs from the portal."""
         response = self.make_request()
         items = self.get_items(response)
