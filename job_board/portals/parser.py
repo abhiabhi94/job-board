@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 from functools import cached_property
 from typing import NamedTuple
@@ -25,7 +25,6 @@ from job_board.utils import get_iso2
 from job_board.utils import get_openai_schema
 from job_board.utils import http_client
 from job_board.utils import retry_on_http_errors
-
 
 OPENAI_RESPONSES_API_URL = "https://api.openai.com/v1/responses"
 
@@ -190,7 +189,7 @@ class JobParser:
         Otherwise, used from the portal's last_run_at date.
         """
         if cutoff_date is None:
-            cutoff_date = datetime.now(tz=timezone.utc) - timedelta(
+            cutoff_date = datetime.now(tz=UTC) - timedelta(
                 days=config.JOB_AGE_LIMIT_DAYS
             )
         posted_on = self.get_posted_on()
@@ -411,7 +410,7 @@ class JobParser:
         link = self.get_link()
         if not exchange_rate:
             logger.warning(f"No exchange rate found for {currency=}, {link=}")
-            exchange_rate = Decimal("1")
+            exchange_rate = Decimal(1)
 
         amount = (amount / exchange_rate).quantize(Decimal("0.01"))
 
