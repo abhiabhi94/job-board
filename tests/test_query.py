@@ -1,13 +1,13 @@
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 
 from job_board.models import store_jobs
 from job_board.portals.parser import Job as JobListing
 from job_board.query import count_jobs
 from job_board.query import filter_jobs
 
-now = datetime.now(timezone.utc)
+now = datetime.now(UTC)
 
 
 def test_count_jobs(db_session):
