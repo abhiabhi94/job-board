@@ -1,5 +1,5 @@
 import contextlib
-from typing import Generator
+from collections.abc import Generator
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
@@ -35,7 +35,7 @@ def _get_session_factory():
 
 
 @contextlib.contextmanager
-def get_session(*, readonly=True) -> Generator[Session, None, None]:
+def get_session(*, readonly=True) -> Generator[Session]:
     global _test_session
     if _test_session:
         if not config.ENV == "test":
@@ -45,9 +45,8 @@ def get_session(*, readonly=True) -> Generator[Session, None, None]:
         return None
 
     Session = _get_session_factory()
-    with Session() as session:
-        with session.begin():
-            if readonly:
-                session.execute(sa.text("SET TRANSACTION READ ONLY"))
+    with Session() as session, session.begin():
+        if readonly:
+            session.execute(sa.text("SET TRANSACTION READ ONLY"))
 
-            yield session
+        yield session
