@@ -68,7 +68,7 @@ def test_get_jobs(db_session, client, captured_templates):
     assert context["available_tags"] == AVAILABLE_TAGS
     assert context["per_page"] == VIEWS_PER_PAGE
     assert context["current_filters"] == {
-        "min_salary": Decimal("20000"),
+        "min_salary": Decimal(20000),
         "include_without_salary": False,
         "tags": [],
         "is_remote": True,
