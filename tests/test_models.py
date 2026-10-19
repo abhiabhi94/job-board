@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 from unittest import mock
 
@@ -18,15 +18,13 @@ from job_board.models import Tag
 from job_board.portals.models import Portal
 from job_board.portals.parser import Job as JobListing
 
-
-now = datetime.now(timezone.utc)
+now = datetime.now(UTC)
 
 
 def test_session_can_be_used_only_during_tests(db_session):
-    with mock.patch.object(config, "ENV", "prod"):
-        with pytest.raises(RuntimeError):
-            with get_session():
-                pass  # pragma: no cover
+    with mock.patch.object(config, "ENV", "prod"), pytest.raises(RuntimeError):
+        with get_session():
+            pass  # pragma: no cover
 
 
 def test_read_only_session(db_setup):
@@ -188,7 +186,7 @@ def test_purge_old_jobs(db_session):
 
     purge_old_jobs()
 
-    assert "new-job" in db_session.execute(sa.select((Job.link))).scalars().one()
+    assert "new-job" in db_session.execute(sa.select(Job.link)).scalars().one()
     assert "new-job" in db_session.execute(sa.select(Payload.link)).scalars().one()
 
 
