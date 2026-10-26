@@ -1,11 +1,9 @@
 import asyncio
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from decimal import Decimal
 from typing import Any
-from typing import Dict
-from typing import List
 
 from lxml import html
 
@@ -31,7 +29,7 @@ class Parser(JobParser):
         return self.item["guid"]
 
     def get_posted_on(self) -> datetime:
-        return datetime.fromtimestamp(self.item["pubDate"]).astimezone(timezone.utc)
+        return datetime.fromtimestamp(self.item["pubDate"]).astimezone(UTC)
 
     def get_is_remote(self) -> bool:
         # the API returns a list of countries
@@ -107,19 +105,17 @@ class Himalayas(BasePortal):
         if self.last_run_at:
             cutoff_date = self.last_run_at
         else:
-            cutoff_date = datetime.now(timezone.utc) - timedelta(
-                config.JOB_AGE_LIMIT_DAYS
-            )
+            cutoff_date = datetime.now(UTC) - timedelta(config.JOB_AGE_LIMIT_DAYS)
 
         return asyncio.run(self.fetch_all_pages(cutoff_date=cutoff_date))
 
-    async def fetch_all_pages(self, cutoff_date: datetime) -> List[Dict[str, Any]]:
+    async def fetch_all_pages(self, cutoff_date: datetime) -> list[dict[str, Any]]:
         """
         Fetch all pages of job listings concurrently with proper error handling
         """
         return await self._fetch_all_pages(cutoff_date)
 
-    async def _fetch_all_pages(self, cutoff_date: datetime) -> List[Dict[str, Any]]:
+    async def _fetch_all_pages(self, cutoff_date: datetime) -> list[dict[str, Any]]:
         jobs_data = []
         jobs_fetched = 0
         # First request to get total count
@@ -192,7 +188,7 @@ class Himalayas(BasePortal):
         return jobs_data
 
     @retry_on_http_errors(max_attempts=10, min_wait=1.5, max_wait=20)
-    async def _make_async_request(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _make_async_request(self, params: dict[str, Any]) -> dict[str, Any]:
         async with async_http_client() as client:
             response = await client.get(self.url, params=params)
         return response.json()

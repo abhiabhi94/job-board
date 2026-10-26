@@ -1,5 +1,5 @@
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 
 from lxml import html
 from lxml import objectify
@@ -62,7 +62,7 @@ class Parser(JobParser):
             return None
         else:
             date_str = time_tag.get("datetime")
-            return datetime.fromisoformat(date_str).astimezone(timezone.utc)
+            return datetime.fromisoformat(date_str).astimezone(UTC)
 
     def get_salary_range(self):
         # Most of the jobs don't have a salary
