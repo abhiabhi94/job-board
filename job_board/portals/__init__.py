@@ -7,11 +7,11 @@ from job_board.portals.weworkremotely import WeWorkRemotely
 from job_board.portals.work_at_a_startup import WorkAtAStartup
 
 __all__ = [
-    "WeWorkRemotely",
-    "Remotive",
+    "PORTALS",
+    "Himalayas",
     "PythonDotOrg",
+    "Remotive",
+    "WeWorkRemotely",
     "Wellfound",
     "WorkAtAStartup",
-    "Himalayas",
-    "PORTALS",
 ]

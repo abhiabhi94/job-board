@@ -1,5 +1,5 @@
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from unittest import mock
 
 import pytest
@@ -93,7 +93,7 @@ def test_run_command_with_include_portal_option(cli_runner, mock_portals, db_ses
 
 
 def test_run_command_with_last_run_at(cli_runner, mock_portals, db_session):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     portal = Portal.get_or_create(name="weworkremotely")
     portal.last_run_at = now
     db_session.add(portal)

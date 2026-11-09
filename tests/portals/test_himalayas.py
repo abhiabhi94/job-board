@@ -2,7 +2,7 @@ import asyncio
 import re
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from unittest.mock import patch
 
 import httpx
@@ -81,14 +81,14 @@ def test_fetch_jobs(
     assert job.max_salary is None
     assert job.min_salary is None
     assert job.posted_on == datetime(
-        year=2025, month=6, day=10, hour=8, minute=30, second=27, tzinfo=timezone.utc
+        year=2025, month=6, day=10, hour=8, minute=30, second=27, tzinfo=UTC
     )
     assert job.tags == ["data", "analyst", "data science"]
     assert job.locations == ["IN"]
     assert job.is_remote is False
     assert job.description is not None
 
-    portal.last_run_at = datetime.now(tz=timezone.utc) + timedelta(days=1)
+    portal.last_run_at = datetime.now(tz=UTC) + timedelta(days=1)
     respx_mock.get(portal.url).mock(
         side_effect=[
             page_1_response,

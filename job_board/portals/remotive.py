@@ -1,5 +1,5 @@
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 
 from lxml import html
 
@@ -7,7 +7,6 @@ from job_board.portals.base import BasePortal
 from job_board.portals.parser import JobParser
 from job_board.utils import get_iso2
 from job_board.utils import http_client
-
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -25,7 +24,7 @@ class Parser(JobParser):
     def get_posted_on(self) -> datetime:
         return (
             datetime.strptime(self.item["publication_date"], DATE_FORMAT)
-        ).astimezone(timezone.utc)
+        ).astimezone(UTC)
 
     def get_salary_range(self):
         return self.parse_salary_range(compensation=self.item.get("salary"))

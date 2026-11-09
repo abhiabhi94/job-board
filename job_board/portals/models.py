@@ -1,5 +1,5 @@
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 
 import sqlalchemy as sa
 
@@ -52,7 +52,7 @@ class Portal(BaseModel):
         portal_id = portal.id
         last_run_at = portal.last_run_at
         if portal.last_run_at:
-            last_run_at = portal.last_run_at.astimezone(timezone.utc)
+            last_run_at = portal.last_run_at.astimezone(UTC)
             # just to have a buffer
             last_run_at -= timedelta(minutes=5)
 
