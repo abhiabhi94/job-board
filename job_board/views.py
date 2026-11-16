@@ -55,7 +55,7 @@ def early_access():
 @app.route("/.json")
 @app.route("/")
 def get_jobs():
-    min_salary = request.args.get("min_salary", type=Decimal, default=Decimal("20000"))
+    min_salary = request.args.get("min_salary", type=Decimal, default=Decimal(20000))
     include_without_salary = request.args.get(
         "include_without_salary", type=bool, default=False
     )
@@ -168,7 +168,7 @@ def get_jobs():
         per_page=per_page,
         SortOption=SortOption,
         current_filters={
-            "min_salary": max(min_salary, Decimal("0")),
+            "min_salary": max(min_salary, Decimal(0)),
             "include_without_salary": include_without_salary,
             "tags": tags,
             "is_remote": is_remote,

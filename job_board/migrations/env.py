@@ -6,6 +6,7 @@ from sqlalchemy import pool
 
 from job_board import config as app_config
 from job_board.models import BaseModel
+
 # Import our models and config
 
 # this is the Alembic Config object, which provides

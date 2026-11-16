@@ -2,7 +2,7 @@ import asyncio
 import re
 import time
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from unittest.mock import patch
 
 import httpx
@@ -127,7 +127,7 @@ def test_fetch_jobs(
     assert job.min_salary is None
     assert job.max_salary is None
     assert job.posted_on == datetime(
-        year=2023, month=7, day=26, hour=9, minute=46, second=39, tzinfo=timezone.utc
+        year=2023, month=7, day=26, hour=9, minute=46, second=39, tzinfo=UTC
     )
     assert job.tags == []
     assert job.locations == ["US"]
